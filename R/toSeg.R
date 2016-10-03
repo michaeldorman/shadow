@@ -1,30 +1,18 @@
-#'  Polygons or lines to segments
+#' Polygons or lines to segments
 #'
-#'  Split lines or polygons to separate segments.
-#'
-#'	@param	x	A \code{SpatialLines*} or a \code{SpatialPolygons*} object.
-#'	@return	A \code{SpatialLines} object where each segment is represented by a separate feature.
-#'	@references
-#'	The function is based on code from the following 'r-sig-geo' post by Roger Bivand:
-#'
-#'	\url{https://stat.ethz.ch/pipermail/r-sig-geo/2013-April/017998.html}
-#'	@examples
-#'	# Create sample SpatialPoygons named 'SpP'
-#'	Sr1 = Polygon(cbind(c(2,4,4,1,2),c(2,3,5,4,2)))
-#'	Sr2 = Polygon(cbind(c(5,4,2,5),c(2,3,2,2)))
-#'	Sr3 = Polygon(cbind(c(4,4,5,10,4),c(5,3,2,5,5)))
-#'	Sr4 = Polygon(cbind(c(5,6,6,5,5),c(4,4,3,3,4)), hole = TRUE)
-#'	Srs1 = Polygons(list(Sr1), "s1")
-#'	Srs2 = Polygons(list(Sr2), "s2")
-#'	Srs3 = Polygons(list(Sr3, Sr4), "s3/4")
-#'	SpP = SpatialPolygons(list(Srs1,Srs2,Srs3), 1:3)
-#'	# Convert 'SpP' to segments
-#'	seg = polToSeg(SpP)
-#'	plot(seg, col = sample(rainbow(15)))
-#'	text(gCentroid(seg, byid = TRUE), add = TRUE)
-#'
+#' Split lines or polygons to separate segments.
+#' @param	x	A \code{SpatialLines*} or a \code{SpatialPolygons*} object.
+#' @return	A \code{SpatialLines} object where each segment is represented by a separate feature.
+#' @references
+#' The function is based on code from the following 'r-sig-geo' post by Roger Bivand:
+#' \url{https://stat.ethz.ch/pipermail/r-sig-geo/2013-April/017998.html}
+#' @examples
+#' data(build)
+#' seg = polToSeg(build[1, ])
+#' plot(seg, col = sample(rainbow(length(seg))))
+#' raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
 
-polToSeg = function(x) {
+toSeg = function(x) {
 
   stopifnot(class(x) %in% c("SpatialLines", "SpatialLinesDataFrame", "SpatialPolygons", "SpatialPolygonsDataFrame"))
 
