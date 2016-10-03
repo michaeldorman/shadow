@@ -1,5 +1,7 @@
-# az = seg[i, ]$az
-# az = 90 - az
-# az_rad = (az * pi) / (180)
-#
-# seg_shifted_001[[i]] = shift(seg[i, ], x = 0.01 * cos(az_rad) , y = 0.01 * sin(az_rad))
+shiftAz = function(object, az, dist) {
+
+  az = 90 - az
+  az_rad = (az * pi) / (180)
+  raster::shift(object, x = dist * cos(az_rad) , y = dist * sin(az_rad))
+
+}
