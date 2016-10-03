@@ -26,6 +26,8 @@
 
 polToSeg = function(x) {
 
+  stopifnot(class(x) %in% c("SpatialLines", "SpatialLinesDataFrame", "SpatialPolygons", "SpatialPolygonsDataFrame"))
+
   seg = list()
 
   for(f in 1:length(x)) {
@@ -38,7 +40,6 @@ polToSeg = function(x) {
 
     # Split to line segments
     cSl = coordinates(dat_l)
-    cSl
     in_nrows = lapply(cSl, function(x) sapply(x, nrow))
     outn = sapply(in_nrows, function(y) sum(y-1))
     res = vector(mode="list", length=outn)
