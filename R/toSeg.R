@@ -11,6 +11,8 @@
 #' seg = polToSeg(build[1, ])
 #' plot(seg, col = sample(rainbow(length(seg))))
 #' raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
+#'
+#' @export
 
 toSeg = function(x) {
 

@@ -7,8 +7,10 @@ Description: Functions for calculating shade height given buildings outline, the
 License: GPL-2
 LazyData: TRUE
 Imports:
-    sp,
-    rgeos,
-    raster
+    sp (>= 1.2),
+    rgeos (>= 0.3),
+    raster (>= 2.5)
+Depends:
+    R (>= 3.3.1)
 RoxygenNote: 5.0.1
 

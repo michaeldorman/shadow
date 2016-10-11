@@ -11,6 +11,8 @@
 #' build_shifted = shiftAz(build, az = 45, dist = 2.5)
 #' plot(build)
 #' plot(build_shifted, add = TRUE, border = "red")
+#'
+#' @export
 
 shiftAz = function(object, az, dist) {
 

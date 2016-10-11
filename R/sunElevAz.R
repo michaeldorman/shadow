@@ -9,9 +9,11 @@
 #'	@examples
 #'  time_local = as.POSIXct("1999-01-01 12:00:00", tz = "Asia/Jerusalem")
 #'  time_GMT = as.POSIXct(format.POSIXct(time_local, tz = "GMT"), tz = "GMT")
-#'  sunPosition(time_GMT, lat = 31.974447, lon = 34.791708)
+#'  sunElevAz(time_GMT, lat = 31.974447, lon = 34.791708)
+#'
+#'  @export
 
-sunPosition <- function(timeGMT, lon, lat) {
+sunElevAz <- function(timeGMT, lon, lat) {
 
   # Extract timestamp components
   year = as.numeric(format(time_GMT, "%Y"))
@@ -125,8 +127,8 @@ sunPosition <- function(timeGMT, lon, lat) {
 # NOAA <- data.frame(elevNOAA = c(72.44, 69.57, 63.57, 25.6),
 #                    azNOAA = c(359.09, 180.79, 180.62, 180.3))
 #
-# # Sun's position as returned by sunPosition()
-# sunPos <- sunPosition(year = 2012,
+# # Sun's position as returned by sunElevAz()
+# sunPos <- sunElevAz(year = 2012,
 #                       month = 12,
 #                       day = 22,
 #                       hour = 12,

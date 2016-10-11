@@ -13,6 +13,8 @@
 #' az = classifyAz(build_seg)
 #' plot(build_seg, col = rainbow(4)[az$q])
 #' raster::text(rgeos::gCentroid(build_seg, byid = TRUE), round(az$az))
+#'
+#' @export
 
 classifyAz = function(sl) {
 
