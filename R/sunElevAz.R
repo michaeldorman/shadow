@@ -1,17 +1,19 @@
-#'	Find sun azimuth and elevation angles
+#' Find sun azimuth and elevation angles
 #'
-#'  The function returns sun azimuth and elevation given time and spatial location.
+#' The function returns sun azimuth and elevation given time and spatial location.
 #'
-#'	@param	timeGMT	Time, a \code{POSIXct} object.
-#'	@param	lon	Longitude.
-#'	@param  lat Latitude.
-#'	@return	A list with two components, \code{elevation} and \code{azimuth}, both in decimal degrees.
-#'	@examples
-#'  time_local = as.POSIXct("1999-01-01 12:00:00", tz = "Asia/Jerusalem")
-#'  time_GMT = as.POSIXct(format.POSIXct(time_local, tz = "GMT"), tz = "GMT")
-#'  sunElevAz(time_GMT, lat = 31.974447, lon = 34.791708)
+#' @param timeGMT Time, a \code{POSIXct} object.
+#' @param lon Longitude.
+#' @param lat Latitude.
+#' @return A list with two components, \code{elevation} and \code{azimuth}, both in decimal degrees.
 #'
-#'  @export
+#' @examples
+#'
+#' time_local = as.POSIXct("1999-01-01 12:00:00", tz = "Asia/Jerusalem")
+#' time_GMT = as.POSIXct(format.POSIXct(time_local, tz = "GMT"), tz = "GMT")
+#' sunElevAz(time_GMT, lat = 31.974447, lon = 34.791708)
+#'
+#' @export
 
 sunElevAz <- function(timeGMT, lon, lat) {
 

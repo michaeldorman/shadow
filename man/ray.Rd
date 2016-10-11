@@ -18,11 +18,10 @@ A \code{SpatialLines} object.
 The function connects two points into a line segment.
 }
 \examples{
-library(rgeos)
-ctr = gCentroid(build)
+ctr = rgeos::gCentroid(build)
 angles = seq(0, 359, 20)
 sun = mapply(
-  sunLocation,
+  shadow:::sunLocation,
   sun_az = angles,
   MoreArgs = list(
     location = ctr,
@@ -34,5 +33,6 @@ rays = do.call(rbind, rays)
 plot(rays)
 sun = do.call(rbind, sun)
 text(sun, as.character(angles))
+
 }
 

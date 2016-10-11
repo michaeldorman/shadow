@@ -33,7 +33,7 @@ sunLocation = function(location, sun_az, sun_elev) {
       data = height
 
   # Sun location
-  SpatialPointsDataFrame(
+  sp::SpatialPointsDataFrame(
     coords = raster::shift(
       location,
       x = dist_m * cos(az_rad),

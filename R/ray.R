@@ -8,11 +8,10 @@
 #' @return A \code{SpatialLines} object.
 #'
 #' @examples
-#' library(rgeos)
-#' ctr = gCentroid(build)
+#' ctr = rgeos::gCentroid(build)
 #' angles = seq(0, 359, 20)
 #' sun = mapply(
-#'   sunLocation,
+#'   shadow:::sunLocation,
 #'   sun_az = angles,
 #'   MoreArgs = list(
 #'     location = ctr,

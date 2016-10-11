@@ -7,6 +7,7 @@ Description: Functions for calculating shade height given buildings outline, the
 License: GPL-2
 LazyData: TRUE
 Imports:
+    magrittr (>= 1.5),
     sp (>= 1.2),
     rgeos (>= 0.3),
     raster (>= 2.5)

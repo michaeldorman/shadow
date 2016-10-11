@@ -17,9 +17,10 @@ Split lines or polygons to separate segments.
 }
 \examples{
 data(build)
-seg = polToSeg(build[1, ])
+seg = toSeg(build[1, ])
 plot(seg, col = sample(rainbow(length(seg))))
 raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
+
 }
 \references{
 The function is based on code from the following 'r-sig-geo' post by Roger Bivand:

@@ -8,7 +8,7 @@
 #' \url{https://stat.ethz.ch/pipermail/r-sig-geo/2013-April/017998.html}
 #' @examples
 #' data(build)
-#' seg = polToSeg(build[1, ])
+#' seg = toSeg(build[1, ])
 #' plot(seg, col = sample(rainbow(length(seg))))
 #' raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
 #'
