@@ -74,7 +74,7 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
     sun = shadow:::sunLocation(location = location, sun_az = sun_az, sun_elev = sun_elev)
 
     # 'Line of sight' between sun and grid point
-    sun_ray = ray(from = location, to = sun)
+    sun_ray = shadow::ray(from = location, to = sun)
 
     ## Intersections with buildings outline
     inter = gIntersection(build_outline, sun_ray)

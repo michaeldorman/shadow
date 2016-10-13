@@ -16,8 +16,7 @@
 
 shiftAz = function(object, az, dist) {
 
-  az = 90 - az
-  az_rad = (az * pi) / (180)
+  az_rad = deg2rad(90 - az)
   raster::shift(object, x = dist * cos(az_rad) , y = dist * sin(az_rad))
 
 }
