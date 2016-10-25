@@ -77,7 +77,7 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
     sun_ray = shadow::ray(from = location, to = sun)
 
     ## Intersections with buildings outline
-    inter = gIntersection(build_outline, sun_ray)
+    inter = rgeos::gIntersection(build_outline, sun_ray)
 
     # If there are any intersections
     if(!is.null(inter)) {
@@ -109,14 +109,14 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
       inter =
         SpatialPointsDataFrame(
           inter,
-          over(inter, gBuffer(build_outline, byid = TRUE, width = b), fn = max)
+          over(inter, rgeos::gBuffer(build_outline, byid = TRUE, width = b), fn = max)
         )
 
       # Distance between examined location and intersections
-      inter$dist = gDistance(inter, location, byid = TRUE)[1, ]
+      inter$dist = rgeos::gDistance(inter, location, byid = TRUE)[1, ]
 
       # Shade height calculation
-      inter$shade_fall = inter$dist * tan(deg2rad(sun_elev))
+      inter$shade_fall = inter$dist * tan(shadow:::deg2rad(sun_elev))
       inter$shade_height = inter@data[, height_field] - inter$shade_fall
       inter$shade_height[inter$shade_height < 0] = 0
       shade_height = max(inter$shade_height)

@@ -1,6 +1,10 @@
 {
-    "path" : "~/Dropbox/Packages/shadow",
+    "path" : "~/Dropbox/Packages/shadow/R",
     "sortOrder" : [
+        {
+            "ascending" : false,
+            "columnIndex" : 1
+        },
         {
             "ascending" : true,
             "columnIndex" : 2

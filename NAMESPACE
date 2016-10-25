@@ -3,6 +3,7 @@
 export(classifyAz)
 export(ray)
 export(shadeHeight)
+export(shadePropWall)
 export(shiftAz)
 export(sunElevAz)
 export(toSeg)

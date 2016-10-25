@@ -2,11 +2,11 @@ Package: shadow
 Type: Package
 Title: R Package for Finding Shadow Height and Related Calculations
 Version: 0.1.0
-Authors@R: 
-    person("Michael", "Dorman", email = "dorman@post.bgu.ac.il", role = c("aut", "cre"))
-    person("Itai", "Kloog", email = "ikloog@gmail.com", role = c("ctb"))
-    person("Evyatar", "Erell", email = "erell@bgu.ac.il", role = c("ctb"))
-    person("Adi", "Vulkan", email = "vulkan@post.bgu.ac.il", role = c("ctb"))
+Authors@R: c(
+    person("Michael", "Dorman", email = "dorman@post.bgu.ac.il", role = c("aut", "cre")),
+    person("Itai", "Kloog", email = "ikloog@gmail.com", role = c("ctb")),
+    person("Evyatar", "Erell", email = "erell@bgu.ac.il", role = c("ctb")),
+    person("Adi", "Vulkan", email = "vulkan@post.bgu.ac.il", role = c("ctb")))
 Description: Functions for calculating shade height given buildings outline, their height, sun azimuth and sun elevation. The package also provides functions for related preliminary calculations: converting polygons to line segments, finding segment azimuth, shifting segments by azimuth and distance.
 License: GPL-2
 LazyData: TRUE
@@ -18,4 +18,6 @@ Imports:
 Depends:
     R (>= 3.3.1)
 RoxygenNote: 5.0.1
-
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

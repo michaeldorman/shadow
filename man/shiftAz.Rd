@@ -7,11 +7,11 @@
 shiftAz(object, az, dist)
 }
 \arguments{
-\item{object}{The object to be shifted}
+\item{object}{The object to be shifted.}
 
-\item{az}{Shift azimuth, in decimal degrees}
+\item{az}{Shift azimuth, in decimal degrees.}
 
-\item{dist}{Shift distance, in \code{object} projection units}
+\item{dist}{Shift distance, in \code{object} projection units.}
 }
 \value{
 The shifted \code{object}.
@@ -21,9 +21,11 @@ Shift features by azimuth and distance.
 }
 \examples{
 data(build)
-build_shifted = shiftAz(build, az = 45, dist = 2.5)
+s = c(270, 90, 180, 0)
+build_shifted = shiftAz(build, az = s, dist = 2.5)
 plot(build)
 plot(build_shifted, add = TRUE, border = "red")
+raster::text(rgeos::gCentroid(build, byid = TRUE), s)
 
 }
 
