@@ -1,11 +1,14 @@
 #' Polygons or lines to segments
 #'
 #' Split lines or polygons to separate segments.
+#'
 #' @param	x	A \code{SpatialLines*} or a \code{SpatialPolygons*} object.
 #' @return	A \code{SpatialLines} object where each segment is represented by a separate feature.
+#'
 #' @references
-#' The function is based on code from the following 'r-sig-geo' post by Roger Bivand:
+#' This function uses a modified version of code from the following 'r-sig-geo' post by Roger Bivand:
 #' \url{https://stat.ethz.ch/pipermail/r-sig-geo/2013-April/017998.html}
+#'
 #' @examples
 #' data(build)
 #' seg = toSeg(build[1, ])
@@ -29,7 +32,7 @@ toSeg = function(x) {
     dat_l = as(dat, "SpatialLines")
 
     # Split to line segments
-    cSl = coordinates(dat_l)
+    cSl = sp::coordinates(dat_l)
     in_nrows = lapply(cSl, function(x) sapply(x, nrow))
     outn = sapply(in_nrows, function(y) sum(y-1))
     res = vector(mode="list", length=outn)

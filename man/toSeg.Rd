@@ -23,7 +23,7 @@ raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
 
 }
 \references{
-The function is based on code from the following 'r-sig-geo' post by Roger Bivand:
+This function uses a modified version of code from the following 'r-sig-geo' post by Roger Bivand:
 \url{https://stat.ethz.ch/pipermail/r-sig-geo/2013-April/017998.html}
 }
 

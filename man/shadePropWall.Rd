@@ -22,24 +22,36 @@ shadePropWall(seg, seg_height_field, build, build_height_field, sun_az,
 
 \item{height_field}{The name of the column with building height in \code{build}}
 }
+\value{
+Proportion of shaded area of the given segment.
+}
 \description{
-Shaded proportion of building walls
+Calculates the shaded proportion of a segment (usually representing a building wall),
+given the segment vertical height as well as the outlines and heights of obstacles
+(usually buildings).
 }
 \examples{
 data(build)
-seg = toSeg(build[1, ])
-plot(seg, col = sample(rainbow(length(seg))))
-shadePropWall (
+seg = shadow::toSeg(build[2, ])
+
+# Calculate shade proportion for walls of 2nd feature from 'build'
+props = shadePropWall(
   seg = seg,
   seg_height_field = "BLDG_HT",
   build = build,
   build_height_field = "BLDG_HT",
-  sun_az = 30,
-  sun_elev = 20,
+  sun_az = 330,
+  sun_elev = 10,
   sample_dist = 1,
   shift_dist = 0.01
 )
-raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
+
+# Plot
+cols = grey(seq(1, 0.5, length.out = 100))
+props = round(props, 2) * 100
+plot(build)
+plot(seg, add = TRUE, col = cols[props], lwd = 2)
+raster::text(rgeos::gCentroid(seg, byid = TRUE), props, cex = 0.75)
 
 }
 

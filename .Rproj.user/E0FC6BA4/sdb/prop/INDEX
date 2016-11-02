@@ -1,3 +1,4 @@
+~%2FDropbox%2FBGU%2FAdi%2Fsample_preliminary_data%2Fpreliminary_results_v02.Rmd="4A93ADAF"
 ~%2FDropbox%2FBGU%2FAdi%2Fstudy_area_new%2Fcalculate_prepare_grid.R="16066818"
 ~%2FDropbox%2FPackages%2Fshadow%2F.gitignore="801B8738"
 ~%2FDropbox%2FPackages%2Fshadow%2FDESCRIPTION="F680560C"
@@ -6,4 +7,5 @@
 ~%2FDropbox%2FPackages%2Fshadow%2FR%2FshadeHeight.R="9763A942"
 ~%2FDropbox%2FPackages%2Fshadow%2FR%2FshadePropWall.R="E33FDDBB"
 ~%2FDropbox%2FPackages%2Fshadow%2FR%2FshiftAz.R="BFD6256C"
+~%2FDropbox%2FPackages%2Fshadow%2FR%2FsunElevAz.R="84940F72"
 ~%2FDropbox%2FPackages%2Fshadow%2FR%2FtoSeg.R="AB34500D"

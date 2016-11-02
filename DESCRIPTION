@@ -1,7 +1,7 @@
 Package: shadow
 Type: Package
 Title: R Package for Finding Shadow Height and Related Calculations
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Michael", "Dorman", email = "dorman@post.bgu.ac.il", role = c("aut", "cre")),
     person("Itai", "Kloog", email = "ikloog@gmail.com", role = c("ctb")),
