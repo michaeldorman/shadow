@@ -22,21 +22,21 @@
 #' library(raster)
 #'
 #' # Single location
-#' ctr = gCentroid(build)
-#' plot(build)
-#' plot(ctr, add = TRUE)
-#' location = ctr
-#' build = build
-#' height_field = "BLDG_HT"
-#' sun_az = 30
-#' sun_elev = 20
+#' location = rgeos::gCentroid(build)
+#' location_geo = sp::spTransform(location, "+proj=longlat +datum=WGS84")
+#' time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
+#' solar_position = maptools::solarpos(location_geo, time)
+#' sun_az = solar_position[1, 1]
+#' sun_elev = solar_position[1, 2]
+#' plot(build, main = time)
+#' plot(location, add = TRUE)
 #' sun = shadow:::sunLocation(location = location, sun_az = sun_az, sun_elev = sun_elev)
 #' sun_ray = ray(from = location, to = sun)
 #' build_outline = as(build, "SpatialLinesDataFrame")
 #' inter = gIntersection(build_outline, sun_ray)
 #' plot(sun_ray, add = TRUE, col = "yellow")
 #' plot(inter, add = TRUE, col = "red")
-#' shadeHeight(location, build, height_field, sun_az, sun_elev)
+#' shadeHeight(location, build, "BLDG_HT", sun_az, sun_elev)
 #'
 #' # Grid
 #' ext = as(extent(build), "SpatialPolygons")
@@ -44,19 +44,14 @@
 #' proj4string(r) = proj4string(build)
 #' grid = rasterToPoints(r, spatial = TRUE)
 #' grid = SpatialPointsDataFrame(grid, data.frame(grid_id = 1:length(grid)))
-#' build = build
 #' height_field = "BLDG_HT"
-#' sun_az = 70
-#' sun_elev = 30
 #' for(i in 1:length(grid)) {
 #'   grid$shade_height[i] =
 #'     shadeHeight(grid[i, ], build, height_field, sun_az, sun_elev)
 #' }
-#' shade = as(grid, "SpatialPixels")
-#' shade = raster(shade)
-#' proj4string(shade) = proj4string(build)
-#' shade = rasterize(grid, shade, field = "shade_height")
-#' plot(shade, col = grey(seq(0.9, 0.2, -0.01)))
+#' shade = as(grid, "SpatialPixelsDataFrame")
+#' shade = raster(shade, layer = "shade_height")
+#' plot(shade, col = grey(seq(0.9, 0.2, -0.01)), main = time)
 #' contour(shade, add = TRUE)
 #' plot(build, add = TRUE, border = "red")
 #'
@@ -68,7 +63,7 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
   build_outline = as(build, "SpatialLinesDataFrame")
 
   # If sun above the horizon
-  if(sun_elev > 0) {
+  if(sun_elev <= 0) shade_height = Inf else { # There is sunlight
 
     # Sun position
     sun = shadow:::sunLocation(location = location, sun_az = sun_az, sun_elev = sun_elev)
@@ -79,10 +74,10 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
     ## Intersections with buildings outline
     inter = rgeos::gIntersection(build_outline, sun_ray)
 
-    # If there are any intersections
-    if(!is.null(inter)) {
+    # No intersections means there is no shade
+    if(is.null(inter)) shade_height = 0 else {
 
-      # If some of the intersections are are lines
+      # If some of the intersections are lines
       if(class(inter) == "SpatialCollections") {
 
         lin = inter@lineobj
@@ -109,7 +104,7 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
       inter =
         SpatialPointsDataFrame(
           inter,
-          over(inter, rgeos::gBuffer(build_outline, byid = TRUE, width = b), fn = max)
+          sp::over(inter, rgeos::gBuffer(build_outline, byid = TRUE, width = b), fn = max)
         )
 
       # Distance between examined location and intersections
@@ -118,21 +113,22 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
       # Shade height calculation
       inter$shade_fall = inter$dist * tan(shadow:::deg2rad(sun_elev))
       inter$shade_height = inter@data[, height_field] - inter$shade_fall
-      inter$shade_height[inter$shade_height < 0] = 0
       shade_height = max(inter$shade_height)
 
-    } else shade_height = 0
+      # Non-positive shade height means no shade
+      if(shade_height <= 0) shade_height = 0
 
-  } else shade_height = Inf
+    }
 
-  # If point is on a building then shade height is at least the building height
-  if(rgeos::gIntersects(location, build))
-    shade_height = max(
-      c(
-        shade_height,
-        over(location, build)[, height_field]
-        )
-      )
+  }
+
+  # If point is on a building and shade height is lower than building
+  # Then there is no shade
+  if(rgeos::gIntersects(location, build)) {
+    build_height = over(location, build)[, height_field]
+    if(shade_height <= build_height)
+      shade_height = build_height
+  }
 
   return(shade_height)
 

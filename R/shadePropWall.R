@@ -82,7 +82,7 @@ shadePropWall = function(
     wall_sample =
       sp::spsample(
         seg_shifted[i, ],
-        n = round(rgeos::gLength(wall) / sample_dist),
+        n = round(rgeos::gLength(seg) / sample_dist),
         type = "regular"
       )
 

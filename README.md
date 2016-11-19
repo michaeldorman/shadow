@@ -13,7 +13,7 @@ devtools::install_github("michaeldorman/shadow")
 library(shadow)
 library(sp)
 library(rgeos)
-#> rgeos version: 0.3-20, (SVN revision 535)
+#> rgeos version: 0.3-21, (SVN revision 540)
 #>  GEOS runtime version: 3.5.0-CAPI-1.9.0 r4084 
 #>  Linking to sp version: 1.2-3 
 #>  Polygon checking: TRUE
@@ -56,13 +56,23 @@ for(i in 1:length(grid)) {
   grid$shade_height[i] =
     shadeHeight(grid[i, ], build, height_field, sun_az, sun_elev)
 }
-shade = as(grid, "SpatialPixels")
-shade = raster(shade)
-proj4string(shade) = proj4string(build)
-shade = rasterize(grid, shade, field = "shade_height")
+shade = as(grid, "SpatialPixelsDataFrame")
+shade = raster(shade, layer = "shade_height")
 plot(shade, col = grey(seq(0.9, 0.2, -0.01)))
 contour(shade, add = TRUE)
 plot(build, add = TRUE, border = "red")
 ```
 
 ![](README-demo1-2.png)
+
+### To-do list
+
+-   Check for other methods of spatial join between intersection points and buildings (without a buffer)
+-   Replace custom sun position function with function from maptools
+
+### Ideas for future development
+
+-   Sky View Factor (SVF) calculation
+-   DEM-based shade calculation
+-   Shade footprint on ground as vector layer
+-   Parallel computing capabilities

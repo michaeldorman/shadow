@@ -18,6 +18,8 @@ Imports:
 Depends:
     R (>= 3.3.1)
 RoxygenNote: 5.0.1
-Suggests: knitr,
-    rmarkdown
+Suggests: 
+    knitr,
+    rmarkdown,
+    maptools (>= 0.8)
 VignetteBuilder: knitr

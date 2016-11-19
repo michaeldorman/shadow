@@ -8,8 +8,7 @@
 #'	@return	A \code{SpatialPointsDataFrame} object specifying sun location.
 #'	  The \code{hight} field specifies sun *height* above projection plane.
 #'	@examples
-#'	library(rgeos)
-#'  sunLocation(gCentroid(build), 45, 60)
+#'  sunLocation(rgeos::gCentroid(build), 45, 60)
 
 sunLocation = function(location, sun_az, sun_elev) {
 
@@ -21,8 +20,8 @@ sunLocation = function(location, sun_az, sun_elev) {
   # d = 149597870700 * (1 - 0.01672 * cos(deg2rad(0.9856 * (day - 4))))
 
   # To radians
-  az_rad = deg2rad(90 - sun_az)
-  sun_elev = deg2rad(sun_elev)
+  az_rad = shadow:::deg2rad(90 - sun_az)
+  sun_elev = shadow:::deg2rad(sun_elev)
 
   # Sun height
   height = data.frame(height = dist_m * tan(sun_elev))
