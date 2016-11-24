@@ -9,7 +9,7 @@ shadeHeight(location, build, height_field, sun_az, sun_elev, b = 0.1)
 \arguments{
 \item{location}{A \code{SpatialPoints*} object specifying the location for which to calculate shade height}
 
-\item{build}{A \code{SpatialPolygonsDataFrame} object specifying the buildings outline}
+\item{build}{A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.}
 
 \item{height_field}{The name of the column with building height in \code{build}}
 
@@ -29,6 +29,12 @@ taking into account:\itemize{
 \item{Sun position, given by elevation and azimuth angles}
 }
 }
+\note{
+For a correct geometric calculation, make sure that:\itemize{
+\item{The layers \code{location} and \code{build} are projected}
+\item{The values in \code{height_field} of \code{build} are given in the same distance units as the CRS (e.g. meters when using UTM)}
+}
+}
 \examples{
 
 library(sp)
@@ -36,21 +42,21 @@ library(rgeos)
 library(raster)
 
 # Single location
-ctr = gCentroid(build)
-plot(build)
-plot(ctr, add = TRUE)
-location = ctr
-build = build
-height_field = "BLDG_HT"
-sun_az = 30
-sun_elev = 20
+location = rgeos::gCentroid(build)
+location_geo = sp::spTransform(location, "+proj=longlat +datum=WGS84")
+time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
+solar_position = maptools::solarpos(location_geo, time)
+sun_az = solar_position[1, 1]
+sun_elev = solar_position[1, 2]
+plot(build, main = time)
+plot(location, add = TRUE)
 sun = shadow:::sunLocation(location = location, sun_az = sun_az, sun_elev = sun_elev)
 sun_ray = ray(from = location, to = sun)
 build_outline = as(build, "SpatialLinesDataFrame")
 inter = gIntersection(build_outline, sun_ray)
 plot(sun_ray, add = TRUE, col = "yellow")
 plot(inter, add = TRUE, col = "red")
-shadeHeight(location, build, height_field, sun_az, sun_elev)
+shadeHeight(location, build, "BLDG_HT", sun_az, sun_elev)
 
 # Grid
 ext = as(extent(build), "SpatialPolygons")
@@ -58,19 +64,14 @@ r = raster(ext, res = 3)
 proj4string(r) = proj4string(build)
 grid = rasterToPoints(r, spatial = TRUE)
 grid = SpatialPointsDataFrame(grid, data.frame(grid_id = 1:length(grid)))
-build = build
 height_field = "BLDG_HT"
-sun_az = 70
-sun_elev = 30
 for(i in 1:length(grid)) {
   grid$shade_height[i] =
     shadeHeight(grid[i, ], build, height_field, sun_az, sun_elev)
 }
-shade = as(grid, "SpatialPixels")
-shade = raster(shade)
-proj4string(shade) = proj4string(build)
-shade = rasterize(grid, shade, field = "shade_height")
-plot(shade, col = grey(seq(0.9, 0.2, -0.01)))
+shade = as(grid, "SpatialPixelsDataFrame")
+shade = raster(shade, layer = "shade_height")
+plot(shade, col = grey(seq(0.9, 0.2, -0.01)), main = time)
 contour(shade, add = TRUE)
 plot(build, add = TRUE, border = "red")
 

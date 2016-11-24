@@ -12,14 +12,16 @@ License: GPL-2
 LazyData: TRUE
 Imports:
     magrittr (>= 1.5),
-    sp (>= 1.2),
     rgeos (>= 0.3),
-    raster (>= 2.5)
+    raster (>= 2.4-15),
+    Rcpp (>= 0.12.5)
 Depends:
-    R (>= 3.3.1)
+    R (>= 3.2.3),
+    sp (>= 1.1.1)
 RoxygenNote: 5.0.1
-Suggests: 
+Suggests:
     knitr,
     rmarkdown,
-    maptools (>= 0.8)
+    maptools (>= 0.8),
+    testthat
 VignetteBuilder: knitr

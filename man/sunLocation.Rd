@@ -21,7 +21,6 @@ A \code{SpatialPointsDataFrame} object specifying sun location.
 The function returns a point layer with the sun position projected on the CRS plain.
 }
 \examples{
-library(rgeos)
- sunLocation(gCentroid(build), 45, 60)
+ sunLocation(rgeos::gCentroid(build), 45, 60)
 }
 

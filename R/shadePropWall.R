@@ -4,6 +4,10 @@
 #' given the segment vertical height as well as the outlines and heights of obstacles
 #' (usually buildings).
 #'
+#' #' @note For a correct geometric calculation, make sure that:\itemize{
+#' \item{The layers \code{location} and \code{build} are projected}
+#' \item{The values in \code{height_field} of \code{build} are given in the same distance units as the CRS (e.g. meters when using UTM)}
+#' }
 #' @param seg A \code{SpatialLinesDataFrame} object where each feature is a single segment representing a wall.
 #' @param seg_height_field The name of the column with wall height in \code{seg}
 #' @param build A \code{SpatialPolygonsDataFrame} object specifying the buildings outline
@@ -56,11 +60,15 @@ shadePropWall = function(
   if(class(build) != "SpatialPolygonsDataFrame")
     stop("'build' is not 'SpatialPolygonsDataFrame'")
 
+  # Check projected
+  if(!is.projected(seg) | !is.projected(build))
+    stop("'seg' and/or 'build' not in projected CRS")
+
   # Check that height fields exist
   if(!seg_height_field %in% names(seg))
     stop("'seg_height_field' not found in attribute table of 'seg'")
   if(!build_height_field %in% names(build))
-    stop("'seg_height_field' not found in attribute table of 'seg'")
+    stop("'build_height_field' not found in attribute table of 'build'")
 
   # Check that 'sun_az' and 'sun_elev' are of length 1
   if(length(sun_az) != 1 | !is.numeric(sun_az))
@@ -68,9 +76,15 @@ shadePropWall = function(
   if(length(sun_elev) != 1 | !is.numeric(sun_elev))
     stop("'sun_az' should be a numeric vector of length 1")
 
+  # Check 'sun_az' and 'sun_elev' values
+  if(sun_az < 0 | sun_az > 360)
+    stop("'sun_az' should be a number in [0-360]")
+  if(sun_elev < 0 | sun_elev > 90)
+    stop("'sun_az' should be a number in [0-90]")
+
   # Shift walls
-  seg_az = classifyAz(seg)$az
-  seg_shifted = shiftAz(seg, az = seg_az, dist = shift_dist)
+  seg_az = shadow::classifyAz(seg)$az
+  seg_shifted = shadow::shiftAz(seg, az = seg_az, dist = shift_dist)
 
   # Create new field to hold wall shade proportion values
   shade_prop = rep(NA, length(seg))
@@ -92,7 +106,7 @@ shadePropWall = function(
     # For each point along wall...
     for(j in 1:length(wall_sample)) {
 
-      shade_heights[j] = shadeHeight(
+      shade_heights[j] = shadow::shadeHeight(
         wall_sample[j, ],
         build,
         build_height_field,

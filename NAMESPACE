@@ -2,6 +2,7 @@
 
 export(classifyAz)
 export(ray)
+export(shadeFootprint)
 export(shadeHeight)
 export(shadePropWall)
 export(shiftAz)

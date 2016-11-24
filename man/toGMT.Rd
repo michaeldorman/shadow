@@ -18,5 +18,6 @@ The function transforms a \code{POSIXct} object in any given time zone to GMT.
 \examples{
  time = as.POSIXct("1999-01-01 12:00:00", tz = "Asia/Jerusalem")
  toGMT(time)
+ @export
 }
 

@@ -1,4 +1,4 @@
-#' Polygons or lines to segments
+#' Sky View Factor (SVF) calculation
 #'
 #' Split lines or polygons to separate segments.
 #'
@@ -53,10 +53,10 @@ toSeg = function(x) {
     # Add polygon attribute table entry to each segment
     if(class(x) %in% c("SpatialLinesDataFrame", "SpatialPolygonsDataFrame")) {
       attr_table =
-        # cbind(
-          x@data[rep(f, length(seg1)), ]#,
-          # wall = 1:length(seg1)
-        # )
+        cbind(
+          x@data[rep(f, length(seg1)), ],
+          wall = 1:length(seg1)
+        )
       rownames(attr_table) = paste(f, 1:length(res))
       seg1 = SpatialLinesDataFrame(seg1, data = attr_table, match.ID = FALSE)
     }

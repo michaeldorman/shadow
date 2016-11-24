@@ -5,9 +5,13 @@
 #' \item{Buildings outline, given by a polygonal layer including a height attribute}
 #' \item{Sun position, given by elevation and azimuth angles}
 #' }
+#' @note For a correct geometric calculation, make sure that:\itemize{
+#' \item{The layers \code{location} and \code{build} are projected}
+#' \item{The values in \code{height_field} of \code{build} are given in the same distance units as the CRS (e.g. meters when using UTM)}
+#'}
 #'
 #' @param location A \code{SpatialPoints*} object specifying the location for which to calculate shade height
-#' @param build A \code{SpatialPolygonsDataFrame} object specifying the buildings outline
+#' @param build A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.
 #' @param height_field The name of the column with building height in \code{build}
 #' @param sun_az Sun azimuth, in decimal degrees.
 #' @param sun_elev Sun elevation, in decimal degrees.
@@ -59,7 +63,43 @@
 
 shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1) {
 
-  # Buildings outline to 'lines'
+  # Check projected
+  if(!is.projected(location) | !is.projected(build))
+    stop("'build' and/or 'location' not in projected CRS")
+
+  # Stop if class conditions not met
+  if(!class(location) %in% c("SpatialPoints", "SpatialPointsDataFrame"))
+    stop("'location' is not 'SpatialPoints*'")
+  if(class(build) != "SpatialPolygonsDataFrame")
+    stop("'build' is not 'SpatialPolygonsDataFrame'")
+
+  # Check that height fields exist
+  if(!height_field %in% names(build))
+    stop("'height_field' not found in attribute table of 'build'")
+
+  # Check that 'sun_az' and 'sun_elev' are of length 1
+  if(length(sun_az) != 1 | !is.numeric(sun_az))
+    stop("'sun_az' should be a numeric vector of length 1")
+  if(length(sun_elev) != 1 | !is.numeric(sun_elev))
+    stop("'sun_az' should be a numeric vector of length 1")
+
+  # Check 'sun_az' and 'sun_elev' values
+  if(sun_az < 0 | sun_az > 360)
+    stop("'sun_az' should be a number in [0-360]")
+  if(sun_elev < 0 | sun_elev > 90)
+    stop("'sun_az' should be a number in [0-90]")
+
+  # Print units assumption
+  message(
+      paste0(
+        "Assuming ", height_field, " given in ",
+        gsub(" .*", "",
+             gsub(".*\\+units=", "", proj4string(build))
+             )
+        )
+    )
+
+  # Buildings outline to 'lines' *** DEPENDS ON PACKAGE 'sp' ***
   build_outline = as(build, "SpatialLinesDataFrame")
 
   # If sun above the horizon
@@ -75,7 +115,7 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
     inter = rgeos::gIntersection(build_outline, sun_ray)
 
     # No intersections means there is no shade
-    if(is.null(inter)) shade_height = 0 else {
+    if(is.null(inter)) shade_height = NA else {
 
       # If some of the intersections are lines
       if(class(inter) == "SpatialCollections") {
@@ -90,7 +130,7 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
             coordinates %>%
             "[["(1) %>%
             "[["(1) %>%
-            SpatialPoints(proj4string = CRS(proj4string(grid)))
+            sp::SpatialPoints(proj4string = CRS(proj4string(grid)))
           inter = rbind(inter, lin_pnt)
 
         }
@@ -104,7 +144,14 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
       inter =
         SpatialPointsDataFrame(
           inter,
-          sp::over(inter, rgeos::gBuffer(build_outline, byid = TRUE, width = b), fn = max)
+          sp::over(
+            inter,
+            rgeos::gBuffer(
+              build_outline,
+              byid = TRUE,
+              width = b
+              ),
+            fn = max)
         )
 
       # Distance between examined location and intersections
@@ -116,7 +163,7 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
       shade_height = max(inter$shade_height)
 
       # Non-positive shade height means no shade
-      if(shade_height <= 0) shade_height = 0
+      if(shade_height <= 0) shade_height = NA
 
     }
 
@@ -127,7 +174,7 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
   if(rgeos::gIntersects(location, build)) {
     build_height = over(location, build)[, height_field]
     if(shade_height <= build_height)
-      shade_height = build_height
+      shade_height = NA
   }
 
   return(shade_height)

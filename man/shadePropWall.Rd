@@ -30,6 +30,12 @@ Calculates the shaded proportion of a segment (usually representing a building w
 given the segment vertical height as well as the outlines and heights of obstacles
 (usually buildings).
 }
+\details{
+#' @note For a correct geometric calculation, make sure that:\itemize{
+\item{The layers \code{location} and \code{build} are projected}
+\item{The values in \code{height_field} of \code{build} are given in the same distance units as the CRS (e.g. meters when using UTM)}
+}
+}
 \examples{
 data(build)
 seg = shadow::toSeg(build[2, ])
