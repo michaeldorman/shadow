@@ -29,11 +29,11 @@ shadeFootprint = function(build, height_field, sun_az, sun_elev, b = 0.01) {
 
   # Check projected
   if(!is.projected(build))
-    stop("'seg' and/or 'build' not in projected CRS")
+    stop("'build' not in projected CRS")
 
   # Check that height fields exist
-  if(!build_height_field %in% names(build))
-    stop("'build_height_field' not found in attribute table of 'build'")
+  if(!height_field %in% names(build))
+    stop("'height_field' not found in attribute table of 'build'")
 
   # Check that 'sun_az' and 'sun_elev' are of length 1
   if(length(sun_az) != 1 | !is.numeric(sun_az))
