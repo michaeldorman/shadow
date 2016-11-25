@@ -63,6 +63,10 @@
 
 shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1) {
 
+  # Check that 'location' is of length 1
+  if(length(location) != 1)
+    stop("'location' should be of length 1")
+
   # Check projected
   if(!is.projected(location) | !is.projected(build))
     stop("'build' and/or 'location' not in projected CRS")
@@ -111,7 +115,7 @@ shadeHeight = function(location, build, height_field, sun_az, sun_elev, b = 0.1)
     # 'Line of sight' between sun and grid point
     sun_ray = shadow::ray(from = location, to = sun)
 
-    ## Intersections with buildings outline
+    # Intersections with buildings outline
     inter = rgeos::gIntersection(build_outline, sun_ray)
 
     # No intersections means there is no shade

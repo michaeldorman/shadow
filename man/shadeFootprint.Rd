@@ -17,9 +17,12 @@ shadeFootprint(build, height_field, sun_az, sun_elev, b = 0.01)
 
 \item{b}{Buffer size for shade footprints of individual segments of a given polygon; used to eliminate minor internal holes in the resulting shade polygon.}
 }
+\value{
+A \code{SpatialPolygonsDataFrame} object representing shade footprint plus buildings outline.
+}
 \description{
-Creates a vector layer of shade footprint on the ground, given sun position and extruded obstacles (usually a buildings layer).
-The calculation method was inspired by the of Morel Weisthal's MSc thesis at Ben-Gurion University.
+Creates a polygonal layer of shade footprints on the ground, given sun position and extruded obstacles (usually a buildings layer).
+The calculation method was inspired by Morel Weisthal's MSc thesis at Ben-Gurion University.
 }
 \examples{
 data(build)

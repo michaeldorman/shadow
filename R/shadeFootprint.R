@@ -1,13 +1,15 @@
 #' Shade footprint on the ground
 #'
-#' Creates a vector layer of shade footprint on the ground, given sun position and extruded obstacles (usually a buildings layer).
-#' The calculation method was inspired by the of Morel Weisthal's MSc thesis at Ben-Gurion University.
+#' Creates a polygonal layer of shade footprints on the ground, given sun position and extruded obstacles (usually a buildings layer).
+#' The calculation method was inspired by Morel Weisthal's MSc thesis at Ben-Gurion University.
 #'
 #' @param build A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.
 #' @param height_field The name of the column with building height in \code{build}
 #' @param sun_az Sun azimuth, in decimal degrees.
 #' @param sun_elev Sun elevation, in decimal degrees.
 #' @param b Buffer size for shade footprints of individual segments of a given polygon; used to eliminate minor internal holes in the resulting shade polygon.
+#'
+#' @return A \code{SpatialPolygonsDataFrame} object representing shade footprint plus buildings outline.
 #'
 #' @references
 #' Weisthal, M. (2014). Assessment of potential energy savings in Israel through climate-aware residential building design (Doctoral dissertation, Ben-Gurion University of the Negev).
