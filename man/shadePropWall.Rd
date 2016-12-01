@@ -4,8 +4,8 @@
 \alias{shadePropWall}
 \title{Shaded proportion of building walls}
 \usage{
-shadePropWall(seg, seg_height_field, build, build_height_field, sun_az,
-  sun_elev, sample_dist = 1, shift_dist = 0.01)
+shadePropWall(seg, seg_height_field, build, build_height_field, solar_pos,
+  sample_dist = 1, shift_dist = 0.01, messages = TRUE)
 }
 \arguments{
 \item{seg}{A \code{SpatialLinesDataFrame} object where each feature is a single segment representing a wall.}
@@ -14,11 +14,11 @@ shadePropWall(seg, seg_height_field, build, build_height_field, sun_az,
 
 \item{build}{A \code{SpatialPolygonsDataFrame} object specifying the buildings outline}
 
-\item{sun_az}{Sun azimuth, in decimal degrees.}
-
-\item{sun_elev}{Sun elevation, in decimal degrees.}
+\item{solar_pos}{A matrix with the solar azimuth (in degrees from North), and elevation}
 
 \item{shift_dist}{The distance for shifting the examined locations away from wall to avoid self-shading. Default is 1 cm.}
+
+\item{messages}{Whether a message regarding distance units of the CRS should be displayed.}
 
 \item{height_field}{The name of the column with building height in \code{build}}
 }
@@ -30,34 +30,35 @@ Calculates the shaded proportion of a segment (usually representing a building w
 given the segment vertical height as well as the outlines and heights of obstacles
 (usually buildings).
 }
-\details{
-#' @note For a correct geometric calculation, make sure that:\itemize{
+\note{
+For a correct geometric calculation, make sure that:\itemize{
 \item{The layers \code{location} and \code{build} are projected}
 \item{The values in \code{height_field} of \code{build} are given in the same distance units as the CRS (e.g. meters when using UTM)}
 }
 }
 \examples{
 data(build)
-seg = shadow::toSeg(build[2, ])
+location = rgeos::gCentroid(build)
+location_geo = sp::spTransform(location, "+proj=longlat +datum=WGS84")
+time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
+solar_pos = maptools::solarpos(location_geo, time)
+seg = shadow::toSeg(build[2, ])[5:10, ]
 
-# Calculate shade proportion for walls of 2nd feature from 'build'
+# Calculate shade proportion for walls 5-10 of 2nd building
 props = shadePropWall(
   seg = seg,
   seg_height_field = "BLDG_HT",
   build = build,
   build_height_field = "BLDG_HT",
-  sun_az = 330,
-  sun_elev = 10,
+  solar_pos = solar_pos,
   sample_dist = 1,
   shift_dist = 0.01
 )
 
 # Plot
-cols = grey(seq(1, 0.5, length.out = 100))
-props = round(props, 2) * 100
 plot(build)
-plot(seg, add = TRUE, col = cols[props], lwd = 2)
-raster::text(rgeos::gCentroid(seg, byid = TRUE), props, cex = 0.75)
+plot(seg, add = TRUE, col = "red", lwd = 2)
+raster::text(rgeos::gCentroid(seg, byid = TRUE), round(props, 2), cex = 0.75)
 
 }
 

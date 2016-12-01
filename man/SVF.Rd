@@ -37,9 +37,9 @@ plot(build)
 plot(location0, add = TRUE)
 plot(location1, add = TRUE)
 plot(location2, add = TRUE)
-text(location0, round(svf, 2), pos = 3)
-text(location1, round(svf1, 2), pos = 4)
-text(location2, round(svf2, 2), pos = 3)
+raster::text(location0, round(svf, 2), pos = 3)
+raster::text(location1, round(svf1, 2), pos = 4)
+raster::text(location2, round(svf2, 2), pos = 3)
 
 }
 

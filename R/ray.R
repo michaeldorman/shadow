@@ -11,7 +11,7 @@
 #' ctr = rgeos::gCentroid(build)
 #' angles = seq(0, 359, 20)
 #' sun = mapply(
-#'   shadow:::sunLocation,
+#'   shadow:::.sunLocation,
 #'   sun_az = angles,
 #'   MoreArgs = list(
 #'     location = ctr,

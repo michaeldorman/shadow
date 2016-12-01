@@ -24,9 +24,9 @@
 #' plot(location0, add = TRUE)
 #' plot(location1, add = TRUE)
 #' plot(location2, add = TRUE)
-#' text(location0, round(svf, 2), pos = 3)
-#' text(location1, round(svf1, 2), pos = 4)
-#' text(location2, round(svf2, 2), pos = 3)
+#' raster::text(location0, round(svf, 2), pos = 3)
+#' raster::text(location1, round(svf1, 2), pos = 4)
+#' raster::text(location2, round(svf2, 2), pos = 3)
 #'
 #' @export
 
@@ -63,7 +63,7 @@ SVF = function(location, build, height_field, res = 5, b = 0.01) {
   # Create rays
   angles = seq(0, 359.9999, res)
   sun = mapply(
-    shadow:::sunLocation,
+    .sunLocation,
     sun_az = angles,
     MoreArgs = list(
       location = location,
@@ -108,7 +108,7 @@ SVF = function(location, build, height_field, res = 5, b = 0.01) {
               "[["(1) %>%
               "[["(1) %>%
               sp::SpatialPoints(proj4string = CRS(proj4string(grid)))
-            inter = rbind(inter, lin_pnt)
+            inter = sp::rbind.SpatialPoints(inter, lin_pnt)
 
           }
 
@@ -135,7 +135,7 @@ SVF = function(location, build, height_field, res = 5, b = 0.01) {
         inter$dist = rgeos::gDistance(inter, location, byid = TRUE)[1, ]
 
         # Maximal angle of obstruction calculation
-        inter$angle = shadow:::rad2deg(
+        inter$angle = .rad2deg(
           atan(inter@data[, height_field] / inter$dist)
           )
         inter$svf = 1 - inter$angle / 90

@@ -27,7 +27,7 @@ shiftAz = function(object, az, dist) {
   if(length(az == 1)) az = rep(az, length(object))
   if(length(dist == 1)) dist = rep(dist, length(object))
 
-  az_rad = shadow:::deg2rad(90 - az)
+  az_rad = .deg2rad(90 - az)
   object_shifted = list()
 
   for(i in 1:length(object)) {
