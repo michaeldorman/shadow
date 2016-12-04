@@ -7,13 +7,13 @@
 shadeFootprint(build, height_field, solar_pos, b = 0.01)
 }
 \arguments{
+\item{build}{A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.}
+
 \item{height_field}{The name of the column with building height in \code{buildings}}
 
 \item{solar_pos}{A matrix with the solar azimuth (in degrees from North), and elevation}
 
 \item{b}{Buffer size for shade footprints of individual segments of a given polygon; used to eliminate minor internal holes in the resulting shade polygon.}
-
-\item{buildings}{A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.}
 }
 \value{
 A \code{SpatialPolygonsDataFrame} object representing shade footprint plus buildings outline.
@@ -25,9 +25,11 @@ The calculation method was inspired by Morel Weisthal's MSc thesis at Ben-Gurion
 \examples{
 data(build)
 location = rgeos::gCentroid(build)
-location_geo = sp::spTransform(location, "+proj=longlat +datum=WGS84")
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-solar_pos = maptools::solarpos(location_geo, time)
+solar_pos = maptools::solarpos(
+  matrix(c(34.7767978098526, 31.9665936050395), ncol = 2),
+  time
+  )
 footprint = shadeFootprint(build, "BLDG_HT", solar_pos)
 plot(footprint, col = adjustcolor("lightgrey", alpha.f = 0.5))
 plot(build, add = TRUE, col = "darkgrey")

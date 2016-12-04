@@ -3,7 +3,7 @@
 #' Creates a polygonal layer of shade footprints on the ground, given sun position and extruded obstacles (usually a buildings layer).
 #' The calculation method was inspired by Morel Weisthal's MSc thesis at Ben-Gurion University.
 #'
-#' @param buildings A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.
+#' @param build A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.
 #' @param height_field The name of the column with building height in \code{buildings}
 #' @param solar_pos A matrix with the solar azimuth (in degrees from North), and elevation
 #' @param b Buffer size for shade footprints of individual segments of a given polygon; used to eliminate minor internal holes in the resulting shade polygon.
@@ -17,9 +17,11 @@
 #' @examples
 #' data(build)
 #' location = rgeos::gCentroid(build)
-#' location_geo = sp::spTransform(location, "+proj=longlat +datum=WGS84")
 #' time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-#' solar_pos = maptools::solarpos(location_geo, time)
+#' solar_pos = maptools::solarpos(
+#'   matrix(c(34.7767978098526, 31.9665936050395), ncol = 2),
+#'   time
+#'   )
 #' footprint = shadeFootprint(build, "BLDG_HT", solar_pos)
 #' plot(footprint, col = adjustcolor("lightgrey", alpha.f = 0.5))
 #' plot(build, add = TRUE, col = "darkgrey")

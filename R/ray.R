@@ -28,21 +28,21 @@
 
 ray = function(from, to) {
 
-  SpatialLines(
+  sp::SpatialLines(
     list(
-      Lines(
+      sp::Lines(
         list(
-          Line(
+          sp::Line(
             rbind(
-              coordinates(from),
-              coordinates(to)
+              sp::coordinates(from),
+              sp::coordinates(to)
             )
           )
         ),
         ID = "A"
       )
     ),
-    proj4string = CRS(proj4string(from))
+    proj4string = sp::CRS(sp::proj4string(from))
   )
 
 }

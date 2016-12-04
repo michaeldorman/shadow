@@ -14,13 +14,15 @@ shadePropWall(seg, seg_height_field, build, build_height_field, solar_pos,
 
 \item{build}{A \code{SpatialPolygonsDataFrame} object specifying the buildings outline}
 
+\item{build_height_field}{The name of the column with building height in \code{build}}
+
 \item{solar_pos}{A matrix with the solar azimuth (in degrees from North), and elevation}
+
+\item{sample_dist}{Distance between sampling points along wall}
 
 \item{shift_dist}{The distance for shifting the examined locations away from wall to avoid self-shading. Default is 1 cm.}
 
 \item{messages}{Whether a message regarding distance units of the CRS should be displayed.}
-
-\item{height_field}{The name of the column with building height in \code{build}}
 }
 \value{
 Proportion of shaded area of the given segment.
@@ -38,10 +40,11 @@ For a correct geometric calculation, make sure that:\itemize{
 }
 \examples{
 data(build)
-location = rgeos::gCentroid(build)
-location_geo = sp::spTransform(location, "+proj=longlat +datum=WGS84")
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-solar_pos = maptools::solarpos(location_geo, time)
+solar_pos = maptools::solarpos(
+  matrix(c(34.7767978098526, 31.9665936050395), ncol = 2),
+  time
+)
 seg = shadow::toSeg(build[2, ])[5:10, ]
 
 # Calculate shade proportion for walls 5-10 of 2nd building

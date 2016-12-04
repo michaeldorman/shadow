@@ -12,8 +12,9 @@
 #' @param seg A \code{SpatialLinesDataFrame} object where each feature is a single segment representing a wall.
 #' @param seg_height_field The name of the column with wall height in \code{seg}
 #' @param build A \code{SpatialPolygonsDataFrame} object specifying the buildings outline
-#' @param height_field The name of the column with building height in \code{build}
+#' @param build_height_field The name of the column with building height in \code{build}
 #' @param solar_pos A matrix with the solar azimuth (in degrees from North), and elevation
+#' @param sample_dist Distance between sampling points along wall
 #' @param shift_dist The distance for shifting the examined locations away from wall to avoid self-shading. Default is 1 cm.
 #' @param messages Whether a message regarding distance units of the CRS should be displayed.
 #'
@@ -21,10 +22,11 @@
 #'
 #' @examples
 #' data(build)
-#' location = rgeos::gCentroid(build)
-#' location_geo = sp::spTransform(location, "+proj=longlat +datum=WGS84")
 #' time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-#' solar_pos = maptools::solarpos(location_geo, time)
+#' solar_pos = maptools::solarpos(
+#'   matrix(c(34.7767978098526, 31.9665936050395), ncol = 2),
+#'   time
+#' )
 #' seg = shadow::toSeg(build[2, ])[5:10, ]
 #'
 #' # Calculate shade proportion for walls 5-10 of 2nd building
@@ -63,7 +65,7 @@ shadePropWall = function(
     stop("'build' is not 'SpatialPolygonsDataFrame'")
 
   # Check projected
-  if(!is.projected(seg) | !is.projected(build))
+  if(!sp::is.projected(seg) | !sp::is.projected(build))
     stop("'seg' and/or 'build' not in projected CRS")
 
   # Check that height fields exist

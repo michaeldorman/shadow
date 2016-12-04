@@ -33,14 +33,14 @@ toSeg = function(x) {
     # Select one polygon
     dat = x[f, ]
 
-    # Convert to 'SpatialLines'
+    # Convert to 'SpatialLines' *** Depends on package 'sp' ***
     dat_l = as(dat, "SpatialLines")
 
     # Split to line segments
     cSl = sp::coordinates(dat_l)
     in_nrows = lapply(cSl, function(x) sapply(x, nrow))
-    outn = sapply(in_nrows, function(y) sum(y-1))
-    res = vector(mode="list", length = outn)
+    outn = sapply(in_nrows, function(y) sum(y - 1))
+    res = vector(mode = "list", length = outn)
     i = 1
     for (j in seq(along=cSl)) {
       for (k in seq(along=cSl[[j]])) {
@@ -50,10 +50,10 @@ toSeg = function(x) {
         }
       }
     }
-    res1 = vector(mode="list", length=outn)
-    for (i in seq(along=res))
-      res1[[i]] = Lines(list(Line(res[[i]])), paste(f, i))
-    seg1 = sp::SpatialLines(res1, proj4string = CRS(proj4string(x)))
+    res1 = vector(mode = "list", length = outn)
+    for (i in seq(along = res))
+      res1[[i]] = sp::Lines(list(sp::Line(res[[i]])), paste(f, i))
+    seg1 = sp::SpatialLines(res1, proj4string = sp::CRS(sp::proj4string(x)))
 
     # Add polygon attribute table entry to each segment
     if(class(x) %in% c("SpatialLinesDataFrame", "SpatialPolygonsDataFrame")) {

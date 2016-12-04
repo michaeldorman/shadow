@@ -22,9 +22,11 @@
 #' @examples
 #' # Single location
 #' location = rgeos::gCentroid(build)
-#' location_geo = sp::spTransform(location, "+proj=longlat +datum=WGS84")
 #' time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-#' solar_pos = maptools::solarpos(location_geo, time)
+#' solar_pos = maptools::solarpos(
+#'   matrix(c(34.7767978098526, 31.9665936050395), ncol = 2),
+#'   time
+#'   )
 #' plot(build, main = time)
 #' plot(location, add = TRUE)
 #' sun = shadow:::.sunLocation(location = location, sun_az = solar_pos[1,1], sun_elev = solar_pos[1,2])
@@ -34,6 +36,8 @@
 #' plot(sun_ray, add = TRUE, col = "yellow")
 #' plot(inter, add = TRUE, col = "red")
 #' shadeHeight(location, build, "BLDG_HT", solar_pos)
+#'
+#' \dontrun{
 #'
 #' # Grid
 #' ext = as(raster::extent(build), "SpatialPolygons")
@@ -51,6 +55,8 @@
 #' plot(shade, col = grey(seq(0.9, 0.2, -0.01)), main = time)
 #' raster::contour(shade, add = TRUE)
 #' plot(build, add = TRUE, border = "red")
+#'
+#' }
 #'
 #' @export
 
@@ -137,7 +143,7 @@ shadeHeight = function(
             lin_pnt = sp::coordinates(lin_pnt)[[1]][[1]]
             lin_pnt = sp::SpatialPoints(
               lin_pnt,
-              proj4string = sp::CRS(sp::proj4string(grid))
+              proj4string = sp::CRS(sp::proj4string(inter))
               )
             inter = sp::rbind.SpatialPoints(inter, lin_pnt)
 

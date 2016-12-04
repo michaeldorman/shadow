@@ -12,7 +12,6 @@
 #'
 #' @examples
 #' data(build)
-#'
 #' location0 = rgeos::gCentroid(build)
 #' svf = SVF(location0, build, "BLDG_HT")
 #' location1 = raster::shift(location0, 0, -15)
@@ -102,12 +101,12 @@ SVF = function(location, build, height_field, res = 5, b = 0.01) {
 
           for(lin_i in 1:length(lin)) {
 
-            lin_pnt =
-              lin[lin_i, ] %>%
-              coordinates %>%
-              "[["(1) %>%
-              "[["(1) %>%
-              sp::SpatialPoints(proj4string = CRS(proj4string(grid)))
+            lin_pnt = lin[lin_i, ]
+            lin_pnt = coordinates(lin_pnt)[[1]][[1]]
+            lin_pnt = sp::SpatialPoints(
+              lin_pnt,
+              proj4string = CRS(proj4string(inter))
+              )
             inter = sp::rbind.SpatialPoints(inter, lin_pnt)
 
           }

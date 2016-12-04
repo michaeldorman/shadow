@@ -25,7 +25,6 @@ Calculates the Sky View Factor (SVF) at a given location, given extruded obstacl
 }
 \examples{
 data(build)
-
 location0 = rgeos::gCentroid(build)
 svf = SVF(location0, build, "BLDG_HT")
 location1 = raster::shift(location0, 0, -15)

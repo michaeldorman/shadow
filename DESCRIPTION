@@ -1,20 +1,20 @@
 Package: shadow
 Type: Package
 Title: R Package for Geometric Shade Calculations
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: c(
     person("Michael", "Dorman", email = "dorman@post.bgu.ac.il", role = c("aut", "cre")),
     person("Evyatar", "Erell", email = "erell@bgu.ac.il", role = c("ctb")),
     person("Itai", "Kloog", email = "ikloog@gmail.com", role = c("ctb")),
     person("Adi", "Vulkan", email = "vulkan@post.bgu.ac.il", role = c("ctb")))
-Description: Functions for calculating (1) shade height at a single point, (2) shaded proportion of a building facade; (3) a polygonal layer of shade footprints on the ground; and (4) Sky View Factor (SVF) value at a single point. Typical inputs include a polygonal layer of buildings outline along with the height of each building, sun azimuth and sun elevation. The package also provides functions for related preliminary calculations: converting polygons to line segments, finding segment azimuth, shifting segments by azimuth and distance, and constructing the footprint of a line of sight between an observer and the sun.  
+Description: Functions for calculating (1) shade height at a single point, (2) shaded proportion of a building facade; (3) a polygonal layer of shade footprints on the ground; and (4) Sky View Factor value at a single point. Typical inputs include a polygonal layer of buildings outline along with the height of each building, sun azimuth and sun elevation. The package also provides functions for related preliminary calculations: converting polygons to line segments, finding segment azimuth, shifting segments by azimuth and distance, and constructing the footprint of a line of sight between an observer and the sun.
 License: MIT + file LICENSE
 LazyData: TRUE
 Imports:
-    magrittr (>= 1.5),
     rgeos (>= 0.3),
     raster (>= 2.4-15),
-    Rcpp (>= 0.12.5)
+    Rcpp (>= 0.12.5),
+    methods
 Depends:
     R (>= 3.2.3),
     sp (>= 1.1.1)

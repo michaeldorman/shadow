@@ -8,6 +8,9 @@ output:
   bookdown::pdf_document2:
     fig_caption: true
     number_sections: true
+bibliography: ["shadow.bib"]
+biblio-style: "apalike"
+link-citations: true
 fontsize: 12pt
 geometry: margin=1in
 vignette: >
@@ -36,7 +39,7 @@ Spatial analysis of the urban environment frequently requires estimating *shadin
 
 * Calculating shade footprint on a green park helps urban planners provide guidlenes for maximal height of a new building
 
-These types of calculations (and more advanced ones) are usually restricted to proprietary software dealing with 3D models, such as ESRI's ArcScene. Terrain-based solutions (i.e. Digital Elevation Model, DEM) are more common, in both open-source (GRASS GIS) as well as proprietary (ArcGIS) software. The `insol` R packge gives such capability in R. However terrain-based approaches may not be appropriate for an urban environment, for two reasons. First, a continuous elevation surface at the necessary resolution for the urban context (e.g. LIDAR) may not be available and is expensive to produce. Second, the DEMs cannot adequately represent individual urban elements such as *building facades*, thus limiting the interpretability of results. The `shadow` package aims at addressing these limitations. The `shadow` package operates on a *vector layer* of building outlines along with their heights, rather than a DEM. Such data are generally much more available, either from local municipalities or from global datasets such as OpenStreetMap. Therefore the resulting shade estimates correspond to urban environment such as individual buildings or facade. It should be noted that the approach assumes a flat terrain and no obstacles (e.g. trees) other than the buildings. which may be inappropriate in certain situations (e.g. a montaneous urban area). 
+These types of calculations (and more advanced ones) are usually restricted to proprietary software dealing with 3D models, such as ESRI's ArcScene. Terrain-based solutions (i.e. Digital Elevation Model, DEM) are more common, in both open-source (GRASS GIS) as well as proprietary (ArcGIS) software. The `insol` R packge [@insol] provides such capabilities in R. However terrain-based approaches may not be appropriate for an urban environment, for two reasons. First, a continuous elevation surface at the necessary resolution for the urban context (e.g. LIDAR) may not be available and is expensive to produce. Second, the DEMs cannot adequately represent individual urban elements such as *building facades*, thus limiting the interpretability of results. The `shadow` package aims at addressing these limitations. The `shadow` package operates on a *vector layer* of building outlines along with their heights, rather than a DEM. Such data are generally much more available, either from local municipalities or from global datasets such as OpenStreetMap. Therefore the resulting shade estimates correspond to urban environment such as individual buildings or facade. It should be noted that the approach assumes a flat terrain and no obstacles (e.g. trees) other than the buildings. which may be inappropriate in certain situations (e.g. a montaneous urban area). 
 
 ## Calculation
 
@@ -145,11 +148,7 @@ plot(build, add = TRUE)
 
 Calculating shade height at each point, using package `parallel` -
 
-```{r, echo=FALSE}
-start_parallel = Sys.time()
-```
-
-```{r}
+```{r, eval=FALSE}
 library(parallel)
 shade_heights = mclapply(
   split(grid, grid$grid_id),
@@ -161,10 +160,15 @@ grid$shade_height = simplify2array(shade_heights)
 ```
 
 ```{r, echo=FALSE}
-end_parallel = Sys.time()
+grid$shade_height = NA
+for(i in 1:length(grid)) {
+  grid$shade_height[i] = 
+    shadeHeight(grid[i, ], build, "BLDG_HT", solar_pos, messages = FALSE)
+}
 ```
 
-The calculation of shade height at `r nrow(grid)` grid points took `r round(as.numeric(end_parallel-start_parallel, units="secs"), 1)` seconds on a laptop with an Intel® Core™ i5-6200U CPU @ 2.30GHz × 4 processor using the above 3-core parallel process. The resulting grid can be converted to a `RasterLayer` object of shade heights and plotted with following code section (Figure \@ref(fig:heightresult)). Note the partial shade on the roof of the 19.07-m building which is caused by the slightly taller 22.73-m building.
+
+The resulting grid can be converted to a `RasterLayer` object of shade heights and plotted with following code section (Figure \@ref(fig:heightresult)). Note the partial shade on the roof of the 19.07-m building which is caused by the slightly taller 22.73-m building.
 
 ```{r heightresult, fig.cap="Shade height (m) grid", fig.height=5.5}
 shade = as(grid, "SpatialPixelsDataFrame")
@@ -264,7 +268,11 @@ plot(
   ylab = "Shade proportion", 
   type = "b"
   )
-text(time_seq[7], shade_props[7], round(shade_props[7], 2), pos = 4, col = "red")
+text(
+  x = time_seq[7], y = shade_props[7], 
+  label = round(shade_props[7], 2), 
+  pos = 4, col = "red"
+  )
 ```
 
 # References
