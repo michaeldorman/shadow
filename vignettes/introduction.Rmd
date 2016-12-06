@@ -5,7 +5,7 @@ author: |
   | Ben-Gurion University of the Negev
 date: "`r Sys.Date()`"
 output: 
-  bookdown::pdf_document2:
+  bookdown::html_document2:
     fig_caption: true
     number_sections: true
 bibliography: ["shadow.bib"]
@@ -43,13 +43,17 @@ These types of calculations (and more advanced ones) are usually restricted to p
 
 ## Calculation
 
-The functions currently included `shadow` are based on the trigonometric in the triangle defined by the sun rays, the ground (or plane parallel to the ground) and an obstacle. For example, as shown in Figure \ref{trig_drawing}, shade height ($h_{shade}$) at a given location ($observer$) can be calculated based on the sun elevation angle ($\alpha$) in case there is one obstacle with a known height ($h_{build}$) and at a known distance ($dist$) - 
+The functions currently included `shadow` are based on the trigonometric in the triangle defined by the sun rays, the ground (or plane parallel to the ground) and an obstacle. For example, as shown in Figure \@ref(fig:trigdrawing), shade height ($h_{shade}$) at a given location ($observer$) can be calculated based on the sun elevation angle ($\alpha$) in case there is one obstacle with a known height ($h_{build}$) and at a known distance ($dist$) - 
 
 $h_{shade} = h_{build} - dist * tan(\alpha)$
 
 This approach can be explanded for the general case of multiple obstacles, in which case we must take the *maximum* value of all potential shade heights caused by the obstacles. 
 
-![Shade height calculation \label{trig_drawing}](shade_height.pdf)
+```{r trigdrawing, fig.cap="Shade height calculation", out.width = "400px", echo=FALSE}
+knitr::include_graphics("shade_height.png")
+```
+
+<!-- ![Shade height calculation \label{trig_drawing}](shade_height.png) -->
 
 # Functions
 

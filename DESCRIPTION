@@ -22,6 +22,7 @@ RoxygenNote: 5.0.1
 Suggests:
     knitr,
     rmarkdown,
+    bookdown,
     maptools (>= 0.8),
     testthat
 VignetteBuilder: knitr
