@@ -2,9 +2,12 @@
 
 export(SVF)
 export(classifyAz)
+export(deg2rad)
+export(rad2deg)
 export(ray)
 export(shadeFootprint)
 export(shadeHeight)
+export(shadeImageWall)
 export(shadePropWall)
 export(shiftAz)
 export(toGMT)

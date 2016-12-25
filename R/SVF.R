@@ -134,7 +134,7 @@ SVF = function(location, build, height_field, res = 5, b = 0.01) {
         inter$dist = rgeos::gDistance(inter, location, byid = TRUE)[1, ]
 
         # Maximal angle of obstruction calculation
-        inter$angle = .rad2deg(
+        inter$angle = rad2deg(
           atan(inter@data[, height_field] / inter$dist)
           )
         inter$svf = 1 - inter$angle / 90

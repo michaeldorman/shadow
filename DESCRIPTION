@@ -13,7 +13,6 @@ LazyData: TRUE
 Imports:
     rgeos (>= 0.3),
     raster (>= 2.4-15),
-    Rcpp (>= 0.12.5),
     methods
 Depends:
     R (>= 3.2.3),

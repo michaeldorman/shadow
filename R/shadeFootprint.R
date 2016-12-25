@@ -60,7 +60,7 @@ shadeFootprint = function(build, height_field, solar_pos, b = 0.01) {
   for(i in 1:length(build)) {
 
     # Calculate shift distance
-    dist = build@data[i, height_field] / tan(.deg2rad(solar_pos[1,2]))
+    dist = build@data[i, height_field] / tan(deg2rad(solar_pos[1,2]))
 
     # Shift segments
     seg = shadow::toSeg(build[i, ])

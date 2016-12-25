@@ -37,17 +37,17 @@ Spatial analysis of the urban environment frequently requires estimating *shadin
 
 * The Sky View Factor (SVF) of a given street is associated with its microclimate
 
-* Calculating shade footprint on a green park helps urban planners provide guidlenes for maximal height of a new building
+* Calculating shade footprint on a green park helps urban planners provide guidelines for maximal height of a new building
 
-These types of calculations (and more advanced ones) are usually restricted to proprietary software dealing with 3D models, such as ESRI's ArcScene. Terrain-based solutions (i.e. Digital Elevation Model, DEM) are more common, in both open-source (GRASS GIS) as well as proprietary (ArcGIS) software. The `insol` R packge [@insol] provides such capabilities in R. However terrain-based approaches may not be appropriate for an urban environment, for two reasons. First, a continuous elevation surface at the necessary resolution for the urban context (e.g. LIDAR) may not be available and is expensive to produce. Second, the DEMs cannot adequately represent individual urban elements such as *building facades*, thus limiting the interpretability of results. The `shadow` package aims at addressing these limitations. The `shadow` package operates on a *vector layer* of building outlines along with their heights, rather than a DEM. Such data are generally much more available, either from local municipalities or from global datasets such as OpenStreetMap. Therefore the resulting shade estimates correspond to urban environment such as individual buildings or facade. It should be noted that the approach assumes a flat terrain and no obstacles (e.g. trees) other than the buildings. which may be inappropriate in certain situations (e.g. a montaneous urban area). 
+These types of calculations (and more advanced ones) are usually restricted to proprietary software dealing with 3D models, such as ESRI's ArcScene. Terrain-based solutions (i.e. Digital Elevation Model, DEM) are more common, in both open-source (GRASS GIS) as well as proprietary (ArcGIS) software. The `insol` R package [@insol] provides such capabilities in R. However terrain-based approaches may not be appropriate for an urban environment, for two reasons. First, a continuous elevation surface at the necessary resolution for the urban context (e.g. LIDAR) may not be available and is expensive to produce. Second, the DEMs cannot adequately represent individual urban elements such as *building facades*, thus limiting the interpretability of results. The `shadow` package aims at addressing these limitations. The `shadow` package operates on a *vector layer* of building outlines along with their heights, rather than a DEM. Such data are generally much more available, either from local municipalities or from global datasets such as OpenStreetMap. Therefore the resulting shade estimates correspond to urban environment such as individual buildings or facades. It should be noted that the approach assumes a flat terrain and no obstacles (e.g. trees) other than the buildings, which may be inappropriate in certain situations (e.g. a mountainous urban area). 
 
 ## Calculation
 
-The functions currently included `shadow` are based on the trigonometric in the triangle defined by the sun rays, the ground (or plane parallel to the ground) and an obstacle. For example, as shown in Figure \@ref(fig:trigdrawing), shade height ($h_{shade}$) at a given location ($observer$) can be calculated based on the sun elevation angle ($\alpha$) in case there is one obstacle with a known height ($h_{build}$) and at a known distance ($dist$) - 
+The functions currently included `shadow` are based on the trigonometric relations in the triangle defined by the sun rays, the ground (or plane parallel to the ground) and an obstacle. For example, as shown in Figure \@ref(fig:trigdrawing), shade height ($h_{shade}$) at a given location ($observer$) can be calculated based on the sun elevation angle ($\alpha$) in case there is one obstacle with a known height ($h_{build}$) and at a known distance ($dist$) - 
 
 $h_{shade} = h_{build} - dist * tan(\alpha)$
 
-This approach can be explanded for the general case of multiple obstacles, in which case we must take the *maximum* value of all potential shade heights caused by the obstacles. 
+This approach can be expanded for the general case of multiple obstacles, in which case we must take the *maximum* value of all potential shade heights caused by the obstacles. 
 
 ```{r trigdrawing, fig.cap="Shade height calculation", out.width = "400px", echo=FALSE}
 knitr::include_graphics("shade_height.png")
@@ -130,7 +130,7 @@ plot(inter, add = TRUE, col = "red")
 
 The procedure can be readily expanded to calculate a continuous surface of shade heights. To make it faster, we can use `mclapply` from package `parallel` or any other parallelization solution. 
 
-First, we will create a grid covering the examnined area with a spatial resolution of 2 meters - 
+First, we will create a grid covering the examined area with a spatial resolution of 2 meters - 
 
 ```{r}
 ext = as(extent(build) + 50, "SpatialPolygons")
@@ -143,7 +143,7 @@ grid = SpatialPointsDataFrame(
   )
 ```
 
-The following code section plots the resulting grid (Figure \@ref(fig:heightgrid)).
+The following code section plots the input grid (Figure \@ref(fig:heightgrid)).
 
 ```{r heightgrid, fig.cap="Input grid for creating a shade heights surface"}
 plot(grid, pch = ".")
@@ -206,7 +206,7 @@ park_shade = gIntersection(park, footprint)
 shade_prop = gArea(park_shade) / gArea(park)
 ```
 
-Using `shadeFootprint` we can determine to what extent the palyground is shaded at a given time. For example, sun position at `r time2` is (`r round(solar_pos2, 1)`). The corresponding park shade proportion can be calculated by intersecting the shade footprint with park area and claculating the ratio. The result is `r scales::percent(shade_prop)`. 
+Using `shadeFootprint` we can determine to what extent the palyground is shaded at a given time. For example, sun position at `r time2` is (`r round(solar_pos2, 1)`). The corresponding park shade proportion can be calculated by intersecting the shade footprint with park area and calculating the ratio. The result is `r scales::percent(shade_prop)`. 
 
 ```{r}
 time2 = as.POSIXct("2004-06-24 09:30:00", tz = "Asia/Jerusalem")

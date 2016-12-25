@@ -172,7 +172,7 @@ shadeHeight = function(
         inter$dist = rgeos::gDistance(inter, location, byid = TRUE)[1, ]
 
         # Shade height calculation
-        inter$shade_fall = inter$dist * tan(.deg2rad(solar_pos[p, 2]))
+        inter$shade_fall = inter$dist * tan(deg2rad(solar_pos[p, 2]))
         inter$shade_height = inter@data[, height_field] - inter$shade_fall
         shade_height = max(inter$shade_height)
 
