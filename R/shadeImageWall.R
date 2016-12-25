@@ -1,31 +1,3 @@
-# data(build)
-# time = as.POSIXct("2004-12-24 11:30:00", tz = "Asia/Jerusalem")
-# solar_pos = maptools::solarpos(
-#   matrix(c(34.7767978098526, 31.9665936050395), ncol = 2),
-#   time
-# )
-# seg = shadow::toSeg(build[2, ])[5, ]
-#
-# plot(build)
-# plot(seg, add = TRUE, col = "red")
-#
-# seg = seg
-#   seg_height_field = "BLDG_HT"
-#   build = build
-#   build_height_field = "BLDG_HT"
-#   solar_pos = solar_pos
-#   sample_dist = 1
-#   shift_dist = 0.01
-#
-# shadeImageWall(
-#   seg,
-#   seg_height_field = "BLDG_HT",
-#   build = build,
-#   build_height_field = "BLDG_HT",
-#   solar_pos = solar_pos,
-#   sample_dist = 1,
-#   shift_dist = 0.01
-# )
 
 #' Title
 #'
@@ -41,6 +13,36 @@
 #' @export
 #'
 #' @examples
+#'
+#' # data(build)
+#' time = as.POSIXct("2004-12-24 12:30:00", tz = "Asia/Jerusalem")
+#' solar_pos = maptools::solarpos(
+#'   matrix(c(34.7767978098526, 31.9665936050395), ncol = 2),
+#'   time
+#' )
+#' seg = shadow::toSeg(build[2, ])[5, ]
+#'
+#' plot(build)
+#' plot(seg, add = TRUE, col = "red")
+#'
+#' seg = seg
+#'   seg_height_field = "BLDG_HT"
+#'   build = build
+#'   build_height_field = "BLDG_HT"
+#'   solar_pos = solar_pos
+#'   sample_dist = 1
+#'   shift_dist = 0.01
+#'
+#' shadeImageWall(
+#'   seg,
+#'   seg_height_field = "BLDG_HT",
+#'   build = build,
+#'   build_height_field = "BLDG_HT",
+#'   solar_pos = solar_pos,
+#'   sample_dist = 1,
+#'   shift_dist = 0.01
+#' )
+
 
 shadeImageWall = function(
   seg,
@@ -114,7 +116,9 @@ shadeImageWall = function(
       template$height_ctr = template$height_upper - 0.5
       template$height_lower = template$height_upper - 1
       dat = plyr::join(template, wall_sample@data, "width")
-      dat$shade = dat$shade_height > dat$height_lower
+
+      # 'NA' shade_height means no shade
+      dat$shade = ifelse(is.na(dat$shade_height), FALSE, dat$shade_height > dat$height_lower)
 
       dat$solar_pos_row = p
 
