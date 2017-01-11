@@ -2,40 +2,53 @@
 % Please edit documentation in R/shadeImageWall.R
 \name{shadeImageWall}
 \alias{shadeImageWall}
-\title{Title}
+\title{Create an image of wall shading}
 \usage{
 shadeImageWall(seg, seg_height_field, build, build_height_field, solar_pos,
   sample_dist = 1, shift_dist = 0.01, messages = TRUE)
 }
 \arguments{
-\item{messages}{}
+\item{seg}{A \code{SpatialLinesDataFrame} object representing the wall footprint}
+
+\item{seg_height_field}{The name of the column with wall height in \code{seg}}
+
+\item{build}{A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.}
+
+\item{build_height_field}{The name of the column with building height in \code{build}}
+
+\item{solar_pos}{A matrix with two columns: solar azimuth (in degrees from North), and elevation}
+
+\item{sample_dist}{Horizontal sampling distance of \code{seg} for creating the shade image}
+
+\item{shift_dist}{The distance for shifting the examined locations away from wall to avoid self-shading. Default is 1 cm.}
+
+\item{messages}{Whether a message regarding distance units of the CRS should be displayed.}
+}
+\value{
+A \code{data.frame} representing the shade image of \code{seg}, with the following columns:\itemize{
+\item{\code{solar_pos_row} The corresponding sun position (i.e. the respective row in the \code{solar_pos} matrix}
+\item{\code{width} The horizontal distance along wall facade, from left to right, with 0 representing the left 'corner' of the wall}
+\item{\code{height_upper}, \code{height_ctr}, \code{height_lower}}
+}
 }
 \description{
-Title
+The function divides a given wall to a grid of rectangular 'cells', then finds whether each cell is shaded (at least partially) or not, by repeatedly calling \code{shadeHeight} on regular sample points along the wall facade.
 }
 \examples{
 
-# data(build)
-time = as.POSIXct("2004-12-24 11:30:00", tz = "Asia/Jerusalem")
+data(build)
+time = as.POSIXct("2004-12-24 12:30:00", tz = "Asia/Jerusalem")
 solar_pos = maptools::solarpos(
   matrix(c(34.7767978098526, 31.9665936050395), ncol = 2),
-  time
+  c(time, time + as.difftime(1, units = "hours"))
 )
 seg = shadow::toSeg(build[2, ])[5, ]
 
 plot(build)
-plot(seg, add = TRUE, col = "red")
+plot(seg, add = TRUE, col = "red", lwd = 3)
 
-seg = seg
-  seg_height_field = "BLDG_HT"
-  build = build
-  build_height_field = "BLDG_HT"
-  solar_pos = solar_pos
-  sample_dist = 1
-  shift_dist = 0.01
-
-shadeImageWall(
-  seg,
+img = shadeImageWall(
+  seg = seg,
   seg_height_field = "BLDG_HT",
   build = build,
   build_height_field = "BLDG_HT",

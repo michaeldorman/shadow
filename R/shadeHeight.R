@@ -3,7 +3,7 @@
 #' This function calculates shade height at a given point (\code{location}),
 #' taking into account:\itemize{
 #' \item{Buildings outline, given by a polygonal layer including a height attribute}
-#' \item{Sun position, given by elevation and azimuth angles}
+#' \item{Sun position, given by azimuth and elevation angles}
 #' }
 #' @note For a correct geometric calculation, make sure that:\itemize{
 #' \item{The layers \code{location} and \code{build} are projected}
@@ -11,13 +11,13 @@
 #'}
 #'
 #' @param location A \code{SpatialPoints*} object specifying the location for which to calculate shade height
-#' @param build A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.
+#' @param build A \code{SpatialPolygonsDataFrame} object specifying the buildings outline
 #' @param height_field The name of the column with building height in \code{build}
-#' @param solar_pos A matrix with the solar azimuth (in degrees from North), and elevation
-#' @param b Buffer size when joining intersection points with building outlines, to determine intersection height.
-#' @param messages Whether a message regarding distance units of the CRS should be displayed.
+#' @param solar_pos A matrix with two columns: solar azimuth (in degrees from North), and elevation
+#' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
+#' @param messages Whether a message regarding distance units of the CRS should be displayed
 #'
-#' @return Shade height, in meters.
+#' @return Shade height, in meters; \code{NA} if there is no shade, \code{Inf} if there is complete shade (i.e. sun below horizon)
 #'
 #' @examples
 #' # Single location
@@ -161,7 +161,7 @@ shadeHeight = function(
             sp::over(
               inter,
               rgeos::gBuffer(
-                build_outline,
+                build_outline[, height_field],
                 byid = TRUE,
                 width = b
                 ),
@@ -176,19 +176,18 @@ shadeHeight = function(
         inter$shade_height = inter@data[, height_field] - inter$shade_fall
         shade_height = max(inter$shade_height)
 
-        # Non-positive shade height means no shade
-        if(shade_height <= 0) shade_height = NA
+        # Assign NA when there is no shade
+
+        # If point is on a building & shade_height < building_height assign NA
+        if(rgeos::gIntersects(location, build)) {
+          build_height = sp::over(location, build)[, height_field]
+          if(shade_height <= build_height)
+            shade_height = NA
+        } else # If point is on ground & shade_height < 0 assign 'NA'
+          if(shade_height <= 0) shade_height = NA
 
       }
 
-    }
-
-    # If point is on a building and shade height is lower than building
-    # Then there is no shade
-    if(rgeos::gIntersects(location, build)) {
-      build_height = sp::over(location, build)[, height_field]
-      if(shade_height <= build_height)
-        shade_height = NA
     }
 
     result[p] = shade_height

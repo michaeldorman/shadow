@@ -14,7 +14,7 @@ shadeHeight(location, build, height_field, solar_pos, b = 0.1,
 
 \item{height_field}{The name of the column with building height in \code{build}}
 
-\item{solar_pos}{A matrix with the solar azimuth (in degrees from North), and elevation}
+\item{solar_pos}{A matrix with two columns: solar azimuth (in degrees from North), and elevation}
 
 \item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height.}
 
