@@ -27,7 +27,7 @@ shadeImageWall(seg, seg_height_field, build, build_height_field, solar_pos,
 \value{
 A \code{data.frame} representing the shade image of \code{seg}, with the following columns:\itemize{
 \item{\code{solar_pos_row} The corresponding sun position (i.e. the respective row in the \code{solar_pos} matrix}
-\item{\code{width} The horizontal distance along wall facade, from left to right, with 0 representing the left 'corner' of the wall}
+\item{\code{width} The horizontal distance along wall facade, from left to right, with 0 representing the left 'side' of the wall (when the viewer stands in front of it)}
 \item{\code{height_upper}, \code{height_ctr}, \code{height_lower}}
 }
 }
@@ -40,13 +40,15 @@ data(build)
 time = as.POSIXct("2004-12-24 12:30:00", tz = "Asia/Jerusalem")
 solar_pos = maptools::solarpos(
   matrix(c(34.7767978098526, 31.9665936050395), ncol = 2),
-  c(time, time + as.difftime(1, units = "hours"))
+  time
 )
 seg = shadow::toSeg(build[2, ])[5, ]
 
+# Show wall position on a map
 plot(build)
 plot(seg, add = TRUE, col = "red", lwd = 3)
 
+# Calculate wall 'image'
 img = shadeImageWall(
   seg = seg,
   seg_height_field = "BLDG_HT",
@@ -56,5 +58,23 @@ img = shadeImageWall(
   sample_dist = 1,
   shift_dist = 0.01
 )
+
+# Plot wall image
+z = reshape2::acast(img, width ~ height_ctr, value.var = "shade")
+image(
+  x = sort(unique(tmp$width)),
+  y = sort(unique(tmp$height_ctr)),
+  z = z,
+  asp = 1, axes = FALSE, frame.plot = FALSE,
+  xlab = "Ground distance (m)", ylab = "Height (m)"
+)
+rect(
+  xleft = min(tmp$width) - max(diff(sort(tmp$width)))/2,
+  ybottom = min(tmp$height_ctr) - max(diff(sort(tmp$width)))/2,
+  xright = max(tmp$width) + max(diff(sort(tmp$width)))/2,
+  ytop = max(tmp$height_ctr) + max(diff(sort(tmp$width)))/2
+)
+axis(side = 1, labels = TRUE)
+axis(side = 2, labels = TRUE)
 }
 

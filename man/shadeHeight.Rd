@@ -10,24 +10,24 @@ shadeHeight(location, build, height_field, solar_pos, b = 0.1,
 \arguments{
 \item{location}{A \code{SpatialPoints*} object specifying the location for which to calculate shade height}
 
-\item{build}{A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.}
+\item{build}{A \code{SpatialPolygonsDataFrame} object specifying the buildings outline}
 
 \item{height_field}{The name of the column with building height in \code{build}}
 
 \item{solar_pos}{A matrix with two columns: solar azimuth (in degrees from North), and elevation}
 
-\item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height.}
+\item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height}
 
-\item{messages}{Whether a message regarding distance units of the CRS should be displayed.}
+\item{messages}{Whether a message regarding distance units of the CRS should be displayed}
 }
 \value{
-Shade height, in meters.
+Shade height, in meters; \code{NA} if there is no shade, \code{Inf} if there is complete shade (i.e. sun below horizon)
 }
 \description{
 This function calculates shade height at a given point (\code{location}),
 taking into account:\itemize{
 \item{Buildings outline, given by a polygonal layer including a height attribute}
-\item{Sun position, given by elevation and azimuth angles}
+\item{Sun position, given by azimuth and elevation angles}
 }
 }
 \note{
