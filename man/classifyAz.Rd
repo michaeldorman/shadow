@@ -10,20 +10,20 @@ classifyAz(sl)
 \item{sl}{A \code{SpatialLines*} object}
 }
 \value{
-A \code{list} with two elements:\itemize{
-\item{\code{az} the segment azimuth values}
-\item{\code{q} the corresponding quarters}
-}
+A \code{numeric} vector with the segment azimuth values (in decimal degrees)
 }
 \description{
 Classify azimuth of line segments
 }
 \examples{
-data(build)
-build_seg = toSeg(build[1, ])
+data(rishon)
+build_seg = toSeg(rishon[1, ])
 az = classifyAz(build_seg)
-plot(build_seg, col = rainbow(4)[az$q])
-raster::text(rgeos::gCentroid(build_seg, byid = TRUE), round(az$az))
+plot(build_seg, col = rainbow(4)[cut(az, c(0, 90, 180, 270, 360))])
+raster::text(
+  rgeos::gCentroid(build_seg, byid = TRUE),
+  round(az)
+)
 
 }
 

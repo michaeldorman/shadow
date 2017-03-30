@@ -3,21 +3,19 @@
 \docType{data}
 \name{build}
 \alias{build}
-\title{Polygonal layer of four buildings.}
-\format{A \code{SpatialPolygonsDataFrame} with 4 features and 2 attributes:
+\title{Polygonal layer of three buildings in Boston}
+\format{A \code{SpatialPolygonsDataFrame} with 10 features and 4 attributes:
 \describe{
+  \item{objectid}{Building Part ID}
   \item{build_id}{Building ID}
-  \item{BLDG_HT}{Building height, in meters}
+  \item{part_floor}{Number of floors for Part}
+  \item{height_m}{Building height, in meters}
 }}
 \usage{
 build
 }
 \description{
-A \code{SpatialPolygonsDataFrame} representing the outlines of four buildings. The attribute \code{BLDG_HT} contains building height, in meters.
-}
-\details{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+A \code{SpatialPolygonsDataFrame} object representing the outlines of three buildings located in Central Boston. The attribute \code{height_m} contains building height, in meters.
 }
 \keyword{datasets}
 

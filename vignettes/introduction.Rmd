@@ -31,26 +31,26 @@ set.seed(1014)
 
 # Introduction
 
-Spatial analysis of the urban environment frequently requires estimating *shading*. For example -
+Spatial analysis of the urban environment frequently requires estimation of **shading**. For example -
 
 * The amount of time a given point / roof / facade is shaded may determine the utility of installing Photo-Voltaic cells for electricity production
 
 * The Sky View Factor (SVF) of a given street is associated with its microclimate
 
-* Calculating shade footprint on a green park helps urban planners provide guidelines for maximal height of a new building
+* Calculating shadow footprint on a green park helps urban planners provide guidelines for maximal height of a new building
 
-These types of calculations (and more advanced ones) are usually restricted to proprietary software dealing with 3D models, such as ESRI's ArcScene. Terrain-based solutions (i.e. Digital Elevation Model, DEM) are more common, in both open-source (GRASS GIS) as well as proprietary (ArcGIS) software. The `insol` R package [@insol] provides such capabilities in R. However terrain-based approaches may not be appropriate for an urban environment, for two reasons. First, a continuous elevation surface at the necessary resolution for the urban context (e.g. LIDAR) may not be available and is expensive to produce. Second, the DEMs cannot adequately represent individual urban elements such as *building facades*, thus limiting the interpretability of results. The `shadow` package aims at addressing these limitations. The `shadow` package operates on a *vector layer* of building outlines along with their heights, rather than a DEM. Such data are generally much more available, either from local municipalities or from global datasets such as OpenStreetMap. Therefore the resulting shade estimates correspond to urban environment such as individual buildings or facades. It should be noted that the approach assumes a flat terrain and no obstacles (e.g. trees) other than the buildings, which may be inappropriate in certain situations (e.g. a mountainous urban area). 
+These types of calculations (and more advanced ones) are usually restricted to proprietary software dealing with 3D models, such as ESRI's ArcScene. Terrain-based solutions (i.e. Digital Elevation Model, DEM) are more common, in both open-source (GRASS GIS) as well as proprietary (ArcGIS) software. The `insol` R package [@insol] provides such capabilities in R. However terrain-based approaches may not be appropriate for an urban environment, for two reasons. First, a continuous elevation surface at the necessary resolution for the urban context (e.g. LIDAR) may not be available and is expensive to produce. Second, the DEMs cannot adequately represent individual urban elements such as **building facades**, thus limiting the interpretability of results. The `shadow` package aims at addressing these limitations. The `shadow` package operates on a **vector layer** of building outlines along with their heights, rather than a DEM. Such data are generally much more available, either from local municipalities or from global datasets such as OpenStreetMap. Therefore the resulting shadow estimates correspond to urban environment such as individual buildings or facades. It should be noted that the approach assumes a flat terrain and no obstacles (e.g. trees) other than the buildings, which may be inappropriate in certain situations (e.g. a mountainous urban area). 
 
 ## Calculation
 
-The functions currently included `shadow` are based on the trigonometric relations in the triangle defined by the sun rays, the ground (or plane parallel to the ground) and an obstacle. For example, as shown in Figure \@ref(fig:trigdrawing), shade height ($h_{shade}$) at a given location ($observer$) can be calculated based on the sun elevation angle ($\alpha$) in case there is one obstacle with a known height ($h_{build}$) and at a known distance ($dist$) - 
+The functions currently included `shadow` are based on the trigonometric relations in the triangle defined by the sun rays, the ground (or plane parallel to the ground) and an obstacle. For example, as shown in Figure \@ref(fig:trigdrawing), shadow height ($h_{shade}$) at a given location ($observer$) can be calculated based on the sun elevation angle ($\alpha$) in case there is one obstacle with a known height ($h_{build}$) and at a known distance ($dist$) - 
 
 $h_{shade} = h_{build} - dist * tan(\alpha)$
 
-This approach can be expanded for the general case of multiple obstacles, in which case we must take the *maximum* value of all potential shade heights caused by the obstacles. 
+This approach can be expanded for the general case of multiple obstacles, in which case we must take the *maximum* value of all potential shadow heights caused by the obstacles. 
 
-```{r trigdrawing, fig.cap="Shade height calculation", out.width = "400px", echo=FALSE}
-knitr::include_graphics("shade_height.png")
+```{r trigdrawing, fig.cap="Shade height calculation", out.width="400px", echo=FALSE}
+knitr::include_graphics("shade_height.pdf")
 ```
 
 <!-- ![Shade height calculation \label{trig_drawing}](shade_height.png) -->
@@ -59,11 +59,11 @@ knitr::include_graphics("shade_height.png")
 
 The `shadow` package currently contains three main functions, as well as several helper functions. The main functions give three distinct aspects of shading -
 
-* The `shadeHeight` function calculates shade height at a single point; the wrapper `shadePropWall` gives the shaded fraction of a facade, by repeatedly calling `shadeHeight` on sample points along its length.
+* The `shadowHeight` function calculates shadow heights. 
 
-* The `shadeFootprint` function calculates the shade footprint on the ground, given the layer of obstacles and sun position.
+* The `shadowFootprint` function calculates the shadow footprint on the ground.
 
-* The `SVF` function calculates the Sky View Factor (SVF), which is a measure of sky proportion not obstructed to the viewer at a given point on the ground.
+* The `SVF` function calculates the Sky View Factor (SVF), which is a measure of sky proportion not obstructed to the viewer.
 
 # Examples
 
@@ -75,35 +75,40 @@ library(raster)
 library(rgeos)
 ```
 
-In the examples we will use a polygonal layer representing four buildings (`build`) along having a height attribute (`BLDG_HT`) as shown on Figure \@ref(fig:buildings) -
+In the examples we will use a polygonal layer representing four buildings (`rishon`) along having a height attribute (`BLDG_HT`) as shown on Figure \@ref(fig:buildings) -
 
 ```{r buildings, fig.cap="Sample buildings and heights"}
-plot(build)
-text(gCentroid(build, byid = TRUE), build$BLDG_HT)
+plot(rishon)
+text(gCentroid(rishon, byid = TRUE), rishon$BLDG_HT)
 ```
 
-## Shade height
+## Shadow height
 
-The `shadeHeight` function calculates shade height at a given point location. For example, to calculate shade height at the centroid of the layer (`location`), on `2004-12-24 13:30:00` we first need to determine the sun elevation and azimuth at that time. This can be done with function `solarpos` from package `maptools` -
+The `shadowHeight` function calculates shadow heights at given locations and sun positions. For example, to calculate shade height at the centroid of the layer (`location`), on `2004-12-24 13:30:00` we first need to determine the sun elevation and azimuth at that time. This can be done with function `solarpos` from package `maptools` -
 
 ```{r}
-location = gCentroid(build)
+location = gCentroid(rishon)
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
 location_geo = spTransform(location, "+proj=longlat +datum=WGS84")
 solar_pos = maptools::solarpos(location_geo, time)
 solar_pos
 ```
 
-Now we know the sun azimuth (`r round(solar_pos[1,1], 1)`) and elevation (`r round(solar_pos[1,2], 1)`). Given sun position, the layer of obstacles and queried location, shade height can be calculated with `shadeHeight` -
+Now we know the sun azimuth (`r round(solar_pos[1,1], 1)`) and elevation (`r round(solar_pos[1,2], 1)`). Given sun position, the layer of obstacles and queried location, shade height can be calculated with `shadowHeight` -
 
 ```{r}
-h = shadeHeight(location, build, "BLDG_HT", solar_pos)
+h = shadowHeight(
+  location = location, 
+  obstacles = rishon, 
+  obstacles_height_field = "BLDG_HT", 
+  solar_pos = solar_pos
+  )
 h
 ```
 
-Shade height at the queried point is `r round(h, 2)` meters. Note the warning regarding the units of the `BLDG_HT` attribute. The function has no way of knowing the height dimension units are the same as the Coordinate Reference System (CRS) spatial distance units. It is up to the user to make sure.
+Shade height at the queried point is `r round(h, 2)` meters. Note the warning regarding the units of the `BLDG_HT` attribute. The function has no way of knowing that the **height** attribute units are the same as those of the Coordinate Reference System (CRS) spatial **distance** units. It is up to the user to make sure they are in agreement.
 
-The following code and subsequent Figure \@ref(fig:ray) illustrate how the calculation is carried out. First, a line of sight `ray` is drawn between the point of interest `location` and the sun position based on its azimuth `sun_az`. Potential intersections `inter` are then detected. Finally, the shade height induced by each intersection is calculated based on the distance to intersection, sun elevation `sun_elev` and building height. The final result is the maximum value of these potential heights.
+The following code and subsequent Figure \@ref(fig:ray) illustrate how the calculation is carried out 'behind the scenes'. First, a line of sight `ray` is drawn between the point of interest `location` and the sun position based on its azimuth `sun_az`. Potential intersections `inter` are then detected. Finally, the shadow height induced by each intersection is calculated based on the distance to intersection, sun elevation `sun_elev` and building height. The final result (`r round(h, 2)` meters) is the maximum value of these potential heights.
 
 ```{r ray, fig.cap="Shade height at a single location", message=FALSE}
 sun = shadow:::.sunLocation(
@@ -112,107 +117,119 @@ sun = shadow:::.sunLocation(
   sun_elev = solar_pos[1, 2]
   )
 sun_ray = ray(from = location, to = sun)
-build_outline = as(build, "SpatialLinesDataFrame")
+build_outline = as(rishon, "SpatialLinesDataFrame")
 inter = gIntersection(build_outline, sun_ray)
-plot(build)
-text(gCentroid(build, byid = TRUE), build$BLDG_HT)
+plot(rishon)
+text(gCentroid(rishon, byid = TRUE), rishon$BLDG_HT)
 plot(location, add = TRUE)
-text(
-  location, 
-  round(shadeHeight(location, build, "BLDG_HT", solar_pos), 2), 
-  pos = 3
-  )
+text(location, round(h, 2), pos = 3)
 plot(sun_ray, add = TRUE, col = "yellow")
 plot(inter, add = TRUE, col = "red")
 ```
 
-## Calculating shade height for each point
+The `shadowHeight` function also accepts `Raster` objects, in which case the calculation is repeated for all pixels and a continuous shadow height surface is returned. 
 
-The procedure can be readily expanded to calculate a continuous surface of shade heights. To make it faster, we can use `mclapply` from package `parallel` or any other parallelization solution. 
+<!-- The procedure can be readily expanded to calculate a continuous surface of shade heights. To make it faster, we can use `mclapply` from package `parallel` or any other parallelization solution.  -->
 
-First, we will create a grid covering the examined area with a spatial resolution of 2 meters - 
+First, we will a `RasterLayer` covering the examined area with a spatial resolution of 2 meters - 
 
 ```{r}
-ext = as(extent(build) + 50, "SpatialPolygons")
+ext = as(extent(rishon) + 50, "SpatialPolygons")
 r = raster(ext, res = 2)
-proj4string(r) = proj4string(build)
-grid = rasterToPoints(r, spatial = TRUE)
-grid = SpatialPointsDataFrame(
-  grid,
-  data.frame(grid_id = 1:length(grid))
+proj4string(r) = proj4string(rishon)
+```
+
+<!-- The following code section plots the input grid (Figure \@ref(fig:heightgrid)). -->
+
+<!-- ```{r heightgrid, fig.cap="Input grid for creating a shade heights surface"} -->
+<!-- plot(grid, pch = ".") -->
+<!-- plot(rishon, add = TRUE) -->
+<!-- ``` -->
+
+<!-- Calculating shade height at each point, using package `parallel` - -->
+
+<!-- ```{r, eval=FALSE} -->
+<!-- library(parallel) -->
+<!-- shade_heights = mclapply( -->
+<!--   split(grid, grid$grid_id), -->
+<!--   shadowHeight, -->
+<!--   obstacles = rishon,  -->
+<!--   obstacles_height_field = "BLDG_HT",  -->
+<!--   solar_pos = solar_pos, -->
+<!--   mc.cores = 3 -->
+<!--   ) -->
+<!-- r[] = simplify2array(shade_heights) -->
+<!-- ``` -->
+
+<!-- ```{r, echo=FALSE} -->
+<!-- for(i in 1:length(grid)) { -->
+<!--   r[i] = shadowHeight( -->
+<!--     location = grid[i, ], -->
+<!--     obstacles = rishon, -->
+<!--     obstacles_height_field = "BLDG_HT", -->
+<!--     solar_pos = solar_pos, -->
+<!--     messages = FALSE -->
+<!--     ) -->
+<!-- } -->
+<!-- ``` -->
+
+Replacing `location` with the raster `r` we now can calculate a shadow height surface -
+
+```{r}
+r = shadowHeight(
+  location = r, 
+  obstacles = rishon, 
+  obstacles_height_field = "BLDG_HT", 
+  solar_pos = solar_pos
   )
 ```
 
-The following code section plots the input grid (Figure \@ref(fig:heightgrid)).
-
-```{r heightgrid, fig.cap="Input grid for creating a shade heights surface"}
-plot(grid, pch = ".")
-plot(build, add = TRUE)
-```
-
-Calculating shade height at each point, using package `parallel` -
-
-```{r, eval=FALSE}
-library(parallel)
-shade_heights = mclapply(
-  split(grid, grid$grid_id),
-  shadeHeight,
-  build, "BLDG_HT", solar_pos,
-  mc.cores = 3
-  )
-grid$shade_height = simplify2array(shade_heights)
-```
-
-```{r, echo=FALSE}
-grid$shade_height = NA
-for(i in 1:length(grid)) {
-  grid$shade_height[i] = 
-    shadeHeight(grid[i, ], build, "BLDG_HT", solar_pos, messages = FALSE)
-}
-```
-
-
-The resulting grid can be converted to a `RasterLayer` object of shade heights and plotted with following code section (Figure \@ref(fig:heightresult)). Note the partial shade on the roof of the 19.07-m building which is caused by the slightly taller 22.73-m building.
+The resulting grid can plotted with following code section (Figure \@ref(fig:heightresult)). Note the partial shade on the roof of the 19.07-m building which is caused by the slightly taller 22.73-m building.
 
 ```{r heightresult, fig.cap="Shade height (m) grid", fig.height=5.5}
-shade = as(grid, "SpatialPixelsDataFrame")
-shade = raster(shade, layer = "shade_height")
-plot(shade, col = grey(seq(0.9, 0.2, -0.01)))
-plot(shade, col = grey(seq(0.9, 0.2, -0.01)))
-contour(shade, add = TRUE)
-plot(build, add = TRUE, border = "red")
-text(gCentroid(build, byid = TRUE), build$BLDG_HT)
+plot(r, col = grey(seq(0.9, 0.2, -0.01)))
+contour(r, add = TRUE)
+plot(rishon, add = TRUE, border = "red")
+text(gCentroid(rishon, byid = TRUE), rishon$BLDG_HT)
 ```
 
-## Shade footprint
+## Shadow footprint
 
-The `shadeFootprint` function calculates the geometry of shade projection on the ground, rather than its height at discrete sampling points. The resulting layer can be used to calculate the proportion of shaded surface out of a defined area, to examine which building shades a given element, etc. 
+The `shadowFootprint` function calculates the geometry of shadow projection on the ground, rather than its height at discrete sampling points. The resulting layer can be used to calculate the proportion of shaded surface out of a defined area, to examine which building shades a given element, etc. 
 
-For example, suppose a playground is being built in vicinity to the four buildings in `build`, as shown on Figure \@ref(fig:park).
+For example, suppose a playground is being built in vicinity to the four buildings in `rishon`, as shown on Figure \@ref(fig:park).
 
 ```{r park, fig.cap="Park location"}
 park_location = raster::shift(location, y = 20, x = -8)
 park = rgeos::gBuffer(park_location, width = 12)
-plot(build)
-text(gCentroid(build, byid = TRUE), build$BLDG_HT)
+plot(rishon)
+text(gCentroid(rishon, byid = TRUE), rishon$BLDG_HT)
 plot(park, col = "lightgreen", add = TRUE)
 ```
 
 ```{r, echo=FALSE}
 time2 = as.POSIXct("2004-06-24 09:30:00", tz = "Asia/Jerusalem")
 solar_pos2 = maptools::solarpos(location_geo, time2)
-footprint = shadeFootprint(build, "BLDG_HT", solar_pos2)
+footprint = shadowFootprint(
+  obstacles = rishon, 
+  obstacles_height_field = "BLDG_HT", 
+  solar_pos = solar_pos2
+  )
 park_shade = gIntersection(park, footprint)
 shade_prop = gArea(park_shade) / gArea(park)
 ```
 
-Using `shadeFootprint` we can determine to what extent the palyground is shaded at a given time. For example, sun position at `r time2` is (`r round(solar_pos2, 1)`). The corresponding park shade proportion can be calculated by intersecting the shade footprint with park area and calculating the ratio. The result is `r scales::percent(shade_prop)`. 
+Using `shadowFootprint` we can determine to what extent the palyground is shaded at a given time. For example, sun position at `r time2` is (`r round(solar_pos2, 1)`). The corresponding park shade proportion can be calculated by intersecting the shade footprint with park area and calculating the ratio. The result is `r scales::percent(shade_prop)`. 
 
 ```{r}
 time2 = as.POSIXct("2004-06-24 09:30:00", tz = "Asia/Jerusalem")
 solar_pos2 = maptools::solarpos(location_geo, time2)
 solar_pos2
-footprint = shadeFootprint(build, "BLDG_HT", solar_pos2)
+footprint = shadowFootprint(
+  obstacles = rishon, 
+  obstacles_height_field = "BLDG_HT", 
+  solar_pos = solar_pos2
+  )
 park_shade = gIntersection(park, footprint)
 shade_prop = gArea(park_shade) / gArea(park)
 shade_prop
@@ -222,7 +239,7 @@ The following code section graphically demonstrates the resulting shaded proport
 
 ```{r footprint, fig.cap="Shade footprint at 2004-06-24 09:30:00"}
 plot(footprint,  col = adjustcolor("lightgrey", alpha.f = 0.5))
-plot(build, col = "darkgrey", add = TRUE)
+plot(rishon, col = "darkgrey", add = TRUE)
 plot(park, col = "lightgreen", add = TRUE)
 plot(park_shade, col = adjustcolor("darkgreen", alpha.f = 0.5), add = TRUE)
 text(gCentroid(park_shade), round(shade_prop, 2))
@@ -248,10 +265,11 @@ for(i in 1:nrow(solar_pos_seq)) {
   if(solar_pos_seq[i, 2] < 0)
     shade_props[i] = 1 else {
       footprint = 
-        shadeFootprint(
-          build, 
-          "BLDG_HT", 
-          solar_pos_seq[i, , drop = FALSE]
+        shadowFootprint(
+          obstacles = rishon, 
+          obstacles_height_field = "BLDG_HT", 
+          solar_pos = solar_pos_seq[i, , drop = FALSE],
+          messages = FALSE
           )
     park_shade = gIntersection(park, footprint)
     if(is.null(park_shade))

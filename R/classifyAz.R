@@ -2,17 +2,17 @@
 #'
 #' @param sl A \code{SpatialLines*} object
 #'
-#' @return A \code{list} with two elements:\itemize{
-#' \item{\code{az} the segment azimuth values}
-#' \item{\code{q} the corresponding quarters}
-#' }
+#' @return A \code{numeric} vector with the segment azimuth values (in decimal degrees)
 #'
 #' @examples
-#' data(build)
-#' build_seg = toSeg(build[1, ])
+#' data(rishon)
+#' build_seg = toSeg(rishon[1, ])
 #' az = classifyAz(build_seg)
-#' plot(build_seg, col = rainbow(4)[az$q])
-#' raster::text(rgeos::gCentroid(build_seg, byid = TRUE), round(az$az))
+#' plot(build_seg, col = rainbow(4)[cut(az, c(0, 90, 180, 270, 360))])
+#' raster::text(
+#'   rgeos::gCentroid(build_seg, byid = TRUE),
+#'   round(az)
+#' )
 #'
 #' @export
 
@@ -21,11 +21,8 @@ classifyAz = function(sl) {
   # If input is not SpatialLines
   stopifnot(class(sl) %in% c("SpatialLines", "SpatialLinesDataFrame"))
 
-  # Empty list for holding results
-  result = list(
-    az = rep(NA, length(sl)),
-    q = rep(NA, length(sl))
-    )
+  # Empty vector for holding results
+  result = rep(NA, length(sl))
 
   # For each feature
   for(i in 1:length(sl)) {
@@ -47,13 +44,20 @@ classifyAz = function(sl) {
     x2 = m[2, 1]
     y2 = m[2, 2]
 
-    if(x2 >= x1 & y2 > y1) {az = 360 - (180 / pi) * atan((y2-y1) / (x2-x1)); q = 1}
-    if(x2 >= x1 & y2 <= y1) {az = (180 / pi) * atan((y1-y2) / (x2-x1)); q = 2}
-    if(x2 < x1 & y2 <= y1) {az = 180 - (180 / pi) * atan((y1-y2) / (x1-x2)); q = 3}
-    if(x2 < x1 & y2 > y1) {az = 180 + (180 / pi) * atan((y2-y1) / (x1-x2)); q = 4}
+    if(x2 >= x1 & y2 > y1) {
+      az = 360 - (180 / pi) * atan((y2-y1) / (x2-x1))
+      }
+    if(x2 >= x1 & y2 <= y1) {
+      az = (180 / pi) * atan((y1-y2) / (x2-x1))
+      }
+    if(x2 < x1 & y2 <= y1) {
+      az = 180 - (180 / pi) * atan((y1-y2) / (x1-x2))
+      }
+    if(x2 < x1 & y2 > y1) {
+      az = 180 + (180 / pi) * atan((y2-y1) / (x1-x2))
+      }
 
-    result$az[i] = az
-    result$q[i] = q
+    result[i] = az
 
   }
 

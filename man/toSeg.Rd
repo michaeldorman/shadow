@@ -2,7 +2,7 @@
 % Please edit documentation in R/toSeg.R
 \name{toSeg}
 \alias{toSeg}
-\title{Polygons or lines to segments}
+\title{Convert polygons or lines to segments}
 \usage{
 toSeg(x)
 }

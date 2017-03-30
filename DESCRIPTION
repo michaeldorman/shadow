@@ -1,13 +1,13 @@
 Package: shadow
 Type: Package
 Title: R Package for Geometric Shade Calculations
-Version: 0.2.0
+Version: 0.3.0
 Authors@R: c(
     person("Michael", "Dorman", email = "dorman@post.bgu.ac.il", role = c("aut", "cre")),
     person("Evyatar", "Erell", email = "erell@bgu.ac.il", role = c("ctb")),
     person("Itai", "Kloog", email = "ikloog@gmail.com", role = c("ctb")),
     person("Adi", "Vulkan", email = "vulkan@post.bgu.ac.il", role = c("ctb")))
-Description: Functions for calculating (1) shade height at a single point, (2) shaded proportion of a building facade; (3) a polygonal layer of shade footprints on the ground; and (4) Sky View Factor value at a single point. Typical inputs include a polygonal layer of buildings outline along with the height of each building, sun azimuth and sun elevation. The package also provides functions for related preliminary calculations: converting polygons to line segments, finding segment azimuth, shifting segments by azimuth and distance, and constructing the footprint of a line of sight between an observer and the sun.
+Description: Functions for calculating (1) shadow heights; (2) shadow footprint on ground polygons; and (4) Sky View Factor values. Inputs include a polygonal layer of obstacle outlines along with their heights, sun azimuth and sun elevation. The package also provides functions for related preliminary calculations: breaking polygons into line segments, finding segment azimuth, shifting segments by azimuth and distance, and constructing the footprint of a line of sight between an observer and the sun.
 License: MIT + file LICENSE
 LazyData: TRUE
 Imports:
@@ -24,5 +24,6 @@ Suggests:
     bookdown,
     maptools (>= 0.8),
     testthat,
-    plyr (>= 1.8.4)
+    plyr (>= 1.8.4),
+    reshape2(>= 1.4.2)
 VignetteBuilder: knitr

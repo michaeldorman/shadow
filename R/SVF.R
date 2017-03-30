@@ -1,160 +1,167 @@
 #' Sky View Factor (SVF) calculation
 #'
-#' Calculates the Sky View Factor (SVF) at a given location, given extruded obstacles (usually a buildings layer).
+#' Calculates the Sky View Factor (SVF) at given points or complete grid (\code{location}), taking into account obstacles outline (\code{obstacles}) given by a polygonal layer with a height attribute (\code{obstacles_height_field}).
 #'
-#' @param location A \code{SpatialPoints*} object specifying the location for which to calculate shade height
-#' @param build A \code{SpatialPolygonsDataFrame} object specifying the buildings outline.
-#' @param height_field The name of the column with building height in \code{build}
-#' @param res Circular sampling resolution, in decimal degrees. Default is 5 degrees, i.e. 0, 5, 10... 355.
-#' @param b Buffer size when joining intersection points with building outlines, to determine intersection height.
+#' @param location A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF
+#' @param obstacles A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline
+#' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
+#' @param res_angle Circular sampling resolution, in decimal degrees. Default is 5 degrees, i.e. 0, 5, 10... 355.
+#' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
+#' @param messages Whether a message regarding distance units of the CRS should be displayed
 #'
 #' @return A numeric value between 0 (sky completely obstructed) and 1 (sky completely visible).
+#'\itemize{
+#' \item{If input \code{location} is a \code{SpatialPoints*}, then returned object is a \code{vector} elements representing spatial locations (\code{location} features).}
+#' \item{If input \code{location} is a \code{Raster*}, then returned object is a \code{RasterLayer} representing the SVF surface.}
+#' }
 #'
 #' @examples
-#' data(build)
-#' location0 = rgeos::gCentroid(build)
-#' svf = SVF(location0, build, "BLDG_HT")
+#' # Individual locations
+#' data(rishon)
+#' location0 = rgeos::gCentroid(rishon)
 #' location1 = raster::shift(location0, 0, -15)
-#' svf1 =  SVF(location1, build, "BLDG_HT")
 #' location2 = raster::shift(location0, -10, 20)
-#' svf2 =  SVF(location2, build, "BLDG_HT")
+#' locations = rbind(location1, location2)
+#' svfs = SVF(
+#'   location = locations,
+#'   obstacles = rishon,
+#'   obstacles_height_field = "BLDG_HT"
+#' )
+#' plot(rishon)
+#' plot(locations, add = TRUE)
+#' raster::text(locations, round(svfs, 2), col = "red", pos = 3)
 #'
-#' plot(build)
-#' plot(location0, add = TRUE)
-#' plot(location1, add = TRUE)
-#' plot(location2, add = TRUE)
-#' raster::text(location0, round(svf, 2), pos = 3)
-#' raster::text(location1, round(svf1, 2), pos = 4)
-#' raster::text(location2, round(svf2, 2), pos = 3)
+#' \dontrun{
+#'
+#' # Grid
+#' ext = as(raster::extent(rishon), "SpatialPolygons")
+#' r = raster::raster(ext, res = 10)
+#' proj4string(r) = proj4string(rishon)
+#' pnt = raster::rasterToPoints(r, spatial = TRUE)
+#' svfs = SVF(
+#'     location = r,
+#'     obstacles = rishon,
+#'     obstacles_height_field = "BLDG_HT"
+#'   )
+#' plot(svfs, col = grey(seq(0.9, 0.2, -0.01)))
+#' raster::contour(svfs, add = TRUE)
+#' plot(rishon, add = TRUE, border = "red")
+#'
+#' }
 #'
 #' @export
+#' @name SVF
 
-SVF = function(location, build, height_field, res = 5, b = 0.01) {
+NULL
 
-  # Check that 'location' is of length 1
-  if(length(location) != 1)
-    stop("'location' should be of length 1")
+setGeneric("SVF", function(
+  location,
+  # surface,
+  obstacles,
+  obstacles_height_field,
+  ...
+) {
+  standardGeneric("SVF")
+})
 
-  # Check projected
-  if(!is.projected(location) | !is.projected(build))
-    stop("'build' and/or 'location' not in projected CRS")
+#' @export
+#' @rdname SVF
 
-  # Stop if class conditions not met
-  if(!class(location) %in% c("SpatialPoints", "SpatialPointsDataFrame"))
-    stop("'location' is not 'SpatialPoints*'")
-  if(class(build) != "SpatialPolygonsDataFrame")
-    stop("'build' is not 'SpatialPolygonsDataFrame'")
+setMethod(
 
-  # Check that height fields exist
-  if(!height_field %in% names(build))
-    stop("'height_field' not found in attribute table of 'build'")
+  f = "SVF",
 
-  # Print units assumption
-  message(
-    paste0(
-      "Assuming ", height_field, " given in ",
-      gsub(" .*", "",
-           gsub(".*\\+units=", "", proj4string(build))
-      )
-    )
-  )
+  signature = c(
+    location = "SpatialPoints"#,
+    # surface = "missing",
+    # obstacles = "SpatialPolygonsDataFrame"
+  ),
 
-  # Create rays
-  angles = seq(0, 359.9999, res)
-  sun = mapply(
-    .sunLocation,
-    sun_az = angles,
-    MoreArgs = list(
-      location = location,
-      sun_elev = 0
-      )
-  )
-  rays = mapply(shadow::ray, MoreArgs = list(from = location), to = sun)
-  rays$makeUniqueIDs = TRUE
-  rays = do.call(sp::rbind.SpatialLines, rays)
+function(
+  location,
+  # surface,
+  obstacles,
+  obstacles_height_field,
+  res_angle = 5,
+  b = 0.01,
+  messages = TRUE
+  ) {
 
-  # Check view obstruction
+  # Checks
+  .checkLocation(location, length1 = FALSE)
+  .checkObstacles(obstacles, obstacles_height_field, messages)
+
   # Buildings outline to 'lines' *** DEPENDS ON PACKAGE 'sp' ***
-  build_outline = as(build, "SpatialLinesDataFrame")
+  obstacles_outline = as(obstacles, "SpatialLinesDataFrame")
 
-  # If point is on a building then SVF='NA'
-  if(rgeos::gIntersects(location, build)) svf_final = NA else {
+  # Results vector
+  result = rep(NA, length(location)) # Elements represent *space*
 
-    svf = rep(NA, length(rays))
+  # 'for' loop iteration over locations and times
+  for(i in 1:length(result)) {
 
-    for(i in 1:length(rays)) {
-
-      # 'Line of sight' between sun and location
-      ray1 = rays[i, ]
-
-      # Intersections with buildings outline
-      inter = rgeos::gIntersection(build_outline, ray1)
-
-      # No intersections means SVF=1
-      if(is.null(inter)) svf[i] = 1 else {
-
-        # If some of the intersections are lines
-        if(class(inter) == "SpatialCollections") {
-
-          lin = inter@lineobj
-          inter = inter@pointobj
-
-          for(lin_i in 1:length(lin)) {
-
-            lin_pnt = lin[lin_i, ]
-            lin_pnt = coordinates(lin_pnt)[[1]][[1]]
-            lin_pnt = sp::SpatialPoints(
-              lin_pnt,
-              proj4string = CRS(proj4string(inter))
-              )
-            inter = sp::rbind.SpatialPoints(inter, lin_pnt)
-
-          }
-
-        }
-
-        # Set row names
-        row.names(inter) = 1:length(inter)
-
-        # Extract building data for each intersection
-        inter =
-          SpatialPointsDataFrame(
-            inter,
-            sp::over(
-              inter,
-              rgeos::gBuffer(
-                build_outline,
-                byid = TRUE,
-                width = b
-              ),
-              fn = max)
-          )
-
-        # Distance between examined location and intersections
-        inter$dist = rgeos::gDistance(inter, location, byid = TRUE)[1, ]
-
-        # Maximal angle of obstruction calculation
-        inter$angle = rad2deg(
-          atan(inter@data[, height_field] / inter$dist)
-          )
-        inter$svf = 1 - inter$angle / 90
-        svf[i] = min(inter$svf)
-
-      }
-
-    }
-
-    svf_final = mean(svf)
+    result[i] = .SVFPnt(
+      location = location[i, ],
+      obstacles = obstacles,
+      obstacles_height_field = obstacles_height_field,
+      res_angle = res_angle,
+      b = b
+    )
 
   }
 
-  return(svf_final)
+  return(result)
 
-}
+  }
 
+)
 
+#' @export
+#' @rdname SVF
 
+setMethod(
 
+  f = "SVF",
+
+  signature = c(
+    location = "Raster"#,
+    # surface = "missing",
+    # obstacles = "SpatialPolygonsDataFrame"
+  ),
+
+  function(
+    location,
+    # surface,
+    obstacles,
+    obstacles_height_field,
+    res_angle = 5,
+    b = 0.01,
+    messages = TRUE
+  ) {
+
+    # Keep first raster layer only
+    if(raster::nlayers(location) > 1) location = location[[1]]
+
+    # Convert raster to points
+    pnt = raster::rasterToPoints(location, spatial = TRUE)
+
+    location[] = SVF(
+      location = pnt,
+      obstacles = obstacles,
+      obstacles_height_field = obstacles_height_field,
+      res_angle = res_angle,
+      b = b,
+      messages = messages
+    )
+
+    return(location)
+
+  }
+
+)
+
+#' @export
+#' @name SVF
 
 
 

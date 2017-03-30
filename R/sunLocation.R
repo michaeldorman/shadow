@@ -1,4 +1,4 @@
-
+# Function to create a 'SpatialPointsDataFrame' object representing sun location
 
 .sunLocation = function(location, sun_az, sun_elev) {
 
@@ -7,7 +7,6 @@
 
   # Average earth-sun distance in meters
   dist_m = 149.6 * 10^9
-  # d = 149597870700 * (1 - 0.01672 * cos(deg2rad(0.9856 * (day - 4))))
 
   # To radians
   az_rad = deg2rad(90 - sun_az)

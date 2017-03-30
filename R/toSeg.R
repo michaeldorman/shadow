@@ -1,4 +1,4 @@
-#' Polygons or lines to segments
+#' Convert polygons or lines to segments
 #'
 #' Split lines or polygons to separate segments.
 #'

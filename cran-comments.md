@@ -1,5 +1,5 @@
 ## Test environments
-* local Ubuntu 16.04 install, R 3.3.2
+* local Ubuntu 16.04 install, R 3.3.3
 * win-builder (devel and release)
 
 ## R CMD check results
