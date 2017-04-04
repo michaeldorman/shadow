@@ -2,4 +2,8 @@
 
 * Initial complete release
 
+# shadow 0.3.1
+
+* Fixed 'toSeg' behavior when 'x' has single attribute 
+
 

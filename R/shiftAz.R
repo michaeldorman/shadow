@@ -7,12 +7,12 @@
 #' @return The shifted \code{object}.
 #'
 #' @examples
-#' data(build)
+#' data(rishon)
 #' s = c(270, 90, 180, 0)
-#' build_shifted = shiftAz(build, az = s, dist = 2.5)
-#' plot(build)
-#' plot(build_shifted, add = TRUE, border = "red")
-#' raster::text(rgeos::gCentroid(build, byid = TRUE), s)
+#' rishon_shifted = shiftAz(rishon, az = s, dist = 2.5)
+#' plot(rishon)
+#' plot(rishon_shifted, add = TRUE, border = "red")
+#' raster::text(rgeos::gCentroid(rishon, byid = TRUE), s)
 #'
 #' @export
 
@@ -28,6 +28,7 @@ shiftAz = function(object, az, dist) {
   if(length(dist == 1)) dist = rep(dist, length(object))
 
   az_rad = deg2rad(90 - az)
+
   object_shifted = list()
 
   for(i in 1:length(object)) {
@@ -52,7 +53,10 @@ shiftAz = function(object, az, dist) {
 
   }
 
+  if(class(object) %in% c("SpatialLines", "SpatialLinesDataFrame", "SpatialPolygons", "SpatialPolygonsDataFrame")) {
   object_shifted = mapply(spChFIDs, object_shifted, row.names(object))
+}
+
   object_shifted = do.call(rbind, object_shifted)
 
 }

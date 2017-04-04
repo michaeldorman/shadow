@@ -1,7 +1,7 @@
 Package: shadow
 Type: Package
-Title: R Package for Geometric Shade Calculations
-Version: 0.3.0
+Title: Geometric Shadow Calculations
+Version: 0.3.1
 Authors@R: c(
     person("Michael", "Dorman", email = "dorman@post.bgu.ac.il", role = c("aut", "cre")),
     person("Evyatar", "Erell", email = "erell@bgu.ac.il", role = c("ctb")),
