@@ -18,4 +18,3 @@ Radians to degrees
 \examples{
 rad2deg(2*pi) == 360
 }
-

@@ -26,4 +26,3 @@ raster::text(
 )
 
 }
-

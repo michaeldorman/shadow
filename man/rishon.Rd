@@ -16,4 +16,3 @@ rishon
 A \code{SpatialPolygonsDataFrame} object representing the outlines of four buildings located in Rishon-Le-Zion. The attribute \code{BLDG_HT} contains building height, in meters.
 }
 \keyword{datasets}
-

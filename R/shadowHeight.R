@@ -16,6 +16,7 @@
 #' @param solar_pos A matrix with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)
 #' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
 #' @param messages Whether a message regarding distance units of the CRS should be displayed
+#' @param parallel Number of parallel processes or a predefined socket cluster. With parallel = 1 uses ordinary, non-parallel processing. The parallel processing is done with the \code{parallel} package.
 #'
 #' @return Shadow height, in CRS units (e.g. meters). \code{NA} value means no shadow, \code{Inf} means complete shadow (i.e. sun below horizon).
 #' \itemize{
@@ -73,10 +74,11 @@
 #'     obstacles = rishon,
 #'     obstacles_height_field = "BLDG_HT",
 #'     solar_pos = solar_pos,
-#'     messages = FALSE
+#'     messages = FALSE,
+#'     parallel = 3
 #'   )
-#' plot(shadow, col = grey(seq(0.9, 0.2, -0.01)), main = time)
-#' raster::contour(shadow, add = TRUE)
+#' plot(shadow[[1]], col = grey(seq(0.9, 0.2, -0.01)), main = time)
+#' raster::contour(shadow[[1]], add = TRUE)
 #' plot(rishon, add = TRUE, border = "red")
 #'
 #' }
@@ -116,7 +118,8 @@ function(
   obstacles_height_field,
   solar_pos,
   b = 0.01,
-  messages = TRUE
+  messages = TRUE,
+  parallel = getOption("mc.cores")
   ) {
 
   # Checks
@@ -134,10 +137,16 @@ function(
     ncol = nrow(solar_pos) # Columns represent *time*
     )
 
-  # 'for' loop iteration over locations and times
-  for(row in 1:nrow(result)) {
+  # Iteration over locations and times
+  if (is.null(parallel)) parallel = 1
+  hasClus = inherits(parallel, "cluster")
 
-    for(col in 1:nrow(solar_pos)) {
+  # 'for' loop
+  if(parallel == 1) {
+
+  for(row in 1:nrow(result)) { # Locations
+
+    for(col in 1:nrow(solar_pos)) { # Times
 
       result[row, col] =
         .shadowHeightPnt(
@@ -153,6 +162,65 @@ function(
       }
 
   }
+
+  } else {
+
+    # Parallel across space
+    location_df = sp::SpatialPointsDataFrame(
+      location,
+      data.frame(id = 1:length(location))
+    )
+    location_split = split(location_df, location_df$id)
+
+    if(hasClus || parallel > 1) {
+
+      for(col in 1:nrow(solar_pos)) { # Times
+
+        if(.Platform$OS.type == "unix" && !hasClus) {
+
+        tmp = parallel::mclapply(
+          X = location_split,
+          FUN = .shadowHeightPnt,
+          # surface,
+          obstacles = obstacles,
+          obstacles_height_field = obstacles_height_field,
+          solar_pos = solar_pos[col, , drop = FALSE],
+          obstacles_outline = obstacles_outline,
+          b = 0.01, mc.cores = parallel
+        )
+
+        result[, col] = simplify2array(tmp)
+
+        }
+
+        else {
+
+          if (!hasClus) {
+            parallel = makeCluster(parallel)
+          }
+
+          tmp = parallel::parLapply(
+            parallel,
+            X = location_split,
+            fun = .shadowHeightPnt,
+            # surface,
+            obstacles = obstacles,
+            obstacles_height_field = obstacles_height_field,
+            solar_pos = solar_pos[col, , drop = FALSE],
+            obstacles_outline = obstacles_outline,
+            b = 0.01
+          )
+
+          # tmp = parLapply(parallel, 1:nperm, function(i) estFun(permat[i, ]))
+          if (!hasClus)
+            stopCluster(parallel)
+        }
+
+      }
+
+      }
+
+    }
 
   return(result)
 
@@ -179,7 +247,8 @@ setMethod(
     obstacles_height_field,
     solar_pos,
     b = 0.01,
-    messages = TRUE
+    messages = TRUE,
+    parallel = getOption("mc.cores")
   ) {
 
     pnt = raster::rasterToPoints(location, spatial = TRUE)
@@ -190,15 +259,16 @@ setMethod(
       obstacles_height_field = obstacles_height_field,
       solar_pos = solar_pos,
       b = b,
-      messages = messages
+      messages = messages,
+      parallel = parallel
       )
 
     template = location
     result = raster::stack()
 
-    for(i in 1:ncol(result)) {
+    for(i in 1:ncol(heights)) {
       template[] = heights[, i]
-      result = stack(result, template)
+      result = raster::stack(result, template)
     }
 
     if(raster::nlayers(result) == 1)

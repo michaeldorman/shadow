@@ -35,4 +35,3 @@ sun = do.call(rbind, sun)
 text(sun, as.character(angles))
 
 }
-

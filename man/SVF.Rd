@@ -3,15 +3,17 @@
 \docType{methods}
 \name{SVF}
 \alias{SVF}
-\alias{SVF,Raster-method}
 \alias{SVF,SpatialPoints-method}
+\alias{SVF,Raster-method}
 \title{Sky View Factor (SVF) calculation}
 \usage{
 \S4method{SVF}{SpatialPoints}(location, obstacles, obstacles_height_field,
-  res_angle = 5, b = 0.01, messages = TRUE)
+  res_angle = 5, b = 0.01, messages = TRUE, parallel = FALSE,
+  mc.cores = NULL)
 
 \S4method{SVF}{Raster}(location, obstacles, obstacles_height_field,
-  res_angle = 5, b = 0.01, messages = TRUE)
+  res_angle = 5, b = 0.01, messages = TRUE, parallel = FALSE,
+  mc.cores = NULL)
 }
 \arguments{
 \item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF}
@@ -25,6 +27,10 @@
 \item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height}
 
 \item{messages}{Whether a message regarding distance units of the CRS should be displayed}
+
+\item{parallel}{Whether to use a parallel computation (function \code{mclapply}). Default is \code{FALSE}}
+
+\item{mc.cores}{The number of cores to use, when \code{parallel} is set to \code{TRUE}}
 }
 \value{
 A numeric value between 0 (sky completely obstructed) and 1 (sky completely visible).
@@ -46,7 +52,8 @@ locations = rbind(location1, location2)
 svfs = SVF(
   location = locations,
   obstacles = rishon,
-  obstacles_height_field = "BLDG_HT"
+  obstacles_height_field = "BLDG_HT",
+  parallel = FALSE
 )
 plot(rishon)
 plot(locations, add = TRUE)
@@ -56,13 +63,15 @@ raster::text(locations, round(svfs, 2), col = "red", pos = 3)
 
 # Grid
 ext = as(raster::extent(rishon), "SpatialPolygons")
-r = raster::raster(ext, res = 10)
+r = raster::raster(ext, res = 5)
 proj4string(r) = proj4string(rishon)
 pnt = raster::rasterToPoints(r, spatial = TRUE)
 svfs = SVF(
     location = r,
     obstacles = rishon,
-    obstacles_height_field = "BLDG_HT"
+    obstacles_height_field = "BLDG_HT",
+    parallel = TRUE,
+    mc.cores = 3
   )
 plot(svfs, col = grey(seq(0.9, 0.2, -0.01)))
 raster::contour(svfs, add = TRUE)
@@ -71,4 +80,3 @@ plot(rishon, add = TRUE, border = "red")
 }
 
 }
-

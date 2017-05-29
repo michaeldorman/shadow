@@ -12,4 +12,3 @@ block
 A \code{SpatialPolygons} object representing the boundaries of a building block in Central Boston.
 }
 \keyword{datasets}
-

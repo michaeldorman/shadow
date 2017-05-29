@@ -12,4 +12,3 @@ sidewalk
 A \code{SpatialLinesDataFrame} object representing sidewalks in Central Boston.
 }
 \keyword{datasets}
-

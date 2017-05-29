@@ -18,4 +18,3 @@ build
 A \code{SpatialPolygonsDataFrame} object representing the outlines of three buildings located in Central Boston. The attribute \code{height_m} contains building height, in meters.
 }
 \keyword{datasets}
-

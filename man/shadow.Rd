@@ -14,4 +14,3 @@ Functions for calculating:\itemize{
 }
 Typical inputs include a polygonal layer of buildings outline along with the height of each building, sun azimuth and sun elevation. The package also provides functions for related preliminary calculations: converting polygons to line segments, finding segment azimuth, shifting segments by azimuth and distance, and constructing the footprint of a line of sight between an observer and the sun.
 }
-

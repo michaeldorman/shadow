@@ -12,4 +12,3 @@ park
 A \code{SpatialPolygons} object representing the boundaries of a park in Central Boston.
 }
 \keyword{datasets}
-

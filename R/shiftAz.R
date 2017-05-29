@@ -19,7 +19,8 @@
 shiftAz = function(object, az, dist) {
 
   # Check 'object' class
-
+  # ...
+  
   # Check lengths of 'az' and 'dist'
   # ...
 
