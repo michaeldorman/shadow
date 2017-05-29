@@ -9,11 +9,10 @@
 \usage{
 \S4method{shadowHeight}{SpatialPoints}(location, obstacles,
   obstacles_height_field, solar_pos, b = 0.01, messages = TRUE,
-  parallel = FALSE, mc.cores = NULL)
+  parallel = getOption("mc.cores"))
 
 \S4method{shadowHeight}{Raster}(location, obstacles, obstacles_height_field,
-  solar_pos, b = 0.01, messages = TRUE, parallel = FALSE,
-  mc.cores = NULL)
+  solar_pos, b = 0.01, messages = TRUE, parallel = getOption("mc.cores"))
 }
 \arguments{
 \item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate shadow height}
@@ -28,9 +27,7 @@
 
 \item{messages}{Whether a message regarding distance units of the CRS should be displayed}
 
-\item{parallel}{Whether to use a parallel computation (function \code{mclapply}). Default is \code{FALSE}}
-
-\item{mc.cores}{The number of cores to use, when \code{parallel} is set to \code{TRUE}}
+\item{parallel}{Number of parallel processes or a predefined socket cluster. With \code{parallel = 1} uses ordinary, non-parallel processing. The parallel processing is done with the \code{parallel} package}
 }
 \value{
 Shadow height, in CRS units (e.g. meters). \code{NA} value means no shadow, \code{Inf} means complete shadow (i.e. sun below horizon).
@@ -103,8 +100,7 @@ shadow = shadowHeight(
     obstacles_height_field = "BLDG_HT",
     solar_pos = solar_pos,
     messages = FALSE,
-    parallel = TRUE,
-    mc.cores = 3
+    parallel = 3
   )
 plot(shadow[[1]], col = grey(seq(0.9, 0.2, -0.01)), main = time)
 raster::contour(shadow[[1]], add = TRUE)

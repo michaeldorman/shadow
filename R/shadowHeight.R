@@ -16,7 +16,7 @@
 #' @param solar_pos A matrix with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)
 #' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
 #' @param messages Whether a message regarding distance units of the CRS should be displayed
-#' @param parallel Number of parallel processes or a predefined socket cluster. With parallel = 1 uses ordinary, non-parallel processing. The parallel processing is done with the \code{parallel} package.
+#' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel = 1} uses ordinary, non-parallel processing. The parallel processing is done with the \code{parallel} package
 #'
 #' @return Shadow height, in CRS units (e.g. meters). \code{NA} value means no shadow, \code{Inf} means complete shadow (i.e. sun below horizon).
 #' \itemize{
@@ -191,11 +191,9 @@ function(
 
         result[, col] = simplify2array(tmp)
 
-        }
+        } else {
 
-        else {
-
-          if (!hasClus) {
+          if(!hasClus) {
             parallel = parallel::makeCluster(parallel)
           }
 
@@ -213,8 +211,7 @@ function(
 
           result[, col] = simplify2array(tmp)
 
-          # tmp = parLapply(parallel, 1:nperm, function(i) estFun(permat[i, ]))
-          if (!hasClus)
+          if(!hasClus)
             parallel::stopCluster(parallel)
         }
 
