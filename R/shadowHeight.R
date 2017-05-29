@@ -196,7 +196,7 @@ function(
         else {
 
           if (!hasClus) {
-            parallel = makeCluster(parallel)
+            parallel = parallel::makeCluster(parallel)
           }
 
           tmp = parallel::parLapply(
@@ -211,9 +211,11 @@ function(
             b = 0.01
           )
 
+          result[, col] = simplify2array(tmp)
+
           # tmp = parLapply(parallel, 1:nperm, function(i) estFun(permat[i, ]))
           if (!hasClus)
-            stopCluster(parallel)
+            parallel::stopCluster(parallel)
         }
 
       }
