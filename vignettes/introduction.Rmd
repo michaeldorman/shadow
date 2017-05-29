@@ -67,7 +67,7 @@ The `shadow` package currently contains three main functions, as well as several
 
 # Examples
 
-Before going into the examples, we load the `shadow` package as well as packages `sp` (loaded automatically), `raster` and `rgeos` -
+Before going into the examples, we load the `shadow` package as well as packages `sp` (loaded automatically), `raster`, `rgeos` and `rgdal` -
 
 ```{r, message=FALSE}
 library(shadow)
