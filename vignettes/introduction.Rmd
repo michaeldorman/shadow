@@ -21,6 +21,7 @@ vignette: >
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
+  dev = "svg",
   fig.align = "center",
   collapse = TRUE, 
   comment = "#>"
@@ -45,15 +46,13 @@ These types of calculations (and more advanced ones) are usually restricted to p
 
 The functions currently included `shadow` are based on the trigonometric relations in the triangle defined by the sun rays, the ground (or plane parallel to the ground) and an obstacle. For example, as shown in Figure \@ref(fig:trigdrawing), shadow height ($h_{shade}$) at a given location ($observer$) can be calculated based on the sun elevation angle ($\alpha$) in case there is one obstacle with a known height ($h_{build}$) and at a known distance ($dist$) - 
 
-$h_{shade} = h_{build} - dist * tan(\alpha)$
+$h_{shade} = h_{build} - dist \cdot tan(\alpha)$
 
 This approach can be expanded for the general case of multiple obstacles, in which case we must take the *maximum* value of all potential shadow heights caused by the obstacles. 
 
 ```{r trigdrawing, fig.cap="Shade height calculation", out.width="400px", echo=FALSE}
-knitr::include_graphics("shade_height.pdf")
+knitr::include_graphics("shade_height.svg")
 ```
-
-<!-- ![Shade height calculation \label{trig_drawing}](shade_height.png) -->
 
 # Functions
 
@@ -186,7 +185,7 @@ r = shadowHeight(
 
 The resulting grid can plotted with following code section (Figure \@ref(fig:heightresult)). Note the partial shade on the roof of the 19.07-m building which is caused by the slightly taller 22.73-m building.
 
-```{r heightresult, fig.cap="Shade height (m) grid", fig.height=5.5}
+```{r heightresult, dev="png", fig.cap="Shade height (m) grid", fig.height=5.5}
 plot(r, col = grey(seq(0.9, 0.2, -0.01)))
 contour(r, add = TRUE)
 plot(rishon, add = TRUE, border = "red")
