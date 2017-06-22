@@ -8,4 +8,6 @@
 * Fixed 'shiftAz' behavior when 'object' is 'SpatialPoints*' 
 * 'parallel' support in functions 'shadowHeight' and 'SVF'
 
+# shadow 0.3.3
 
+* Fixed missing drawing in vignette
