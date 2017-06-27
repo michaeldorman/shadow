@@ -11,3 +11,7 @@
 # shadow 0.3.3
 
 * Fixed missing drawing in vignette
+
+# shadow 0.3.4
+
+* Minor documentation update

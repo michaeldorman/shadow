@@ -12,86 +12,97 @@ devtools::install_github("michaeldorman/shadow")
 ``` r
 library(shadow)
 #> Loading required package: sp
-library(sp)
-library(rgeos)
-#> rgeos version: 0.3-22, (SVN revision 544)
-#>  GEOS runtime version: 3.5.1-CAPI-1.9.1 r4246 
-#>  Linking to sp version: 1.2-4 
-#>  Polygon checking: TRUE
 library(raster)
 
-# Single location
-ctr = gCentroid(rishon)
-plot(rishon)
-plot(ctr, add = TRUE)
-sun = shadow:::.sunLocation(
-  location = ctr, 
-  sun_az = 30, 
-  sun_elev = 20
+# Buildings layer
+build = rishon
+
+# Point
+location = rgeos::gCentroid(build)
+
+# Time
+time = as.POSIXct(
+  "2004-12-24 13:30:00",
+  tz = "Asia/Jerusalem"
   )
-sun_ray = ray(from = ctr, to = sun)
-build_outline = as(rishon, "SpatialLinesDataFrame")
-inter = gIntersection(build_outline, sun_ray)
+
+# Location in geographical coordinates
+location_geo = sp::spTransform(
+  location,
+  "+proj=longlat +datum=WGS84"
+  )
+
+# Solar position
+solar_pos = maptools::solarpos(
+  crds = location_geo,
+  dateTime = time
+  )
+solar_pos
+#>          [,1]     [,2]
+#> [1,] 208.7333 28.79944
+
+# Shadow height at a single point
+h = shadowHeight(
+  location = location,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos
+  )
+#> Assuming BLDG_HT given in m
+
+# Result
+h
+#>          [,1]
+#> [1,] 19.86451
+
+# Visualization
+sun = shadow:::.sunLocation(
+  location = location,
+  sun_az = solar_pos[1, 1],
+  sun_elev = solar_pos[1, 2]
+  )
+sun_ray = ray(from = location, to = sun)
+build_outline = as(build, "SpatialLinesDataFrame")
+inter = rgeos::gIntersection(build_outline, sun_ray)
+plot(build)
 plot(sun_ray, add = TRUE, col = "yellow")
+plot(location, add = TRUE)
+text(location, paste(round(h, 2), "m"), pos = 3)
 plot(inter, add = TRUE, col = "red")
 ```
 
 ![](README-demo1-1.png)
 
 ``` r
-shadowHeight(
-  location = ctr, 
-  obstacles = rishon, 
-  obstacles_height_field = "BLDG_HT", 
-  solar_pos = matrix(c(30, 20), nrow = 1, ncol = 2)
+
+# Raster template
+ext = as(raster::extent(build)+50, "SpatialPolygons")
+r = raster::raster(ext, res = 2)
+proj4string(r) = proj4string(build)
+
+# Shadow height surface
+height_surface = shadowHeight(
+  location = r,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos,
+  parallel = 2
   )
 #> Assuming BLDG_HT given in m
-#>          [,1]
-#> [1,] 10.31931
+
+# Visualization
+plot(height_surface, col = grey(seq(0.9, 0.2, -0.01)))
+contour(height_surface, add = TRUE)
+plot(build, add = TRUE, border = "red")
+text(rgeos::gCentroid(build, byid = TRUE), build$BLDG_HT)
+text(location, paste(round(h, 2), "m"), pos = 3, col = "red", font = 2)
+plot(sun_ray, add = TRUE, col = "yellow")
+plot(inter, add = TRUE, col = "red")
+plot(location, add = TRUE)
 ```
 
-``` r
-# Grid
-ext = as(extent(rishon), "SpatialPolygons")
-r = raster(ext, res = 3)
-proj4string(r) = proj4string(rishon)
-grid = rasterToPoints(r, spatial = TRUE)
-grid = SpatialPointsDataFrame(grid, data.frame(id = 1:length(grid)))
-
-library(parallel)
-start = Sys.time()
-shadeheights = mclapply(
-  split(grid, grid$id),
-  shadowHeight,
-  obstacles = rishon, 
-  obstacles_height_field = "BLDG_HT", 
-  solar_pos = matrix(c(70, 30), nrow = 1, ncol = 2),
-  mc.cores = 3
-  )
-end = Sys.time()
-end - start
-#> Time difference of 3.699326 secs
-r[] = simplify2array(shadeheights)
-
-plot(r, col = grey(seq(0.9, 0.2, -0.01)))
-contour(r, add = TRUE)
-plot(rishon, add = TRUE, border = "red")
-```
-
-![](README-demo2-1.png)
+![](README-demo1-2.png)
 
 ### To-do list
-
--   Raster support (as `location`)
-
--   Restrict `shadowHeight` calculations only within `shadeFootprint` result
-
--   `height` input for `shadowFootprint`
-
--   Raster support (as `surface`)
-
--   `parallel` support
-
--   New vignette
 
 ### Ideas for future development
