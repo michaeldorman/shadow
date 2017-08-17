@@ -2,13 +2,13 @@
 #'
 #' Calculates the Sky View Factor (SVF) at given points or complete grid (\code{location}), taking into account obstacles outline (\code{obstacles}) given by a polygonal layer with a height attribute (\code{obstacles_height_field}).
 #'
-#' @param location A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF
+#' @param location A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF. If \code{location} is \code{SpatialPoints*}, then it can have 2 or 3 dimensions. In the latter case the 3rd dimention is assumed to be elevation above ground (in CRS units).
 #' @param obstacles A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
 #' @param res_angle Circular sampling resolution, in decimal degrees. Default is 5 degrees, i.e. 0, 5, 10... 355.
 #' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
 #' @param messages Whether a message regarding distance units of the CRS should be displayed
-#' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel = 1} uses ordinary, non-parallel processing. The parallel processing is done with the \code{parallel} package
+#' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package
 #'
 #' @return A numeric value between 0 (sky completely obstructed) and 1 (sky completely visible).
 #'\itemize{
@@ -49,6 +49,25 @@
 #' raster::contour(svfs, add = TRUE)
 #' plot(rishon, add = TRUE, border = "red")
 #'
+#' # 3D points
+#' ctr = rgeos::gCentroid(rishon)
+#' heights = seq(0, 28, 1)
+#' loc3d = data.frame(
+#'     x = coordinates(ctr)[, 1],
+#'     y = coordinates(ctr)[, 2],
+#'     z = heights
+#' )
+#' coordinates(loc3d) = ~ x + y + z
+#' proj4string(loc3d) = proj4string(rishon)
+#' svfs = SVF(
+#'     location = loc3d,
+#'     obstacles = rishon,
+#'     obstacles_height_field = "BLDG_HT",
+#'     parallel = 3
+#' )
+#' plot(heights, svfs, type = "b", xlab = "Elevation (m)", ylab = "SVF", ylim = c(0, 1))
+#' abline(v = rishon$BLDG_HT, col = "red")
+#'
 #' }
 #'
 #' @export
@@ -68,6 +87,9 @@ setGeneric("SVF", function(
 
 #' @export
 #' @rdname SVF
+
+##################################################################################
+# 'SVF' method for points
 
 setMethod(
 
@@ -181,6 +203,9 @@ function(
 #' @export
 #' @rdname SVF
 
+##################################################################################
+# 'SVF' method for raster
+
 setMethod(
 
   f = "SVF",
@@ -208,6 +233,7 @@ setMethod(
     # Convert raster to points
     pnt = raster::rasterToPoints(location, spatial = TRUE)
 
+    # Run the 'SpatialPoints' method for each point on raster
     location[] = SVF(
       location = pnt,
       obstacles = obstacles,
@@ -227,7 +253,7 @@ setMethod(
 #' @export
 #' @name SVF
 
-
+##################################################################################
 
 
 

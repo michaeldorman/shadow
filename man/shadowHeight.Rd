@@ -9,10 +9,11 @@
 \usage{
 \S4method{shadowHeight}{SpatialPoints}(location, obstacles,
   obstacles_height_field, solar_pos, b = 0.01, messages = TRUE,
-  parallel = getOption("mc.cores"))
+  parallel = getOption("mc.cores"), filter_footprint = FALSE)
 
 \S4method{shadowHeight}{Raster}(location, obstacles, obstacles_height_field,
-  solar_pos, b = 0.01, messages = TRUE, parallel = getOption("mc.cores"))
+  solar_pos, b = 0.01, messages = TRUE, parallel = getOption("mc.cores"),
+  filter_footprint = FALSE)
 }
 \arguments{
 \item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate shadow height}
@@ -27,7 +28,9 @@
 
 \item{messages}{Whether a message regarding distance units of the CRS should be displayed}
 
-\item{parallel}{Number of parallel processes or a predefined socket cluster. With \code{parallel = 1} uses ordinary, non-parallel processing. The parallel processing is done with the \code{parallel} package}
+\item{parallel}{Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package}
+
+\item{filter_footprint}{Should the points be filtered using \code{shadowFootprint} before calculating shadow height? This can make the calculation faster when there are many point that are not shaded}
 }
 \value{
 Shadow height, in CRS units (e.g. meters). \code{NA} value means no shadow, \code{Inf} means complete shadow (i.e. sun below horizon).
@@ -92,8 +95,9 @@ shadowHeight(
 
 # Grid
 ext = as(raster::extent(rishon), "SpatialPolygons")
-r = raster::raster(ext, res = 3)
+r = raster::raster(ext, res = 1)
 proj4string(r) = proj4string(rishon)
+x = Sys.time()
 shadow = shadowHeight(
     location = r,
     obstacles = rishon,
@@ -102,6 +106,8 @@ shadow = shadowHeight(
     messages = FALSE,
     parallel = 3
   )
+  y = Sys.time()
+  y - x
 plot(shadow[[1]], col = grey(seq(0.9, 0.2, -0.01)), main = time)
 raster::contour(shadow[[1]], add = TRUE)
 plot(rishon, add = TRUE, border = "red")

@@ -16,7 +16,8 @@
 #' @param solar_pos A matrix with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)
 #' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
 #' @param messages Whether a message regarding distance units of the CRS should be displayed
-#' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel = 1} uses ordinary, non-parallel processing. The parallel processing is done with the \code{parallel} package
+#' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package
+#' @param filter_footprint Should the points be filtered using \code{shadowFootprint} before calculating shadow height? This can make the calculation faster when there are many point that are not shaded
 #'
 #' @return Shadow height, in CRS units (e.g. meters). \code{NA} value means no shadow, \code{Inf} means complete shadow (i.e. sun below horizon).
 #' \itemize{
@@ -67,8 +68,9 @@
 #'
 #' # Grid
 #' ext = as(raster::extent(rishon), "SpatialPolygons")
-#' r = raster::raster(ext, res = 3)
+#' r = raster::raster(ext, res = 1)
 #' proj4string(r) = proj4string(rishon)
+#' x = Sys.time()
 #' shadow = shadowHeight(
 #'     location = r,
 #'     obstacles = rishon,
@@ -77,6 +79,8 @@
 #'     messages = FALSE,
 #'     parallel = 3
 #'   )
+#'   y = Sys.time()
+#'   y - x
 #' plot(shadow[[1]], col = grey(seq(0.9, 0.2, -0.01)), main = time)
 #' raster::contour(shadow[[1]], add = TRUE)
 #' plot(rishon, add = TRUE, border = "red")
@@ -101,6 +105,9 @@ setGeneric("shadowHeight", function(
 #' @export
 #' @rdname shadowHeight
 
+##################################################################################
+# 'shadowHeight' method for points
+
 setMethod(
 
   f = "shadowHeight",
@@ -119,7 +126,8 @@ function(
   solar_pos,
   b = 0.01,
   messages = TRUE,
-  parallel = getOption("mc.cores")
+  parallel = getOption("mc.cores"),
+  filter_footprint = FALSE
   ) {
 
   # Checks
@@ -144,11 +152,25 @@ function(
   # 'for' loop
   if(parallel == 1) {
 
-  for(row in 1:nrow(result)) { # Locations
+  for(col in 1:nrow(solar_pos)) { # Times
 
-    for(col in 1:nrow(solar_pos)) { # Times
+    # Filter unshaded area based on 'shadowFootprint'
+    if(filter_footprint) {
+      footprint = shadowFootprint(
+        obstacles = obstacles,
+        obstacles_height_field = obstacles_height_field,
+        solar_pos = solar_pos[col, , drop = FALSE],
+        messages = FALSE
+      )
+      intersection_w_footprint = rgeos::gIntersects(location, footprint, byid = TRUE)[1, ]
+    }
+
+    for(row in 1:nrow(result)) { # Locations
 
       result[row, col] =
+      # ifelse(
+        # !intersection_w_footprint[row], # Unshaded
+        # NA,
         .shadowHeightPnt(
           location = location[row, ],
           # surface,
@@ -158,6 +180,7 @@ function(
           obstacles_outline = obstacles_outline,
           b = 0.01
         )
+      # )
 
       }
 
@@ -176,20 +199,42 @@ function(
 
       for(col in 1:nrow(solar_pos)) { # Times
 
+        # Filter unshaded area based on 'shadowFootprint'
+        if(filter_footprint) {
+          footprint = shadowFootprint(
+            obstacles = obstacles,
+            obstacles_height_field = obstacles_height_field,
+            solar_pos = solar_pos[col, , drop = FALSE],
+            messages = FALSE
+          )
+          intersection_w_footprint = rgeos::gIntersects(location, footprint, byid = TRUE)[1, ]
+        }
+
         if(.Platform$OS.type == "unix" && !hasClus) {
 
+          if(filter_footprint) {
+            evaluated_locations = location_split[intersection_w_footprint]
+          } else {
+            evaluated_locations = location_split
+          }
+
         tmp = parallel::mclapply(
-          X = location_split,
+          X = evaluated_locations,
           FUN = .shadowHeightPnt,
           # surface,
           obstacles = obstacles,
           obstacles_height_field = obstacles_height_field,
           solar_pos = solar_pos[col, , drop = FALSE],
           obstacles_outline = obstacles_outline,
-          b = 0.01, mc.cores = parallel
+          b = 0.01,
+          mc.cores = parallel
         )
 
-        result[, col] = simplify2array(tmp)
+        if(filter_footprint) {
+          result[intersection_w_footprint, col] = simplify2array(tmp)
+        } else {
+          result[, col] = simplify2array(tmp)
+        }
 
         } else {
 
@@ -197,9 +242,15 @@ function(
             parallel = parallel::makeCluster(parallel)
           }
 
+          if(filter_footprint) {
+            evaluated_locations = location_split[intersection_w_footprint]
+          } else {
+            evaluated_locations = location_split
+          }
+
           tmp = parallel::parLapply(
             parallel,
-            X = location_split,
+            X = evaluated_locations,
             fun = .shadowHeightPnt,
             # surface,
             obstacles = obstacles,
@@ -209,7 +260,11 @@ function(
             b = 0.01
           )
 
-          result[, col] = simplify2array(tmp)
+          if(filter_footprint) {
+            result[intersection_w_footprint, col] = simplify2array(tmp)
+          } else {
+            result[, col] = simplify2array(tmp)
+          }
 
           if(!hasClus)
             parallel::stopCluster(parallel)
@@ -229,6 +284,9 @@ function(
 #' @export
 #' @rdname shadowHeight
 
+##################################################################################
+# 'shadowHeight' method for raster
+
 setMethod(
 
   f = "shadowHeight",
@@ -247,7 +305,8 @@ setMethod(
     solar_pos,
     b = 0.01,
     messages = TRUE,
-    parallel = getOption("mc.cores")
+    parallel = getOption("mc.cores"),
+    filter_footprint = FALSE
   ) {
 
     pnt = raster::rasterToPoints(location, spatial = TRUE)
@@ -259,7 +318,8 @@ setMethod(
       solar_pos = solar_pos,
       b = b,
       messages = messages,
-      parallel = parallel
+      parallel = parallel,
+      filter_footprint = filter_footprint
       )
 
     template = location
@@ -278,6 +338,7 @@ setMethod(
 
 )
 
+##################################################################################
 
 
 

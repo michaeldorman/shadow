@@ -20,11 +20,35 @@
   rays$makeUniqueIDs = TRUE
   rays = do.call(sp::rbind.SpatialLines, rays)
 
-  # Buildings outline to 'lines' *** DEPENDS ON PACKAGE 'sp' ***
+  # # Add 'surface' outline to obstacles
+  # surface = rgeos::gBuffer(location, width = 1000)
+  # surface = SpatialPolygonsDataFrame(
+  #   Sr = surface,
+  #   data = data.frame(height = 0),
+  #   match.ID = FALSE
+  # )
+  # names(surface) = obstacles_height_field
+  # surface = rbind(obstacles[, obstacles_height_field], surface)
+
+  # 'obstacles' / 'surface' outline to 'lines' *** DEPENDS ON PACKAGE 'sp' ***
+  # surface_outline = as(surface, "SpatialLinesDataFrame")
   obstacles_outline = as(obstacles, "SpatialLinesDataFrame")
 
-  # If point is on a building then SVF='NA'
-  if(rgeos::gIntersects(location, obstacles)) svf_final = NA else {
+  if(
+
+    # 2D mode - if point is *on* a building then 'SVF=NA'
+    (
+      dimensions(location) == 2 & # 2D
+        rgeos::gIntersects(location, obstacles) # Intersects with 'obstacles'
+    ) ||
+
+    # 3D mode - if point is *inside* building then 'SVF=NA'
+    dimensions(location) == 3 & ( # 3D
+      rgeos::gIntersects(location, obstacles) && # Intersects with 'obstacles'
+      coordinates(location)[, 3] < obstacles[location, ]@data[, obstacles_height_field] # Location z < Obstacle h
+    )
+
+     ) svf_final = NA else {
 
     svf = rep(NA, length(rays))
 
@@ -33,20 +57,28 @@
       # 'Line of sight' between sun and location
       ray1 = rays[i, ]
 
-      # Intersections with buildings outline
-      inter = rgeos::gIntersection(obstacles_outline, ray1)
+      # if(dimensions(location) == 2) {
 
-      # No intersections means SVF=1
+        # 2D mode - Intersections with 'obstacles' outline
+        inter = rgeos::gIntersection(obstacles_outline, ray1)
+
+      # }
+
+      # if(dimensions(location) == 3) {
+      #
+      #   # 3D mode - Intersections with 'surface' outline
+      #   inter = rgeos::gIntersection(surface_outline, ray1)
+      #
+      # }
+
+      # No intersections means 'SVF=1'
       if(is.null(inter)) svf[i] = 1 else {
 
-        # If some of the intersections are lines
+        # If some of the intersections are lines then convert to points
         if(class(inter) == "SpatialCollections") {
-
           lin = inter@lineobj
           inter = inter@pointobj
-
           for(lin_i in 1:length(lin)) {
-
             lin_pnt = lin[lin_i, ]
             lin_pnt = coordinates(lin_pnt)[[1]][[1]]
             lin_pnt = sp::SpatialPoints(
@@ -54,25 +86,21 @@
               proj4string = CRS(proj4string(inter))
             )
             inter = sp::rbind.SpatialPoints(inter, lin_pnt)
-
           }
-
         }
 
         # Set row names
         row.names(inter) = 1:length(inter)
 
-        # Extract building data for each intersection
+        # Extract 'obstacles' / 'surface' data for each intersection
+        # if(dimensions(location) == 2) outline = obstacles_outline
+        # if(dimensions(location) == 3) outline = surface_outline
         inter =
           SpatialPointsDataFrame(
             inter,
             sp::over(
               inter,
-              rgeos::gBuffer(
-                obstacles_outline,
-                byid = TRUE,
-                width = b
-              ),
+              rgeos::gBuffer(obstacles_outline, byid = TRUE, width = b),
               fn = max)
           )
 
@@ -80,9 +108,21 @@
         inter$dist = rgeos::gDistance(inter, location, byid = TRUE)[1, ]
 
         # Maximal angle of obstruction calculation
-        inter$angle = rad2deg(
-          atan(inter@data[, obstacles_height_field] / inter$dist)
-        )
+
+        # 2D mode - height difference equal to obstacles height
+        if(dimensions(location) == 2) {
+          inter$height_diff = inter@data[, obstacles_height_field]
+        }
+
+        # 3D mode - location height *subtracted* from obstacles height
+        if(dimensions(location) == 3) {
+          inter$height_diff = max(
+            inter@data[, obstacles_height_field] - coordinates(location)[, 3],
+            0 # If location z > obstacles h then 'height_diff=0'
+            )
+        }
+
+        inter$angle = rad2deg(atan(inter$height_diff / inter$dist))
         inter$svf = 1 - inter$angle / 90
         svf[i] = min(inter$svf)
 

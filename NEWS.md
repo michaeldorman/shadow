@@ -12,6 +12,8 @@
 
 * Fixed missing drawing in vignette
 
-# shadow 0.3.4
+# shadow 0.3.5
 
 * Minor documentation update
+* SVF also works for 3D points (above ground)
+

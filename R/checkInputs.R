@@ -1,3 +1,5 @@
+##################################################################################
+
 .checkLocation = function(location, length1 = TRUE) {
 
   # Check that 'location' is of length 1
@@ -12,6 +14,8 @@
     stop("'location' is not 'SpatialPoints*'")
 
 }
+
+##################################################################################
 
 .checkSolarPos = function(solar_pos, length1) {
 
@@ -37,6 +41,8 @@
 
 }
 
+##################################################################################
+
 .checkObstacles = function(obstacles, obstacles_height_field, messages) {
 
   # Check projected
@@ -51,6 +57,10 @@
   if(!obstacles_height_field %in% names(obstacles))
     stop("'obstacles_height_field' not found in attribute table of 'obstacles'")
 
+  # Check that height values are posivive
+  if(any(obstacles@data[, obstacles_height_field] < 0))
+    stop("'obstacles_height_field' cannot contain negative values")
+
   # Print units assumption
   if(messages) {
     message(
@@ -64,4 +74,4 @@
   }
 }
 
-
+##################################################################################

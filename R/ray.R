@@ -34,8 +34,8 @@ ray = function(from, to) {
         list(
           sp::Line(
             rbind(
-              sp::coordinates(from),
-              sp::coordinates(to)
+              sp::coordinates(from)[, 1:2],
+              sp::coordinates(to)[, 1:2]
             )
           )
         ),

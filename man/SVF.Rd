@@ -16,7 +16,7 @@
   parallel = getOption("mc.cores"))
 }
 \arguments{
-\item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF}
+\item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF. If \code{location} is \code{SpatialPoints*}, then it can have 2 or 3 dimensions. In the latter case the 3rd dimention is assumed to be elevation above ground (in CRS units).}
 
 \item{obstacles}{A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline}
 
@@ -28,7 +28,7 @@
 
 \item{messages}{Whether a message regarding distance units of the CRS should be displayed}
 
-\item{parallel}{Number of parallel processes or a predefined socket cluster. With \code{parallel = 1} uses ordinary, non-parallel processing. The parallel processing is done with the \code{parallel} package}
+\item{parallel}{Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package}
 }
 \value{
 A numeric value between 0 (sky completely obstructed) and 1 (sky completely visible).
@@ -72,6 +72,25 @@ svfs = SVF(
 plot(svfs, col = grey(seq(0.9, 0.2, -0.01)))
 raster::contour(svfs, add = TRUE)
 plot(rishon, add = TRUE, border = "red")
+
+# 3D points
+ctr = rgeos::gCentroid(rishon)
+heights = seq(0, 28, 1)
+loc3d = data.frame(
+    x = coordinates(ctr)[, 1],
+    y = coordinates(ctr)[, 2],
+    z = heights
+)
+coordinates(loc3d) = ~ x + y + z
+proj4string(loc3d) = proj4string(rishon)
+svfs = SVF(
+    location = loc3d,
+    obstacles = rishon,
+    obstacles_height_field = "BLDG_HT",
+    parallel = 3
+)
+plot(heights, svfs, type = "b", xlab = "Elevation (m)", ylab = "SVF", ylim = c(0, 1))
+abline(v = rishon$BLDG_HT, col = "red")
 
 }
 
