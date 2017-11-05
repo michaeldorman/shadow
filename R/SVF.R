@@ -2,7 +2,7 @@
 #'
 #' Calculates the Sky View Factor (SVF) at given points or complete grid (\code{location}), taking into account obstacles outline (\code{obstacles}) given by a polygonal layer with a height attribute (\code{obstacles_height_field}).
 #'
-#' @param location A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF. If \code{location} is \code{SpatialPoints*}, then it can have 2 or 3 dimensions. In the latter case the 3rd dimention is assumed to be elevation above ground (in CRS units).
+#' @param location A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF. If \code{location} is \code{SpatialPoints*}, then it can have 2 or 3 dimensions. In the latter case the 3rd dimension is assumed to be elevation above ground (in CRS units).
 #' @param obstacles A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
 #' @param res_angle Circular sampling resolution, in decimal degrees. Default is 5 degrees, i.e. 0, 5, 10... 355.
@@ -16,8 +16,19 @@
 #' \item{If input \code{location} is a \code{Raster*}, then returned object is a \code{RasterLayer} representing the SVF surface.}
 #' }
 #'
+#' @note
+#' SVF calculation for each view direction follows the following equation -
+#' \deqn{1 - (sin(\beta))^2}
+#' Where \eqn{\beta} is the highest elevation angle (see equation 3 in Gal & Unger 2014).
+#'
+#' @references
+#' Erell, E., Pearlmutter, D., & Williamson, T. (2012). Urban microclimate: designing the spaces between buildings. Routledge.
+#'
+#' Gal, T., & Unger, J. (2014). A new software tool for SVF calculations using building and tree-crown databases. Urban Climate, 10, 594-606.
+#'
+#'
 #' @examples
-#' # Individual locations
+#' ## Individual locations
 #' data(rishon)
 #' location0 = rgeos::gCentroid(rishon)
 #' location1 = raster::shift(location0, 0, -15)
@@ -34,7 +45,7 @@
 #'
 #' \dontrun{
 #'
-#' # Grid
+#' ## Grid
 #' ext = as(raster::extent(rishon), "SpatialPolygons")
 #' r = raster::raster(ext, res = 5)
 #' proj4string(r) = proj4string(rishon)
@@ -49,7 +60,7 @@
 #' raster::contour(svfs, add = TRUE)
 #' plot(rishon, add = TRUE, border = "red")
 #'
-#' # 3D points
+#' ## 3D points
 #' ctr = rgeos::gCentroid(rishon)
 #' heights = seq(0, 28, 1)
 #' loc3d = data.frame(
@@ -67,6 +78,34 @@
 #' )
 #' plot(heights, svfs, type = "b", xlab = "Elevation (m)", ylab = "SVF", ylim = c(0, 1))
 #' abline(v = rishon$BLDG_HT, col = "red")
+#'
+#' ## Example from Erell et al. 2012 (p. 19 Fig. 1.2)
+#'
+#' # Geometry
+#' pol1 = rgeos::readWKT("POLYGON ((0 100, 1 100, 1 0, 0 0, 0 100))")
+#' pol2 = rgeos::readWKT("POLYGON ((2 100, 3 100, 3 0, 2 0, 2 100))")
+#' pol = sp::rbind.SpatialPolygons(pol1, pol2, makeUniqueIDs = TRUE)
+#' pol = sp::SpatialPolygonsDataFrame(pol, data.frame(h = c(1, 1)), match.ID = FALSE)
+#' pnt = rgeos::readWKT("POINT (1.5 50)")
+#' plot(pol, col = "grey", xlim = c(0, 3), ylim = c(45, 55))
+#' plot(pnt, add = TRUE, col = "red")
+#'
+#' # Fig. 1.2 reproduction
+#' h = seq(0, 2, 0.1)
+#' svf = rep(NA, length(h))
+#' for(i in 1:length(h)) {
+#'   pol$h = h[i]
+#'   svf[i] = SVF(location = pnt, obstacles = pol, obstacles_height_field = "h", res_angle = 1)
+#' }
+#' plot(h, svf, type = "b", ylim = c(0, 1))
+#'
+#' # Comparison with SVF values from the book
+#' test = c(1, 0.9805806757, 0.9284766909, 0.8574929257, 0.7808688094,
+#' 0.7071067812, 0.6401843997, 0.5812381937, 0.52999894, 0.4856429312,
+#' 0.4472135955, 0.4138029443, 0.3846153846, 0.3589790793, 0.336336397,
+#' 0.316227766, 0.2982749931, 0.282166324, 0.2676438638, 0.2544932993,
+#' 0.242535625)
+#' range(test - svf)
 #'
 #' }
 #'

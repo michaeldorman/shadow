@@ -12,7 +12,7 @@ test_that("SVF calculation is correct", {
       obstacles_height_field = "BLDG_HT"
       )
   },
-  0.439093305222458
+  0.39597205126485
 )
   expect_equal({
     data(rishon)
@@ -24,7 +24,7 @@ test_that("SVF calculation is correct", {
       obstacles_height_field = "BLDG_HT"
     )
   },
-  0.189066910951481
+  0.139491688314422
   )
   expect_equal({
     data(rishon)
@@ -36,7 +36,7 @@ test_that("SVF calculation is correct", {
       obstacles_height_field = "BLDG_HT"
     )
   },
-  0.770651683412361
+  0.770505253636759
   )
 }
 )

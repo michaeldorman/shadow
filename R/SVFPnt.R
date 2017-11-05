@@ -123,7 +123,8 @@
         }
 
         inter$angle = rad2deg(atan(inter$height_diff / inter$dist))
-        inter$svf = 1 - inter$angle / 90
+        # inter$svf = 1 - inter$angle / 90
+        inter$svf = 1 - sin(deg2rad(inter$angle))^2 # Gal & Unger 2014
         svf[i] = min(inter$svf)
 
       }

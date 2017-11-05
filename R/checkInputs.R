@@ -7,7 +7,7 @@
     stop("'location' should be of length 1")
 
   # Check projected
-  if(!sp::is.projected(location))
+  if(!is.na(proj4string(location)) & !sp::is.projected(location))
     stop("'location' not in projected CRS")
 
   if(!class(location) %in% c("SpatialPoints", "SpatialPointsDataFrame"))
@@ -46,7 +46,7 @@
 .checkObstacles = function(obstacles, obstacles_height_field, messages) {
 
   # Check projected
-  if(!sp::is.projected(obstacles))
+  if(!is.na(proj4string(obstacles)) & !sp::is.projected(obstacles))
     stop("'obstacles' not in projected CRS")
 
   # Check class
@@ -65,10 +65,11 @@
   if(messages) {
     message(
       paste0(
-        "Assuming ", obstacles_height_field, " given in ",
+        "Assuming ", obstacles_height_field, " given in projection units (",
         gsub(" .*", "",
              gsub(".*\\+units=", "", sp::proj4string(obstacles))
-        )
+        ),
+        ")"
       )
     )
   }

@@ -14,7 +14,15 @@ knitr::opts_chunk$set(
 
 ### Installation
 
-```{r installation, eval=FALSE}
+CRAN version - 
+
+```{r installation1, eval=FALSE}
+install.packages("shadow")
+```
+
+GitHub version -
+
+```{r installation2, eval=FALSE}
 install.packages("devtools")
 devtools::install_github("michaeldorman/shadow")
 ```
@@ -101,9 +109,6 @@ plot(inter, add = TRUE, col = "red")
 plot(location, add = TRUE)
 ```
 
-### To-do list
-
-### Ideas for future development
 
 
 
