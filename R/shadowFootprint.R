@@ -15,7 +15,7 @@
 #' @return A \code{SpatialPolygonsDataFrame} object representing shadow footprint, plus buildings outline. Object length is the same as that of the input \code{obstacles}, with an individual footprint feature for each obstacle.
 #'
 #' @references
-#' Weisthal, M. (2014). Assessment of potential energy savings in Israel through climate-aware residential building design (Doctoral dissertation, Ben-Gurion University of the Negev).
+#' Weisthal, M. (2014). Assessment of potential energy savings in Israel through climate-aware residential building design (MSc Thesis, Ben-Gurion University of the Negev).
 #' \url{http://aranne5.bgu.ac.il/others/WeisthalMorel.pdf}
 #'
 #' @examples

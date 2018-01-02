@@ -49,6 +49,6 @@ plot(rishon, add = TRUE, col = "darkgrey")
 
 }
 \references{
-Weisthal, M. (2014). Assessment of potential energy savings in Israel through climate-aware residential building design (Doctoral dissertation, Ben-Gurion University of the Negev).
+Weisthal, M. (2014). Assessment of potential energy savings in Israel through climate-aware residential building design (MSc Thesis, Ben-Gurion University of the Negev).
 \url{http://aranne5.bgu.ac.il/others/WeisthalMorel.pdf}
 }

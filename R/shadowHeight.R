@@ -7,7 +7,7 @@
 #' }
 #' @note For a correct geometric calculation, make sure that:\itemize{
 #' \item{The layers \code{location} and \code{obstacles} are projected and in same CRS}
-#' \item{The values in \code{obstacles_height_field} of \code{build} are given in the same distance units as the CRS (e.g. meters when using UTM)}
+#' \item{The values in \code{obstacles_height_field} of \code{obstacles} are given in the same distance units as the CRS (e.g. meters when using UTM)}
 #'}
 #'
 #' @param location A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate shadow height
@@ -17,12 +17,12 @@
 #' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
 #' @param messages Whether a message regarding distance units of the CRS should be displayed
 #' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package
-#' @param filter_footprint Should the points be filtered using \code{shadowFootprint} before calculating shadow height? This can make the calculation faster when there are many point that are not shaded
+#' @param filter_footprint Should the points be filtered using \code{shadowFootprint} before calculating shadow height? This can make the calculation faster when there are many point which are not shaded
 #'
 #' @return Shadow height, in CRS units (e.g. meters). \code{NA} value means no shadow, \code{Inf} means complete shadow (i.e. sun below horizon).
 #' \itemize{
-#' \item{If input \code{location} is a \code{SpatialPoints*}, then returned object is a \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows).}
-#' \item{If input \code{location} is a \code{Raster*}, then returned object is a \code{RasterLayer} or \code{RasterStack} representing shadow height surface for a single sun position or multiple sun positions, respectively.}
+#' \item{If input \code{location} is a \code{SpatialPoints*}, then returned object is a \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows)}
+#' \item{If input \code{location} is a \code{Raster*}, then returned object is a \code{RasterLayer} or \code{RasterStack} representing shadow height surface for a single sun position or multiple sun positions, respectively}
 #' }
 #'
 #' @examples
@@ -51,7 +51,6 @@
 #' )
 #'
 #' \dontrun{
-#'
 #' # Two locations and three times
 #' location0 = rgeos::gCentroid(rishon)
 #' location1 = raster::shift(location0, 0, -15)
@@ -84,7 +83,6 @@
 #' plot(shadow[[1]], col = grey(seq(0.9, 0.2, -0.01)), main = time)
 #' raster::contour(shadow[[1]], add = TRUE)
 #' plot(rishon, add = TRUE, border = "red")
-#'
 #' }
 #' @export
 #' @name shadowHeight
@@ -135,7 +133,7 @@ function(
   .checkSolarPos(solar_pos, length1 = FALSE)
   .checkObstacles(obstacles, obstacles_height_field, messages)
 
-  # Buildings outline to 'lines' *** DEPENDS ON PACKAGE 'sp' ***
+  # Obstacles outline to 'lines' *** DEPENDS ON PACKAGE 'sp' ***
   obstacles_outline = as(obstacles, "SpatialLinesDataFrame")
 
   # Results matrix
@@ -152,7 +150,7 @@ function(
   # 'for' loop
   if(parallel == 1) {
 
-  for(col in 1:nrow(solar_pos)) { # Times
+  for(col in 1:ncol(result)) { # Times
 
     # Filter unshaded area based on 'shadowFootprint'
     if(filter_footprint) {

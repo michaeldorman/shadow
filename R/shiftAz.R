@@ -55,8 +55,8 @@ shiftAz = function(object, az, dist) {
   }
 
   if(class(object) %in% c("SpatialLines", "SpatialLinesDataFrame", "SpatialPolygons", "SpatialPolygonsDataFrame")) {
-  object_shifted = mapply(spChFIDs, object_shifted, row.names(object))
-}
+    object_shifted = mapply(spChFIDs, object_shifted, row.names(object))
+  }
 
   object_shifted = do.call(rbind, object_shifted)
 
