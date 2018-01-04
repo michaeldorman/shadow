@@ -27,4 +27,5 @@
 
 * Added 'surfaceGrid' function
 * Added 'plotGrid3D' function
+* Added 'inShadow' function
 * Corrections in documentation
