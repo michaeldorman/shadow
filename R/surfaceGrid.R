@@ -42,7 +42,6 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   obstacles_outline = rgeos::gLineMerge(obstacles_outline)
 
   # Point sample along facades
-  obstacles_outline =
   facade_sample =
     spsample(
       obstacles_outline,
@@ -83,7 +82,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
         data = cbind(
           tmp@data,
           height = h
-        )[rep(1, length(tmp)), ]
+        )
       )
       x$xy_id = 1:length(x)
       facade_pnt = c(facade_pnt, x)

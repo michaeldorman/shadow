@@ -29,3 +29,7 @@
 * Added 'plotGrid3D' function
 * Added 'inShadow' function
 * Corrections in documentation
+
+# shadow 0.4.7
+
+* Fixed attribute propagation in 'surfaceGrid'

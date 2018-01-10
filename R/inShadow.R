@@ -1,10 +1,10 @@
 #' Logical shadow calculation (is given point shaded?) for 3D points considering sun position and obstacles
 #'
-#' This function determines whether each given point in a set of 3D points (\code{location}), is shaded or not
-#' taking into account:\itemize{
+#' This function determines whether each given point in a set of 3D points (\code{location}), is shaded or not taking into account:\itemize{
 #' \item{Obstacles outline (\code{obstacles}), given by a polygonal layer with a height attribute (\code{obstacles_height_field})}
 #' \item{Sun position (\code{solar_pos}), given by azimuth and elevation angles}
 #' }
+#' Alternatively, the function determines whether each point is in shadow based on a raster representing shadow height \code{shadowHeightRaster}, in which case \code{obstacles}, \code{obstacles_height_field} and \code{solar_pos} are left unspecified.
 #' @note For a correct geometric calculation, make sure that:\itemize{
 #' \item{The layers \code{location} and \code{obstacles} are projected and in same CRS}
 #' \item{The values in \code{obstacles_height_field} of \code{obstacles} are given in the same distance units as the CRS (e.g. meters when using UTM)}

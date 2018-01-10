@@ -31,11 +31,11 @@
 Logical \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows)
 }
 \description{
-This function determines whether each given point in a set of 3D points (\code{location}), is shaded or not
-taking into account:\itemize{
+This function determines whether each given point in a set of 3D points (\code{location}), is shaded or not taking into account:\itemize{
 \item{Obstacles outline (\code{obstacles}), given by a polygonal layer with a height attribute (\code{obstacles_height_field})}
 \item{Sun position (\code{solar_pos}), given by azimuth and elevation angles}
 }
+Alternatively, the function determines whether each point is in shadow based on a raster representing shadow height \code{shadowHeightRaster}, in which case \code{obstacles}, \code{obstacles_height_field} and \code{solar_pos} are left unspecified.
 }
 \note{
 For a correct geometric calculation, make sure that:\itemize{
