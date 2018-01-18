@@ -17,13 +17,13 @@
 * Minor documentation update
 * SVF also works for 3D points (above ground)
 
-# shadow 0.4.0
+# shadow 0.4.0 (2017-11-05)
 
 * Correction in SVF calculation
 * Updated SVF tests and documentation
 * Expanded SVF example based on Erell et al. (2012)
 
-# shadow 0.4.5
+# shadow 0.4.5 (2018-01-04)
 
 * Added 'surfaceGrid' function
 * Added 'plotGrid3D' function
@@ -33,3 +33,11 @@
 # shadow 0.4.7
 
 * Fixed attribute propagation in 'surfaceGrid'
+* Added 'tmy' (Typical Meteorological Year) dataset
+* Added 'coefDirect' function
+* Fixed bug when using 'solar_pos' with >1 rows in 'inShadow'
+* Added progress bar to 'inShadow'
+
+To do:
+
+* removed the 'message' parameter

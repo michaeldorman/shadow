@@ -13,7 +13,7 @@
 #' @param location A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate shadow height
 #' @param obstacles A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
-#' @param solar_pos A matrix with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)
+#' @param solar_pos A matrix with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different positions (e.g. at different times of day)
 #' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
 #' @param messages Whether a message regarding distance units of the CRS should be displayed
 #' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package
@@ -123,7 +123,7 @@ function(
   obstacles_height_field,
   solar_pos,
   b = 0.01,
-  messages = TRUE,
+  messages = FALSE,
   parallel = getOption("mc.cores"),
   filter_footprint = FALSE
   ) {
@@ -302,7 +302,7 @@ setMethod(
     obstacles_height_field,
     solar_pos,
     b = 0.01,
-    messages = TRUE,
+    messages = FALSE,
     parallel = getOption("mc.cores"),
     filter_footprint = FALSE
   ) {

@@ -25,7 +25,7 @@
 
 \item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)}
 
-\item{...}{Other parameters passed to \code{shadowHeight}}
+\item{...}{Other parameters passed to \strong{\code{\link{shadowHeight}}}}
 }
 \value{
 Logical \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows)
@@ -54,7 +54,8 @@ location = surfaceGrid(
   res = 2,
   offset = 0.01
 )
-solar_pos = matrix(c(88.83113, 46.724), ncol = 2)
+solar_pos = tmy[c(9, 16), c("sun_az", "sun_elev")]
+solar_pos = as.matrix(solar_pos)
 s = inShadow(
   location = location,
   obstacles = obstacles,
@@ -62,6 +63,8 @@ s = inShadow(
   solar_pos = solar_pos
 )
 location$shadow = s[, 1]
+plotGrid(location, color = c("yellow", "grey")[as.factor(location$shadow)], size = 0.5)
+location$shadow = s[, 2]
 plotGrid(location, color = c("yellow", "grey")[as.factor(location$shadow)], size = 0.5)
 }
 

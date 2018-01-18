@@ -15,7 +15,7 @@
 #' @param obstacles A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
 #' @param solar_pos A matrix with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)
-#' @param ... Other parameters passed to \code{shadowHeight}
+#' @param ... Other parameters passed to \strong{\code{\link{shadowHeight}}}
 
 #'
 #' @return Logical \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows)
@@ -30,7 +30,8 @@
 #'   res = 2,
 #'   offset = 0.01
 #' )
-#' solar_pos = matrix(c(88.83113, 46.724), ncol = 2)
+#' solar_pos = tmy[c(9, 16), c("sun_az", "sun_elev")]
+#' solar_pos = as.matrix(solar_pos)
 #' s = inShadow(
 #'   location = location,
 #'   obstacles = obstacles,
@@ -38,6 +39,8 @@
 #'   solar_pos = solar_pos
 #' )
 #' location$shadow = s[, 1]
+#' plotGrid(location, color = c("yellow", "grey")[as.factor(location$shadow)], size = 0.5)
+#' location$shadow = s[, 2]
 #' plotGrid(location, color = c("yellow", "grey")[as.factor(location$shadow)], size = 0.5)
 #' }
 #'
@@ -124,6 +127,9 @@ setMethod(
       ncol = raster::nlayers(shadowHeightRaster) # Columns represent *time*
     )
 
+    # Progress bar
+    pb = txtProgressBar(min = 0, max = ncol(result), initial = 0, style = 3)
+
     for(col in 1:ncol(result)) { # Times
 
       # Raster-based shadow height
@@ -131,6 +137,9 @@ setMethod(
 
       # Comparison
       result[, col] = !(shadow_height < h | is.na(shadow_height))
+
+      # Progress
+      setTxtProgressBar(pb, col)
 
     }
 
@@ -180,6 +189,9 @@ setMethod(
       ncol = nrow(solar_pos) # Columns represent *time*
     )
 
+    # Progress bar
+    pb = txtProgressBar(min = 0, max = ncol(result), initial = 0, style = 3)
+
     for(col in 1:ncol(result)) { # Times
 
       coord_unique$shadow_height =
@@ -198,6 +210,11 @@ setMethod(
         )
 
       result[, col] = !(coord$shadow_height < coord$h | is.na(coord$shadow_height))
+
+      coord$shadow_height = NULL
+
+      # Progress
+      setTxtProgressBar(pb, col)
 
     }
 

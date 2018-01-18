@@ -12,7 +12,7 @@
 #' \item{\code{type} Either \code{"facade"} or \code{"roof"}}
 #' \item{\code{seg_id} Facade segment unique ID (only for 'facade' points)}
 #' \item{\code{xy_id} Facade ground location unique ID (only for 'facade' points)}
-#' \item{\code{az} The azimuth of the corresponding facade, in decimal degrees (only for 'facade' points)}
+#' \item{\code{facade_az} The azimuth of the corresponding facade, in decimal degrees (only for 'facade' points)}
 #' }
 #'
 #' @seealso Function \code{\link{plotGrid}} to visualize grid.
@@ -51,13 +51,13 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
 
   # Obstacles outline to segments
   seg = toSeg(obstacles)
-  seg$az = classifyAz(seg)
+  seg$facade_az = classifyAz(seg)
   seg$seg_id = 1:nrow(seg)
 
   # Segments buffer
   seg_b = rgeos::gBuffer(seg, width = offset, byid = TRUE)
 
-  # Classify 'az' per facade sample point
+  # Classify 'facade_az' per facade sample point
   facade_sample =
     SpatialPointsDataFrame(
       facade_sample,
@@ -65,7 +65,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
     )
 
   # Shift facade sample points 'away' from facades
-  facade_sample = shiftAz(facade_sample, az = facade_sample$az, dist = offset)
+  facade_sample = shiftAz(facade_sample, az = facade_sample$facade_az, dist = offset)
 
   facade_pnt = list()
   for(i in unique(facade_sample$obs_id)) {
@@ -92,53 +92,9 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
 
   # Rearrange columns
   facade_pnt$type = "facade"
-  pnt_names = c("type", "seg_id", "xy_id", "az", "height")
+  pnt_names = c("type", "seg_id", "xy_id", "facade_az", "height")
   other_names = setdiff(names(facade_pnt), pnt_names)
   facade_pnt = facade_pnt[, c(pnt_names, other_names)]
-
-  # # Shift segments 'away' from obstacles
-  # seg_shifted = list()
-  # for(i in 1:nrow(seg)) {
-  #   seg_shifted[[i]] = shiftAz(seg[i, ], az = seg$az[i], dist = offset)
-  # }
-  # seg_shifted = mapply(spChFIDs, seg_shifted, row.names(seg))
-  # seg_shifted = do.call(rbind, seg_shifted)
-  #
-  # # Calculate sample points
-  # facade_pnt = list()
-  # for(i in 1:nrow(seg_shifted)) {
-  #   facade = seg_shifted[i, ]
-  #   facade$seg_id = i
-  #   facade_sample =
-  #     spsample(
-  #       facade,
-  #       n = round(rgeos::gLength(facade)) / res,
-  #       type = "regular"
-  #     )
-  #   sampled_heights = seq(
-  #     from = res / 2,
-  #     to = facade[[obstacles_height_field]],
-  #     by = res
-  #     )
-  #   for(h in sampled_heights) {
-  #     x = SpatialPointsDataFrame(
-  #       facade_sample,
-  #       data = cbind(
-  #         facade@data,
-  #         height = h
-  #       )[rep(1, length(facade_sample)), ]
-  #     )
-  #     x$xy_id = 1:length(x)
-  #     facade_pnt = c(facade_pnt, x)
-  #   }
-  # }
-  # facade_pnt = do.call(rbind, facade_pnt)
-  #
-  # # Rearrange columns
-  # facade_pnt$type = "facade"
-  # pnt_names = c("type", "seg_id", "xy_id", "az", "height")
-  # other_names = setdiff(names(facade_pnt), pnt_names)
-  # facade_pnt = facade_pnt[, c(pnt_names, other_names)]
 
   #######################################
   # Roof sample points
@@ -150,7 +106,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   )
   roof_pnt$seg_id = NA
   roof_pnt$xy_id = NA
-  roof_pnt$az = NA
+  roof_pnt$facade_az = NA
   roof_pnt@data = cbind(roof_pnt@data, over(roof_pnt, obstacles))
   roof_pnt$height = roof_pnt[[obstacles_height_field]] + offset
 

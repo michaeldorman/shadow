@@ -2,6 +2,7 @@
 
 export(SVF)
 export(classifyAz)
+export(coefDirect)
 export(deg2rad)
 export(inShadow)
 export(plotGrid)

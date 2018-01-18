@@ -7,14 +7,14 @@
 \title{Shadow footprint on the ground}
 \usage{
 \S4method{shadowFootprint}{SpatialPolygonsDataFrame}(obstacles,
-  obstacles_height_field, solar_pos, b = 0.01, messages = TRUE)
+  obstacles_height_field, solar_pos, b = 0.01, messages = FALSE)
 }
 \arguments{
 \item{obstacles}{A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline}
 
 \item{obstacles_height_field}{Name of attribute in \code{obstacles} with extrusion height for each feature}
 
-\item{solar_pos}{A matrix with one row and two columns; first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees)}
+\item{solar_pos}{A matrix with one row and two columns; first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees)}
 
 \item{b}{Buffer size for shadow footprints of individual segments of a given polygon; used to eliminate minor internal holes in the resulting shadow polygon.}
 

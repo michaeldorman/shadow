@@ -147,7 +147,7 @@ function(
   obstacles_height_field,
   res_angle = 5,
   b = 0.01,
-  messages = TRUE,
+  messages = FALSE,
   parallel = getOption("mc.cores")
   ) {
 
@@ -262,7 +262,7 @@ setMethod(
     obstacles_height_field,
     res_angle = 5,
     b = 0.01,
-    messages = TRUE,
+    messages = FALSE,
     parallel = getOption("mc.cores")
   ) {
 

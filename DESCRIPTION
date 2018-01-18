@@ -14,7 +14,8 @@ Imports:
     rgeos (>= 0.3),
     raster (>= 2.4-15),
     methods,
-    parallel (>= 3.4.0)
+    parallel (>= 3.4.0),
+    plyr (>= 1.8.4)
 Depends:
     R (>= 3.2.3),
     sp (>= 1.1.1)
@@ -25,7 +26,6 @@ Suggests:
     bookdown,
     maptools (>= 0.8),
     testthat,
-    plyr (>= 1.8.4),
     reshape2 (>= 1.4.2),
     threejs,
     rgdal

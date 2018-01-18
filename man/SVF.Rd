@@ -8,11 +8,11 @@
 \title{Sky View Factor (SVF) calculation}
 \usage{
 \S4method{SVF}{SpatialPoints}(location, obstacles, obstacles_height_field,
-  res_angle = 5, b = 0.01, messages = TRUE,
+  res_angle = 5, b = 0.01, messages = FALSE,
   parallel = getOption("mc.cores"))
 
 \S4method{SVF}{Raster}(location, obstacles, obstacles_height_field,
-  res_angle = 5, b = 0.01, messages = TRUE,
+  res_angle = 5, b = 0.01, messages = FALSE,
   parallel = getOption("mc.cores"))
 }
 \arguments{

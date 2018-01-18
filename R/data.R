@@ -48,5 +48,22 @@
 
 "sidewalk"
 
+#' Typical Meteorological Year (TMY) solar radiation in Tel-Aviv
+#'
+#' A table with hourly solar radiation estimates for a typical meteorological year in Tel-Aviv. \itemize{
+#' \item{\code{time} Time, as \code{POSIXct} object}
+#' \item{\code{sun_az} Sun azimuth, in decimal degrees from North}
+#' \item{\code{sun_elev} Sun elevation, in decimal degrees}
+#' \item{\code{solar_normal} Direct Normal Irradiance, in Wh/m^2}
+#' \item{\code{solar_diffuse} Diffuse Horizontal Irradiance, in Wh/m^2}
+#' }
+#'
+#' @format A \code{data.frame} with 8760 rows and 5 columns.
+#'
+#' @references
+#' https://energyplus.net/weather-location/europe_wmo_region_6/ISR//ISR_Tel.Aviv-Bet.Dagan.401790_MSI
+
+"tmy"
+
 
 

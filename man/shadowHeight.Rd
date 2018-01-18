@@ -8,11 +8,11 @@
 \title{Shadow height calculation considering sun position and obstacles}
 \usage{
 \S4method{shadowHeight}{SpatialPoints}(location, obstacles,
-  obstacles_height_field, solar_pos, b = 0.01, messages = TRUE,
+  obstacles_height_field, solar_pos, b = 0.01, messages = FALSE,
   parallel = getOption("mc.cores"), filter_footprint = FALSE)
 
 \S4method{shadowHeight}{Raster}(location, obstacles, obstacles_height_field,
-  solar_pos, b = 0.01, messages = TRUE, parallel = getOption("mc.cores"),
+  solar_pos, b = 0.01, messages = FALSE, parallel = getOption("mc.cores"),
   filter_footprint = FALSE)
 }
 \arguments{
@@ -22,7 +22,7 @@
 
 \item{obstacles_height_field}{Name of attribute in \code{obstacles} with extrusion height for each feature}
 
-\item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)}
+\item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different positions (e.g. at different times of day)}
 
 \item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height}
 

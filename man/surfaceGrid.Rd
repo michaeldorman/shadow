@@ -20,7 +20,7 @@ A 3D \code{SpatialPointsDataFrame} layer, including all attributes of the origin
 \item{\code{type} Either \code{"facade"} or \code{"roof"}}
 \item{\code{seg_id} Facade segment unique ID (only for 'facade' points)}
 \item{\code{xy_id} Facade ground location unique ID (only for 'facade' points)}
-\item{\code{az} The azimuth of the corresponding facade, in decimal degrees (only for 'facade' points)}
+\item{\code{facade_az} The azimuth of the corresponding facade, in decimal degrees (only for 'facade' points)}
 }
 }
 \description{
