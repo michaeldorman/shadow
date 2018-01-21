@@ -28,7 +28,7 @@
 \item{...}{Other parameters passed to \strong{\code{\link{shadowHeight}}}}
 }
 \value{
-Logical \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows)
+Logical \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows); Matrixc ell value \code{TRUE} means the given location is shaded at the given time, \code{FALSE} means it is not-shaded
 }
 \description{
 This function determines whether each given point in a set of 3D points (\code{location}), is shaded or not taking into account:\itemize{

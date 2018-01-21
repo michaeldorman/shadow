@@ -8,11 +8,11 @@
 \title{Shadow height calculation considering sun position and obstacles}
 \usage{
 \S4method{shadowHeight}{SpatialPoints}(location, obstacles,
-  obstacles_height_field, solar_pos, b = 0.01, messages = FALSE,
+  obstacles_height_field, solar_pos, b = 0.01,
   parallel = getOption("mc.cores"), filter_footprint = FALSE)
 
 \S4method{shadowHeight}{Raster}(location, obstacles, obstacles_height_field,
-  solar_pos, b = 0.01, messages = FALSE, parallel = getOption("mc.cores"),
+  solar_pos, b = 0.01, parallel = getOption("mc.cores"),
   filter_footprint = FALSE)
 }
 \arguments{
@@ -25,8 +25,6 @@
 \item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different positions (e.g. at different times of day)}
 
 \item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height}
-
-\item{messages}{Whether a message regarding distance units of the CRS should be displayed}
 
 \item{parallel}{Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package}
 
@@ -102,7 +100,6 @@ shadow = shadowHeight(
     obstacles = rishon,
     obstacles_height_field = "BLDG_HT",
     solar_pos = solar_pos,
-    messages = FALSE,
     parallel = 3
   )
   y = Sys.time()

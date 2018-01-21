@@ -15,7 +15,6 @@
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
 #' @param solar_pos A matrix with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different positions (e.g. at different times of day)
 #' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
-#' @param messages Whether a message regarding distance units of the CRS should be displayed
 #' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package
 #' @param filter_footprint Should the points be filtered using \code{shadowFootprint} before calculating shadow height? This can make the calculation faster when there are many point which are not shaded
 #'
@@ -75,7 +74,6 @@
 #'     obstacles = rishon,
 #'     obstacles_height_field = "BLDG_HT",
 #'     solar_pos = solar_pos,
-#'     messages = FALSE,
 #'     parallel = 3
 #'   )
 #'   y = Sys.time()
@@ -123,7 +121,6 @@ function(
   obstacles_height_field,
   solar_pos,
   b = 0.01,
-  messages = FALSE,
   parallel = getOption("mc.cores"),
   filter_footprint = FALSE
   ) {
@@ -131,7 +128,7 @@ function(
   # Checks
   .checkLocation(location, length1 = FALSE)
   .checkSolarPos(solar_pos, length1 = FALSE)
-  .checkObstacles(obstacles, obstacles_height_field, messages)
+  .checkObstacles(obstacles, obstacles_height_field)
 
   # Obstacles outline to 'lines' *** DEPENDS ON PACKAGE 'sp' ***
   obstacles_outline = as(obstacles, "SpatialLinesDataFrame")
@@ -157,8 +154,7 @@ function(
       footprint = shadowFootprint(
         obstacles = obstacles,
         obstacles_height_field = obstacles_height_field,
-        solar_pos = solar_pos[col, , drop = FALSE],
-        messages = FALSE
+        solar_pos = solar_pos[col, , drop = FALSE]
       )
       intersection_w_footprint = rgeos::gIntersects(location, footprint, byid = TRUE)[1, ]
     }
@@ -203,7 +199,6 @@ function(
             obstacles = obstacles,
             obstacles_height_field = obstacles_height_field,
             solar_pos = solar_pos[col, , drop = FALSE],
-            messages = FALSE
           )
           intersection_w_footprint = rgeos::gIntersects(location, footprint, byid = TRUE)[1, ]
         }
@@ -302,7 +297,6 @@ setMethod(
     obstacles_height_field,
     solar_pos,
     b = 0.01,
-    messages = FALSE,
     parallel = getOption("mc.cores"),
     filter_footprint = FALSE
   ) {
@@ -315,7 +309,6 @@ setMethod(
       obstacles_height_field = obstacles_height_field,
       solar_pos = solar_pos,
       b = b,
-      messages = messages,
       parallel = parallel,
       filter_footprint = filter_footprint
       )

@@ -4,7 +4,7 @@
 #'
 #' @param obstacles A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
-#' @param res Required grid resolution, in CRS units.
+#' @param res Required grid resolution, in CRS units
 #' @param offset Offset between grid points and facade (horizontal distance) or between grid points and roof (vertical distance).
 #' @note The reason for introducing an offset is to avoid ambiguity as for whether the grid points are "inside" or "outside" of the obstacle. With an offset all grid points are "outside" of the building and thus not intersecting it. \code{offset} should be given in CRS units; default is 0.01.
 #'
@@ -28,6 +28,9 @@
 #' @export
 
 surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
+
+  # Check inputs
+  .checkObstacles(obstacles, obstacles_height_field)
 
   #######################################
   # Facade sample points
@@ -118,6 +121,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
 
   #######################################
   # Remove points encompassed "within" obstacle volume
+
   max_height = over(combined_pnt, obstacles[, obstacles_height_field], fn = max)
   max_height = max_height[[obstacles_height_field]]
   max_height[is.na(max_height)] = 0 # For points which do not intersect with 'obstacles'
@@ -126,6 +130,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
 
   #######################################
   # To 3D
+
   coords = coordinates(combined_pnt)
   coords = cbind(coords, h = combined_pnt$height)
   combined_pnt = SpatialPointsDataFrame(

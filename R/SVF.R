@@ -7,7 +7,6 @@
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
 #' @param res_angle Circular sampling resolution, in decimal degrees. Default is 5 degrees, i.e. 0, 5, 10... 355.
 #' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
-#' @param messages Whether a message regarding distance units of the CRS should be displayed
 #' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package
 #'
 #' @return A numeric value between 0 (sky completely obstructed) and 1 (sky completely visible).
@@ -147,13 +146,12 @@ function(
   obstacles_height_field,
   res_angle = 5,
   b = 0.01,
-  messages = FALSE,
   parallel = getOption("mc.cores")
   ) {
 
   # Checks
   .checkLocation(location, length1 = FALSE)
-  .checkObstacles(obstacles, obstacles_height_field, messages)
+  .checkObstacles(obstacles, obstacles_height_field)
 
   # Buildings outline to 'lines' *** DEPENDS ON PACKAGE 'sp' ***
   obstacles_outline = as(obstacles, "SpatialLinesDataFrame")
@@ -262,7 +260,6 @@ setMethod(
     obstacles_height_field,
     res_angle = 5,
     b = 0.01,
-    messages = FALSE,
     parallel = getOption("mc.cores")
   ) {
 
@@ -279,7 +276,6 @@ setMethod(
       obstacles_height_field = obstacles_height_field,
       res_angle = res_angle,
       b = b,
-      messages = messages,
       parallel = parallel
     )
 

@@ -18,7 +18,7 @@
 #' @param ... Other parameters passed to \strong{\code{\link{shadowHeight}}}
 
 #'
-#' @return Logical \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows)
+#' @return Logical \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows); Matrixc ell value \code{TRUE} means the given location is shaded at the given time, \code{FALSE} means it is not-shaded
 #' @examples
 #'
 #' \dontrun{

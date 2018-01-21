@@ -10,7 +10,6 @@
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
 #' @param solar_pos A matrix with one row and two columns; first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees)
 #' @param b Buffer size for shadow footprints of individual segments of a given polygon; used to eliminate minor internal holes in the resulting shadow polygon.
-#' @param messages Whether a message regarding distance units of the CRS should be displayed
 #'
 #' @return A \code{SpatialPolygonsDataFrame} object representing shadow footprint, plus buildings outline. Object length is the same as that of the input \code{obstacles}, with an individual footprint feature for each obstacle.
 #'
@@ -45,8 +44,7 @@ setGeneric("shadowFootprint", function(
   obstacles,
   obstacles_height_field,
   solar_pos,
-  b = 0.01,
-  messages = FALSE
+  b = 0.01
 ) {
   standardGeneric("shadowFootprint")
 })
@@ -67,13 +65,12 @@ setMethod(
     obstacles,
     obstacles_height_field,
     solar_pos,
-    b = 0.01,
-    messages = FALSE
+    b = 0.01
     ) {
 
     # Check inputs
     .checkSolarPos(solar_pos, length1 = TRUE)
-    .checkObstacles(obstacles, obstacles_height_field, messages)
+    .checkObstacles(obstacles, obstacles_height_field)
 
     # Container for footprints of individual 'obstacles' features
     footprint_final = list()

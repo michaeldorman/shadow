@@ -138,40 +138,6 @@ r = raster(ext, res = 2)
 proj4string(r) = proj4string(rishon)
 ```
 
-<!-- The following code section plots the input grid (Figure \@ref(fig:heightgrid)). -->
-
-<!-- ```{r heightgrid, fig.cap="Input grid for creating a shade heights surface"} -->
-<!-- plot(grid, pch = ".") -->
-<!-- plot(rishon, add = TRUE) -->
-<!-- ``` -->
-
-<!-- Calculating shade height at each point, using package `parallel` - -->
-
-<!-- ```{r, eval=FALSE} -->
-<!-- library(parallel) -->
-<!-- shade_heights = mclapply( -->
-<!--   split(grid, grid$grid_id), -->
-<!--   shadowHeight, -->
-<!--   obstacles = rishon,  -->
-<!--   obstacles_height_field = "BLDG_HT",  -->
-<!--   solar_pos = solar_pos, -->
-<!--   mc.cores = 3 -->
-<!--   ) -->
-<!-- r[] = simplify2array(shade_heights) -->
-<!-- ``` -->
-
-<!-- ```{r, echo=FALSE} -->
-<!-- for(i in 1:length(grid)) { -->
-<!--   r[i] = shadowHeight( -->
-<!--     location = grid[i, ], -->
-<!--     obstacles = rishon, -->
-<!--     obstacles_height_field = "BLDG_HT", -->
-<!--     solar_pos = solar_pos, -->
-<!--     messages = FALSE -->
-<!--     ) -->
-<!-- } -->
-<!-- ``` -->
-
 Replacing `location` with the raster `r` we now can calculate a shadow height surface -
 
 ```{r}
@@ -267,8 +233,7 @@ for(i in 1:nrow(solar_pos_seq)) {
         shadowFootprint(
           obstacles = rishon, 
           obstacles_height_field = "BLDG_HT", 
-          solar_pos = solar_pos_seq[i, , drop = FALSE],
-          messages = FALSE
+          solar_pos = solar_pos_seq[i, , drop = FALSE]
           )
     park_shade = gIntersection(park, footprint)
     if(is.null(park_shade))

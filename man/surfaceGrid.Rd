@@ -11,7 +11,7 @@ surfaceGrid(obstacles, obstacles_height_field, res, offset = 0.01)
 
 \item{obstacles_height_field}{Name of attribute in \code{obstacles} with extrusion height for each feature}
 
-\item{res}{Required grid resolution, in CRS units.}
+\item{res}{Required grid resolution, in CRS units}
 
 \item{offset}{Offset between grid points and facade (horizontal distance) or between grid points and roof (vertical distance).}
 }

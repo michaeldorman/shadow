@@ -8,12 +8,10 @@
 \title{Sky View Factor (SVF) calculation}
 \usage{
 \S4method{SVF}{SpatialPoints}(location, obstacles, obstacles_height_field,
-  res_angle = 5, b = 0.01, messages = FALSE,
-  parallel = getOption("mc.cores"))
+  res_angle = 5, b = 0.01, parallel = getOption("mc.cores"))
 
 \S4method{SVF}{Raster}(location, obstacles, obstacles_height_field,
-  res_angle = 5, b = 0.01, messages = FALSE,
-  parallel = getOption("mc.cores"))
+  res_angle = 5, b = 0.01, parallel = getOption("mc.cores"))
 }
 \arguments{
 \item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF. If \code{location} is \code{SpatialPoints*}, then it can have 2 or 3 dimensions. In the latter case the 3rd dimension is assumed to be elevation above ground (in CRS units).}
@@ -25,8 +23,6 @@
 \item{res_angle}{Circular sampling resolution, in decimal degrees. Default is 5 degrees, i.e. 0, 5, 10... 355.}
 
 \item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height}
-
-\item{messages}{Whether a message regarding distance units of the CRS should be displayed}
 
 \item{parallel}{Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package}
 }

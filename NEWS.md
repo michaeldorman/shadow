@@ -37,7 +37,10 @@
 * Added 'coefDirect' function
 * Fixed bug when using 'solar_pos' with >1 rows in 'inShadow'
 * Added progress bar to 'inShadow'
+* Added 'radiation' function
 
 To do:
 
-* removed the 'message' parameter
+* Removed the 'message' parameter
+
+
