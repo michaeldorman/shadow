@@ -1,4 +1,4 @@
-#' Shift features by azimuth and distance.
+#' Shift features by azimuth and distance
 #'
 #' @param object The object to be shifted.
 #' @param az Shift azimuth, in decimal degrees.
@@ -18,11 +18,18 @@
 
 shiftAz = function(object, az, dist) {
 
-  # Check 'object' class
-  # ...
-
   # Check lengths of 'az' and 'dist'
-  # ...
+  object_features = length(geometry(object))
+  if(
+    !(length(az) == 1 | length(az) == object_features)
+    ) {
+    stop("'az' needs to be of length 1 or same length as 'object'")
+  }
+  if(
+    !(length(dist) == 1 | length(dist) == object_features)
+    ) {
+    stop("'az' needs to be of length 1 or same length as 'object'")
+  }
 
   # Recycle if necessary
   if(length(az == 1)) az = rep(az, length(object))

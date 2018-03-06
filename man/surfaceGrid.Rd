@@ -16,10 +16,11 @@ surfaceGrid(obstacles, obstacles_height_field, res, offset = 0.01)
 \item{offset}{Offset between grid points and facade (horizontal distance) or between grid points and roof (vertical distance).}
 }
 \value{
-A 3D \code{SpatialPointsDataFrame} layer, including all attributes of the original building to whose surface each point corresponds to, as well as new attributes:\itemize{
+A 3D \code{SpatialPointsDataFrame} layer, including all attributes of the original obstacles each surface point corresponds to, followed by six new attributes:\itemize{
+\item{\code{obs_id} Unique consecutive ID for each feature in \code{obstacles}}
 \item{\code{type} Either \code{"facade"} or \code{"roof"}}
-\item{\code{seg_id} Facade segment unique ID (only for 'facade' points)}
-\item{\code{xy_id} Facade ground location unique ID (only for 'facade' points)}
+\item{\code{seg_id} Unique consecutive ID for each facade segment (only for 'facade' points)}
+\item{\code{xy_id} Unique consecutive ID for each ground location (only for 'facade' points)}
 \item{\code{facade_az} The azimuth of the corresponding facade, in decimal degrees (only for 'facade' points)}
 }
 }

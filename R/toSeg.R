@@ -1,4 +1,4 @@
-#' Convert polygons or lines to segments
+#' Split polygons or lines to segments
 #'
 #' Split lines or polygons to separate segments.
 #'
@@ -24,12 +24,8 @@
 
 toSeg = function(x) {
 
-  stopifnot(class(x) %in% c(
-    "SpatialLines",
-    "SpatialLinesDataFrame",
-    "SpatialPolygons",
-    "SpatialPolygonsDataFrame")
-    )
+  # Check 'x' class
+  .checkLinePoly(x)
 
   seg = list()
 

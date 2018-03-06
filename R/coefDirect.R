@@ -25,6 +25,7 @@
 #'   180 - sun_az, sun_elev, coef,
 #'   col = rev(heat.colors(10)),
 #'   breaks = seq(0, 1, 0.1),
+#'   asp = 1,
 #'   xlab = "Facade azimuth - Sun azimuth (deg)",
 #'   ylab = "Sun elevation (deg)",
 #'   main = "Facade - Coefficient of Direct Normal Irradiance"
@@ -38,6 +39,7 @@
 #'   180 - sun_az, sun_elev, coef,
 #'   col = rev(heat.colors(10)),
 #'   breaks = seq(0, 1, 0.1),
+#'   asp = 1,
 #'   xlab = "Facade azimuth - Sun azimuth (deg)",
 #'   ylab = "Sun elevation (deg)",
 #'   main = "Roof - Coefficient of Direct Normal Irradiance"
@@ -81,12 +83,19 @@ coefDirect = function(type, facade_az, solar_pos) {
       dat$az_diff
     )
 
+    # Elevation difference
+    dat$elev_diff = ifelse(
+      dat$type == "roof",
+      90 - dat$sun_elev,
+      dat$sun_elev
+    )
+
     # To radians
     dat$az_diff_r = deg2rad(dat$az_diff)
-    dat$sun_elev_r = deg2rad(dat$sun_elev)
+    dat$elev_diff_r = deg2rad(dat$elev_diff)
 
     # Coefficient
-    dat$coef = cos(dat$az_diff_r) * cos(dat$sun_elev_r)
+    dat$coef = cos(dat$az_diff_r) * cos(dat$elev_diff_r)
 
     # Special case - Sun below horizon
     dat$coef[dat$sun_elev < 0] = 0

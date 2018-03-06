@@ -5,6 +5,7 @@
 \alias{inShadow}
 \alias{inShadow,SpatialPoints,Raster,missing,missing,missing-method}
 \alias{inShadow,SpatialPoints,missing,SpatialPolygonsDataFrame,character,matrix-method}
+\alias{inShadow,Raster,missing,SpatialPolygonsDataFrame,character,matrix-method}
 \title{Logical shadow calculation (is given point shaded?) for 3D points considering sun position and obstacles}
 \usage{
 \S4method{inShadow}{SpatialPoints,Raster,missing,missing,missing}(location,
@@ -12,6 +13,10 @@
 
 
   \S4method{inShadow}{SpatialPoints,missing,SpatialPolygonsDataFrame,character,matrix}(location,
+  shadowHeightRaster, obstacles, obstacles_height_field, solar_pos, ...)
+
+
+  \S4method{inShadow}{Raster,missing,SpatialPolygonsDataFrame,character,matrix}(location,
   shadowHeightRaster, obstacles, obstacles_height_field, solar_pos, ...)
 }
 \arguments{
@@ -28,7 +33,17 @@
 \item{...}{Other parameters passed to \strong{\code{\link{shadowHeight}}}}
 }
 \value{
-Logical \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows); Matrixc ell value \code{TRUE} means the given location is shaded at the given time, \code{FALSE} means it is not-shaded
+Returned object is either a logical \code{matrix} or a \code{Raster*} with logical values -
+\itemize{
+\item{If input \code{location} is a \code{SpatialPoints*}, then returned object is a \code{matrix} where rows represent spatial locations (\code{location} features), columns represent solar positions (\code{solar_pos} rows) and values represent shadow state}
+\item{If input \code{location} is a \code{Raster*}, then returned object is a \code{RasterLayer} or \code{RasterStack}, where raster layers represent solar positions (\code{solar_pos} rows) and pixel values represent shadow state}
+}
+In both cases the logical values express shadow state -
+\itemize{
+\item{\code{TRUE} means the location is in shadow}
+\item{\code{FALSE} means the location is not in shadow}
+\item{\code{NA} means the location 3D-intersects an obstacle}
+}
 }
 \description{
 This function determines whether each given point in a set of 3D points (\code{location}), is shaded or not taking into account:\itemize{
@@ -45,8 +60,61 @@ For a correct geometric calculation, make sure that:\itemize{
 }
 \examples{
 
+# Method for 3D points - Manually defined
+
+opar = par(mfrow = c(1, 3))
+
+# Ground level
+location = sp::spsample(
+  rgeos::gBuffer(rgeos::gEnvelope(rishon), width = 40),
+  n = 200,
+  type = "regular"
+)
+solar_pos = as.matrix(tmy[9, c("sun_az", "sun_elev")])
+s = inShadow(
+  location = location,
+  obstacles = rishon,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos
+)
+plot(location, col = ifelse(s[, 1], "grey", "yellow"), main = "h=0")
+plot(rishon, add = TRUE)
+
+# 15 meters above ground level
+coords = coordinates(location)
+coords = cbind(coords, z = 15)
+location1 = SpatialPoints(coords, proj4string = CRS(proj4string(location)))
+solar_pos = as.matrix(tmy[9, c("sun_az", "sun_elev")])
+s = inShadow(
+  location = location1,
+  obstacles = rishon,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos
+)
+plot(location, col = ifelse(s[, 1], "grey", "yellow"), main = "h=15")
+plot(rishon, add = TRUE)
+
+# 30 meters above ground level
+coords = coordinates(location)
+coords = cbind(coords, z = 30)
+location2 = SpatialPoints(coords, proj4string = CRS(proj4string(location)))
+solar_pos = as.matrix(tmy[9, c("sun_az", "sun_elev")])
+s = inShadow(
+  location = location2,
+  obstacles = rishon,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos
+)
+plot(location, col = ifelse(s[, 1], "grey", "yellow"), main = "h=30")
+plot(rishon, add = TRUE)
+
+par(opar)
+
+# Shadow on a grid covering obstacles surface
 \dontrun{
-# Method for obstacles and sun position
+
+# Method for 3D points - Covering building surface
+
 obstacles = rishon[c(2, 4), ]
 location = surfaceGrid(
   obstacles = obstacles,
@@ -66,9 +134,25 @@ location$shadow = s[, 1]
 plotGrid(location, color = c("yellow", "grey")[as.factor(location$shadow)], size = 0.5)
 location$shadow = s[, 2]
 plotGrid(location, color = c("yellow", "grey")[as.factor(location$shadow)], size = 0.5)
-}
+
+# Method for ground locations raster
+
+ext = as(raster::extent(rishon) + 20, "SpatialPolygons")
+location = raster::raster(ext, res = 2)
+proj4string(location) = proj4string(rishon)
+obstacles = rishon[c(2, 4), ]
+solar_pos = tmy[c(9, 16), c("sun_az", "sun_elev")]
+solar_pos = as.matrix(solar_pos)
+s = inShadow(
+  location = location,
+  obstacles = obstacles,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos
+)
+plot(s)
 
 # Method for pre-calculated shadow height raster
+
 ext = as(raster::extent(rishon), "SpatialPolygons")
 r = raster::raster(ext, res = 1)
 proj4string(r) = proj4string(rishon)
@@ -95,7 +179,7 @@ r_pnt = SpatialPointsDataFrame(
     )
  )
 pnt = rbind(location[, "shadow"], r_pnt)
-\dontrun{
+
 plotGrid(pnt, color = c("yellow", "grey")[as.factor(pnt$shadow)], size = 0.5)
 }
 

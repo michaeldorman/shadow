@@ -8,10 +8,11 @@
 #' @param offset Offset between grid points and facade (horizontal distance) or between grid points and roof (vertical distance).
 #' @note The reason for introducing an offset is to avoid ambiguity as for whether the grid points are "inside" or "outside" of the obstacle. With an offset all grid points are "outside" of the building and thus not intersecting it. \code{offset} should be given in CRS units; default is 0.01.
 #'
-#' @return A 3D \code{SpatialPointsDataFrame} layer, including all attributes of the original building to whose surface each point corresponds to, as well as new attributes:\itemize{
+#' @return A 3D \code{SpatialPointsDataFrame} layer, including all attributes of the original obstacles each surface point corresponds to, followed by six new attributes:\itemize{
+#' \item{\code{obs_id} Unique consecutive ID for each feature in \code{obstacles}}
 #' \item{\code{type} Either \code{"facade"} or \code{"roof"}}
-#' \item{\code{seg_id} Facade segment unique ID (only for 'facade' points)}
-#' \item{\code{xy_id} Facade ground location unique ID (only for 'facade' points)}
+#' \item{\code{seg_id} Unique consecutive ID for each facade segment (only for 'facade' points)}
+#' \item{\code{xy_id} Unique consecutive ID for each ground location (only for 'facade' points)}
 #' \item{\code{facade_az} The azimuth of the corresponding facade, in decimal degrees (only for 'facade' points)}
 #' }
 #'
@@ -95,9 +96,9 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
 
   # Rearrange columns
   facade_pnt$type = "facade"
-  pnt_names = c("type", "seg_id", "xy_id", "facade_az", "height")
+  pnt_names = c("obs_id", "type", "seg_id", "xy_id", "facade_az", "height")
   other_names = setdiff(names(facade_pnt), pnt_names)
-  facade_pnt = facade_pnt[, c(pnt_names, other_names)]
+  facade_pnt = facade_pnt[, c(other_names, pnt_names)]
 
   #######################################
   # Roof sample points
@@ -114,7 +115,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   roof_pnt$height = roof_pnt[[obstacles_height_field]] + offset
 
   # Rearrange columns
-  facade_pnt = facade_pnt[, c(pnt_names, other_names)]
+  roof_pnt = roof_pnt[, c(other_names, pnt_names)]
 
   # Combine
   combined_pnt = rbind(roof_pnt, facade_pnt)
@@ -138,6 +139,9 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
     data = combined_pnt@data,
     proj4string = CRS(proj4string(obstacles))
   )
+
+  # Remove 'height' attribute
+  combined_pnt$height = NULL
 
   return(combined_pnt)
 

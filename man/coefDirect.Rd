@@ -36,6 +36,7 @@ image(
   180 - sun_az, sun_elev, coef,
   col = rev(heat.colors(10)),
   breaks = seq(0, 1, 0.1),
+  asp = 1,
   xlab = "Facade azimuth - Sun azimuth (deg)",
   ylab = "Sun elevation (deg)",
   main = "Facade - Coefficient of Direct Normal Irradiance"
@@ -49,6 +50,7 @@ image(
   180 - sun_az, sun_elev, coef,
   col = rev(heat.colors(10)),
   breaks = seq(0, 1, 0.1),
+  asp = 1,
   xlab = "Facade azimuth - Sun azimuth (deg)",
   ylab = "Sun elevation (deg)",
   main = "Roof - Coefficient of Direct Normal Irradiance"

@@ -2,7 +2,7 @@
 % Please edit documentation in R/shiftAz.R
 \name{shiftAz}
 \alias{shiftAz}
-\title{Shift features by azimuth and distance.}
+\title{Shift features by azimuth and distance}
 \usage{
 shiftAz(object, az, dist)
 }
@@ -17,7 +17,7 @@ shiftAz(object, az, dist)
 The shifted \code{object}.
 }
 \description{
-Shift features by azimuth and distance.
+Shift features by azimuth and distance
 }
 \examples{
 data(rishon)

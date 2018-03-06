@@ -67,20 +67,20 @@
       # Distance between examined location and intersections
       inter$dist = rgeos::gDistance(inter, location, byid = TRUE)[1, ]
 
-      # Shade height calculation
+      # Shadow height calculation
       inter$shade_fall = inter$dist * tan(deg2rad(solar_pos[, 2]))
       inter$shade_height =
         inter@data[, obstacles_height_field] - inter$shade_fall
       shade_height = max(inter$shade_height)
 
-      # Assign NA when there is no shade
+      # Assign NA when there is no shadow
 
-      # (1) If point is on a building & shade_height < building_height
+      # (1) If point is on a building & shadow_height < building_height
       if(rgeos::gIntersects(location, obstacles)) {
         build_height = sp::over(location, obstacles)[, obstacles_height_field]
         if(shade_height <= build_height)
           shade_height = NA
-      } else # (2) If point is on ground & shade_height < 0
+      } else # (2) If point is on ground & shadow_height < 0
         if(shade_height <= 0) shade_height = NA
 
     }

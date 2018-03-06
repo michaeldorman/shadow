@@ -30,7 +30,7 @@
 * Added 'inShadow' function
 * Corrections in documentation
 
-# shadow 0.4.7
+# shadow 0.5.0
 
 * Fixed attribute propagation in 'surfaceGrid'
 * Added 'tmy' (Typical Meteorological Year) dataset
@@ -38,9 +38,5 @@
 * Fixed bug when using 'solar_pos' with >1 rows in 'inShadow'
 * Added progress bar to 'inShadow'
 * Added 'radiation' function
-
-To do:
-
 * Removed the 'message' parameter
-
-
+* Added test for 'inShadow'

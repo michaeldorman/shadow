@@ -31,10 +31,16 @@
 \item{filter_footprint}{Should the points be filtered using \code{shadowFootprint} before calculating shadow height? This can make the calculation faster when there are many point which are not shaded}
 }
 \value{
-Shadow height, in CRS units (e.g. meters). \code{NA} value means no shadow, \code{Inf} means complete shadow (i.e. sun below horizon).
+Returned object is either a numeric \code{matrix} or a \code{Raster*} -
 \itemize{
-\item{If input \code{location} is a \code{SpatialPoints*}, then returned object is a \code{matrix} with rows representing spatial locations (\code{location} features) and columns representing solar positions (\code{solar_pos} rows)}
-\item{If input \code{location} is a \code{Raster*}, then returned object is a \code{RasterLayer} or \code{RasterStack} representing shadow height surface for a single sun position or multiple sun positions, respectively}
+\item{If input \code{location} is a \code{SpatialPoints*}, then returned object is a \code{matrix}, where rows represent spatial locations (\code{location} features), columns represent solar positions (\code{solar_pos} rows) and values represent shadow height}
+\item{If input \code{location} is a \code{Raster*}, then returned object is a \code{RasterLayer} or \code{RasterStack} where layers represent solar positions (\code{solar_pos} rows) and pixel values represent shadow height}
+}
+In both cases the numeric values express shadow height -
+\itemize{
+\item{\code{NA} value means no shadow}
+\item{A \strong{valid number} expresses shadow height, in CRS units (e.g. meters)}
+\item{\code{Inf} means complete shadow (i.e. sun below horizon)}
 }
 }
 \description{

@@ -116,3 +116,20 @@
 }
 
 ##################################################################################
+
+.checkLinePoly = function(x) {
+
+  if(!class(x) %in% c(
+    "SpatialLines",
+    "SpatialLinesDataFrame",
+    "SpatialPolygons",
+    "SpatialPolygonsDataFrame")
+  ) {
+
+    stop("Input must be 'SpatialLines*' or 'SpatialPolygons*' object")
+
+  }
+
+}
+
+##################################################################################
