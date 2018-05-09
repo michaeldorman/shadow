@@ -5,7 +5,7 @@
 \title{Estimation of Direct and Diffuse Radiation Load on Extruded Polygon Surfaces}
 \usage{
 radiation(grid, obstacles, obstacles_height_field, solar_pos, solar_normal,
-  solar_diffuse, parallel = getOption("mc.cores"))
+  solar_diffuse, parallel = getOption("mc.cores"), radius = Inf)
 }
 \arguments{
 \item{grid}{A 3D \code{SpatialPointsDataFrame} layer, such as returned by function \code{\link{surfaceGrid}}, specifying the locations where radiation is to be estimated. The layer must include an attribute named \code{type}, with possible values being \code{"roof"} or \code{"facade"}, expressing surface orientation per 3D point. The layer must also include an attribute named \code{facade_az}, specifying facade azimuth (only for \code{"facade"} points, for \code{"roof"} points the value should be \code{NA}). The \code{type} and \code{facade_az} attributes are automatically created when creating the grid with the \code{\link{surfaceGrid}} function}
@@ -21,6 +21,8 @@ radiation(grid, obstacles, obstacles_height_field, solar_pos, solar_normal,
 \item{solar_diffuse}{Diffuse Horizontal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}}
 
 \item{parallel}{Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package}
+
+\item{radius}{Effective search radius (in CRS units) for considering obstacles when calculating shadow and SVF. The default is to use a global search, i.e. \code{radius=Inf}. Using a smaller radius can be used to speed up the computation when working on large areas}
 }
 \value{
 a \code{data.frame}, with rows corresponding to \code{grid} points and four columns corresponding to the following estimates:\itemize{
@@ -98,34 +100,35 @@ scatter3D(
   z = coordinates(grid)[, 3],
   colvar = rad$direct / 1000,
   scale = FALSE,
+  theta = 55,
   pch = 20,
-  cex = 1,
-  clab = "Rad\\n(kWh m^-2 yr^-1)",
-  main = "Direct"
+  cex = 1.35,
+  clab = expression(paste("kWh / ", m^2)),
+  main = "Direct radiation"
 )
-
 scatter3D(
   x = coordinates(grid)[, 1],
   y = coordinates(grid)[, 2],
   z = coordinates(grid)[, 3],
   colvar = rad$diffuse / 1000,
   scale = FALSE,
+  theta = 55,
   pch = 20,
-  cex = 1,
-  clab = "Rad\\n(kWh m^-2 yr^-1))",
-  main = "Diffuse"
+  cex = 1.35,
+  clab = expression(paste("kWh / ", m^2)),
+  main = "Diffuse radiation"
 )
-
 scatter3D(
   x = coordinates(grid)[, 1],
   y = coordinates(grid)[, 2],
   z = coordinates(grid)[, 3],
   colvar = rad$total / 1000,
   scale = FALSE,
+  theta = 55,
   pch = 20,
-  cex = 1,
-  clab = "Rad\\n(kWh m^-2 yr^-1))",
-  main = "Total"
+  cex = 1.35,
+  clab = expression(paste("kWh / ", m^2)),
+  main = "Total radiation"
 )
 
 par(opar)

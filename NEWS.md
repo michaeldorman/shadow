@@ -30,7 +30,7 @@
 * Added 'inShadow' function
 * Corrections in documentation
 
-# shadow 0.5.0
+# shadow 0.5.0 (2018-03-06)
 
 * Fixed attribute propagation in 'surfaceGrid'
 * Added 'tmy' (Typical Meteorological Year) dataset
@@ -40,3 +40,11 @@
 * Added 'radiation' function
 * Removed the 'message' parameter
 * Added test for 'inShadow'
+
+# shadow 0.5.3
+
+* Minor change in 'radiation' example
+* Expanded package vignette
+* Added test for 'radiation'
+* Added 'radius' parameter to 'radiation' for restricted obstacles search
+

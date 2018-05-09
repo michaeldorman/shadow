@@ -24,6 +24,7 @@
 #' @param solar_pos A matrix with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different sun positions corresponding to the \code{solar_normal} and the \code{solar_diffuse} estimates. For example, if \code{solar_normal} and \code{solar_diffuse} refer to hourly measurements in a Typical Meteorological Year (TMY) dataset, then \code{solar_pos} needs to contain the corresponding hourly sun positions. In the latter case the returned value will represent total annual radiation load (see example below)
 #' @param solar_normal Direct Normal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}
 #' @param solar_diffuse Diffuse Horizontal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}
+#' @param radius Effective search radius (in CRS units) for considering obstacles when calculating shadow and SVF. The default is to use a global search, i.e. \code{radius=Inf}. Using a smaller radius can be used to speed up the computation when working on large areas
 #' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package
 #'
 #' @return a \code{data.frame}, with rows corresponding to \code{grid} points and four columns corresponding to the following estimates:\itemize{
@@ -82,39 +83,39 @@
 #'   z = coordinates(grid)[, 3],
 #'   colvar = rad$direct / 1000,
 #'   scale = FALSE,
+#'   theta = 55,
 #'   pch = 20,
-#'   cex = 1,
-#'   clab = "Rad\n(kWh m^-2 yr^-1)",
-#'   main = "Direct"
+#'   cex = 1.35,
+#'   clab = expression(paste("kWh / ", m^2)),
+#'   main = "Direct radiation"
 #' )
-#'
 #' scatter3D(
 #'   x = coordinates(grid)[, 1],
 #'   y = coordinates(grid)[, 2],
 #'   z = coordinates(grid)[, 3],
 #'   colvar = rad$diffuse / 1000,
 #'   scale = FALSE,
+#'   theta = 55,
 #'   pch = 20,
-#'   cex = 1,
-#'   clab = "Rad\n(kWh m^-2 yr^-1))",
-#'   main = "Diffuse"
+#'   cex = 1.35,
+#'   clab = expression(paste("kWh / ", m^2)),
+#'   main = "Diffuse radiation"
 #' )
-#'
 #' scatter3D(
 #'   x = coordinates(grid)[, 1],
 #'   y = coordinates(grid)[, 2],
 #'   z = coordinates(grid)[, 3],
 #'   colvar = rad$total / 1000,
 #'   scale = FALSE,
+#'   theta = 55,
 #'   pch = 20,
-#'   cex = 1,
-#'   clab = "Rad\n(kWh m^-2 yr^-1))",
-#'   main = "Total"
+#'   cex = 1.35,
+#'   clab = expression(paste("kWh / ", m^2)),
+#'   main = "Total radiation"
 #' )
 #'
 #' par(opar)
 #'}
-
 
 radiation = function(
   grid,
@@ -123,7 +124,8 @@ radiation = function(
   solar_pos,
   solar_normal,
   solar_diffuse,
-  parallel = getOption("mc.cores")
+  parallel = getOption("mc.cores"),
+  radius = Inf
 ) {
 
   # Check inputs
@@ -132,63 +134,47 @@ radiation = function(
   .checkGrid(grid)
   .checkSolarRad(solar_normal, solar_diffuse, solar_pos)
 
-  # Determine shadow
-  cat("Determining Shadow\n")
-  s = inShadow(
-    location = grid,
-    obstacles = obstacles,
-    obstacles_height_field = obstacles_height_field,
-    solar_pos = solar_pos,
-    parallel = parallel
-  )
-  cat("\nDone\n")
+  # Search radius option
+  if(radius < Inf) {
 
-  # Calculate 'direct' radiation coefficient
-  coef = coefDirect(
-    type = grid$type,
-    facade_az = grid$facade_az,
-    solar_pos = solar_pos
-  )
+    result = NULL
 
-  # Set coefficient to zero where shaded
-  coef = coef * !s
+    for(i in 1:nrow(grid)) {
 
-  # Multiply by 'direct' radiation load
-  direct = sweep(
-    x = coef,
-    MARGIN = 2,
-    STATS = solar_normal,
-    FUN = "*"
-  )
+      grid1 = grid[i, ]
+      obstacles1 = obstacles[rgeos::gBuffer(grid1, width = radius), ]
 
-  # Sum 'direct' radiation
-  direct_sum = rowSums(direct)
+      result = rbind(
+        result,
+        .radiationGrid(
+          grid1,
+          obstacles1,
+          obstacles_height_field,
+          solar_pos,
+          solar_normal,
+          solar_diffuse,
+          parallel
+        )
+      )
 
-  # Calculate 'SVF'
-  cat("Calculating SVF\n")
-  grid$svf = SVF(
-    location = grid,
-    obstacles = obstacles,
-    obstacles_height_field = obstacles_height_field,
-    parallel = parallel
-  )
-  cat("Done\n")
+    }
 
-  # Calculate 'diffuse' radiation
-  diffuse = outer(grid$svf, solar_diffuse)
+  # Global search option
+  } else {
 
-  # Sum 'diffuse' radiation
-  diffuse_sum = rowSums(diffuse)
+    result = .radiationGrid(
+      grid,
+      obstacles,
+      obstacles_height_field,
+      solar_pos,
+      solar_normal,
+      solar_diffuse,
+      parallel
+    )
 
-  # Sum 'direct' + 'diffuse'
-  total_sum = direct_sum + diffuse_sum
+  }
 
   # Return result
-  data.frame(
-    svf = grid$svf,
-    direct = direct_sum,
-    diffuse = diffuse_sum,
-    total = total_sum
-  )
+  result
 
 }

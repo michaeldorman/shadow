@@ -110,7 +110,7 @@
   if(any(!is.na(grid$facade_az) & (grid$facade_az < 0 | grid$facade_az > 360)))
     stop("'grid$facade_az' should be numeric in [0, 360]")
 
-  if(length(setdiff(grid$type, c("roof", "facade"))) > 0)
+  if(any(!grid$type %in% c("roof", "facade")))
     stop("All values of 'type' attribute must be 'roof' or 'facade'")
 
 }

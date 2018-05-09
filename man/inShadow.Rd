@@ -30,7 +30,7 @@
 
 \item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)}
 
-\item{...}{Other parameters passed to \strong{\code{\link{shadowHeight}}}}
+\item{...}{Other parameters passed to \strong{\code{\link{shadowHeight}}}, such as \code{parallel}}
 }
 \value{
 Returned object is either a logical \code{matrix} or a \code{Raster*} with logical values -
