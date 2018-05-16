@@ -59,15 +59,14 @@ For a correct geometric calculation, make sure that:\itemize{
 }
 }
 \examples{
-
 # Method for 3D points - Manually defined
 
 opar = par(mfrow = c(1, 3))
 
 # Ground level
 location = sp::spsample(
-  rgeos::gBuffer(rgeos::gEnvelope(rishon), width = 40),
-  n = 200,
+  rgeos::gBuffer(rgeos::gEnvelope(rishon), width = 20),
+  n = 150,
   type = "regular"
 )
 solar_pos = as.matrix(tmy[9, c("sun_az", "sun_elev")])

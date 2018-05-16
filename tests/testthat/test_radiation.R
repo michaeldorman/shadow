@@ -9,6 +9,7 @@ test_that("radiation calculation is correct", {
     data(tmy)
 
     # grid
+    set.seed(17)
     grid = new(
       "SpatialPointsDataFrame",
       data = structure(
@@ -69,6 +70,9 @@ test_that("radiation calculation is correct", {
       ,
       proj4string = new("CRS", projargs = "+proj=utm +zone=36 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
     )
+
+    solar_pos = tmy[, c("sun_az", "sun_elev")]
+    solar_pos = as.matrix(solar_pos)
 
     radiation(
       grid = grid,
