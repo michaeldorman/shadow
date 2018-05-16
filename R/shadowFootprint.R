@@ -15,7 +15,7 @@
 #'
 #' @references
 #' Weisthal, M. (2014). Assessment of potential energy savings in Israel through climate-aware residential building design (MSc Thesis, Ben-Gurion University of the Negev).
-#' \url{http://aranne5.bgu.ac.il/others/WeisthalMorel.pdf}
+#' \url{https://www.dropbox.com/s/k7q3oa5z69lnw15/Thesis_Morel_Weisthal.pdf?dl=1}
 #'
 #' @examples
 #' data(rishon)

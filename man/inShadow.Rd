@@ -66,7 +66,7 @@ opar = par(mfrow = c(1, 3))
 # Ground level
 location = sp::spsample(
   rgeos::gBuffer(rgeos::gEnvelope(rishon), width = 20),
-  n = 150,
+  n = 100,
   type = "regular"
 )
 solar_pos = as.matrix(tmy[9, c("sun_az", "sun_elev")])
