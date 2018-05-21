@@ -5,6 +5,7 @@
   solar_pos,
   solar_normal,
   solar_diffuse,
+  returnList,
   parallel
 ) {
 
@@ -37,9 +38,6 @@
     FUN = "*"
   )
 
-  # Sum 'direct' radiation
-  direct_sum = rowSums(direct)
-
   # Calculate 'SVF'
   cat("Calculating SVF\n")
   grid$svf = SVF(
@@ -53,18 +51,30 @@
   # Calculate 'diffuse' radiation
   diffuse = outer(grid$svf, solar_diffuse)
 
-  # Sum 'diffuse' radiation
-  diffuse_sum = rowSums(diffuse)
+  if(returnList) {
 
-  # Sum 'direct' + 'diffuse'
-  total_sum = direct_sum + diffuse_sum
+    result = list(
+      direct = direct,
+      diffuse = diffuse
+    )
 
-  # Return result
-  data.frame(
-    svf = grid$svf,
-    direct = direct_sum,
-    diffuse = diffuse_sum,
-    total = total_sum
-  )
+  } else {
+
+    # Sum radiation
+    direct_sum = rowSums(direct)
+    diffuse_sum = rowSums(diffuse)
+    total_sum = direct_sum + diffuse_sum
+
+    # Return result
+    result = data.frame(
+      svf = grid$svf,
+      direct = direct_sum,
+      diffuse = diffuse_sum,
+      total = total_sum
+    )
+
+  }
+
+  return(result)
 
 }

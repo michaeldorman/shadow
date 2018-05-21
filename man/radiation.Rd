@@ -5,7 +5,8 @@
 \title{Estimation of Direct and Diffuse Radiation Load on Extruded Polygon Surfaces}
 \usage{
 radiation(grid, obstacles, obstacles_height_field, solar_pos, solar_normal,
-  solar_diffuse, parallel = getOption("mc.cores"), radius = Inf)
+  solar_diffuse, radius = Inf, returnList = FALSE,
+  parallel = getOption("mc.cores"))
 }
 \arguments{
 \item{grid}{A 3D \code{SpatialPointsDataFrame} layer, such as returned by function \code{\link{surfaceGrid}}, specifying the locations where radiation is to be estimated. The layer must include an attribute named \code{type}, with possible values being \code{"roof"} or \code{"facade"}, expressing surface orientation per 3D point. The layer must also include an attribute named \code{facade_az}, specifying facade azimuth (only for \code{"facade"} points, for \code{"roof"} points the value should be \code{NA}). The \code{type} and \code{facade_az} attributes are automatically created when creating the grid with the \code{\link{surfaceGrid}} function}
@@ -14,23 +15,31 @@ radiation(grid, obstacles, obstacles_height_field, solar_pos, solar_normal,
 
 \item{obstacles_height_field}{Name of attribute in \code{obstacles} with extrusion height for each feature}
 
-\item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different sun positions corresponding to the \code{solar_normal} and the \code{solar_diffuse} estimates. For example, if \code{solar_normal} and \code{solar_diffuse} refer to hourly measurements in a Typical Meteorological Year (TMY) dataset, then \code{solar_pos} needs to contain the corresponding hourly sun positions. In the latter case the returned value will represent total annual radiation load (see example below)}
+\item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different sun positions corresponding to the \code{solar_normal} and the \code{solar_diffuse} estimates. For example, if \code{solar_normal} and \code{solar_diffuse} refer to hourly measurements in a Typical Meteorological Year (TMY) dataset, then \code{solar_pos} needs to contain the corresponding hourly sun positions.}
 
-\item{solar_normal}{Direct Normal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}}
+\item{solar_normal}{Direct Normal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}. Must be a vector with the same number of elements as the number of rows in \code{solar_pos}}
 
-\item{solar_diffuse}{Diffuse Horizontal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}}
+\item{solar_diffuse}{Diffuse Horizontal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}. Must be a vector with the same number of elements as the number of rows in \code{solar_pos}}
+
+\item{radius}{Effective search radius (in CRS units) for considering obstacles when calculating shadow and SVF. The default is to use a global search, i.e. \code{radius=Inf}. Using a smaller radius can be used to speed up the computation when working on large areas. Note that the search radius is not specific per grid point; instead, a buffer is applied on all grid points combined, then "dissolving" the individual buffers, so that exacly the same obstacles apply to all grid points}
+
+\item{returnList}{Logical, determines whether to return summed radiation over the entire period per 3D point (default, \code{FALSE}), or to return a list with all radiation values per time step (\code{TRUE})}
 
 \item{parallel}{Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package}
-
-\item{radius}{Effective search radius (in CRS units) for considering obstacles when calculating shadow and SVF. The default is to use a global search, i.e. \code{radius=Inf}. Using a smaller radius can be used to speed up the computation when working on large areas}
 }
 \value{
-a \code{data.frame}, with rows corresponding to \code{grid} points and four columns corresponding to the following estimates:\itemize{
+If \code{returnList=FALSE} (the default), then returned object is a \code{data.frame}, with rows corresponding to \code{grid} points and four columns corresponding to the following estimates:\itemize{
 \item{\code{svf}} Computed Sky View Factor (see function \code{\link{SVF}})
 \item{\code{direct}} Total direct radiation for each grid point
 \item{\code{diffuse}} Total diffuse radiation for each grid point
 \item{\code{total}} Total radiation (direct + diffuse) for each grid point
 }
+Each row of the \code{data.frame} gives summed radiation values for the entire time period in \code{solar_pos}, \code{solar_normal} and \code{solar_diffuse}
+If \code{returnList=TRUE} then returned object is a \code{list} with two elements:\itemize{
+\item{\code{direct}} Total direct radiation for each grid point
+\item{\code{diffuse}} Total diffuse radiation for each grid point
+}
+Each of the elements is a \code{matrix} with rows corresponding to \code{grid} points and columns corresponding to time steps in \code{solar_pos}, \code{solar_normal} and \code{solar_diffuse}
 }
 \description{
 This is a wrapper function for calculating total diffuse, direct and total radiation load per unit area on extruded polygon surfaces. The function operates on obstacle geometry and a set of sun positions with associated meteorological estimates for direct and diffuse radiation (see Details below).
@@ -64,14 +73,15 @@ grid = surfaceGrid(
 solar_pos = tmy[, c("sun_az", "sun_elev")]
 solar_pos = as.matrix(solar_pos)
 
-# Summed 10-hour radiation estimates for single point
+# Summed 10-hour radiation estimates for two 3D points
 rad = radiation(
-  grid = grid[1, ],
+  grid = grid[1:2, ],
   obstacles = rishon,
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos[8:17, , drop = FALSE],
   solar_normal = tmy$solar_normal[8:17],
-  solar_diffuse = tmy$solar_diffuse[8:17]
+  solar_diffuse = tmy$solar_diffuse[8:17],
+  returnList = TRUE
 )
 rad
 
