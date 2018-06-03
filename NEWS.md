@@ -51,3 +51,4 @@
 # shadow 0.5.4
 
 * 'returnList' argument in 'radiation'
+* Fixed mistakes in the 'time' column of 'tmy'

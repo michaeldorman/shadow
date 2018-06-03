@@ -10,7 +10,7 @@ tmy
 }
 \description{
 A table with hourly solar radiation estimates for a typical meteorological year in Tel-Aviv. \itemize{
-\item{\code{time} Time, as \code{POSIXct} object}
+\item{\code{time} Time, as \code{character} in the \code{"\%Y-\%m-\%d \%H:\%M:\%S"} format, e.g. \code{"2000-01-01 06:00:00"}}, referring to local time
 \item{\code{sun_az} Sun azimuth, in decimal degrees from North}
 \item{\code{sun_elev} Sun elevation, in decimal degrees}
 \item{\code{solar_normal} Direct Normal Irradiance, in Wh/m^2}
