@@ -48,14 +48,33 @@
 * Added test for 'radiation'
 * Added 'radius' parameter to 'radiation' for restricted obstacles search
 
-# shadow 0.5.5
+# shadow 0.5.5 (2018-07-19)
 
 * 'returnList' argument in 'radiation'
 * Fixed mistakes in the 'time' column of 'tmy'
 * Added temperature and wind speed columns in 'tmy'
 * Update vignette to comply with noew 'tmy' table
 
+# shadow 0.5.7
+
+
+
 # To do
 
 * Add 'sf' support (?)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -52,6 +52,9 @@ coefDirect = function(type, facade_az, solar_pos) {
   stopifnot(length(type) == 1 || length(type) == length(facade_az))
   if(length(type) == 1) type = rep(type, length(facade_az))
 
+  # Discard 'solar_pos'
+  colnames(solar_pos) = NULL
+
   # Result
   result = matrix(nrow = length(facade_az), ncol = nrow(solar_pos))
 
