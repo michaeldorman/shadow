@@ -43,7 +43,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   obstacles_outline = as(obstacles, "SpatialLinesDataFrame")
 
   # Obstacles outline union
-  obstacles_outline = rgeos::gLineMerge(obstacles_outline)
+  obstacles_outline = rgeos::gLineMerge(raster::disaggregate(obstacles_outline))
 
   # Point sample along facades
   facade_sample =

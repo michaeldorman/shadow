@@ -57,12 +57,15 @@
 
 # shadow 0.5.7
 
-
+* Added 'beersheva' sample dataset with Beer-Sheva buildings
+* Added 'tmy2' sample dataset with Beer-Sheva TMY data
+* Added 'elev' sample dataset with Beer-Sheva elevation
+* Fixed 'Obstacles outline union' step in 'surfaceGrid' function to work with polygons with holes
 
 # To do
 
 * Add 'sf' support (?)
-
+* Visibility algorithm (e.g. https://www.redblobgames.com/articles/visibility/)
 
 
 

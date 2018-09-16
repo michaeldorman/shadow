@@ -6,9 +6,9 @@
 \title{Polygonal layer of three buildings in Boston}
 \format{A \code{SpatialPolygonsDataFrame} with 10 features and 4 attributes:
 \describe{
-  \item{objectid}{Building Part ID}
+  \item{objectid}{Building part ID}
   \item{build_id}{Building ID}
-  \item{part_floor}{Number of floors for Part}
+  \item{part_floor}{Number of floors for part}
   \item{height_m}{Building height, in meters}
 }}
 \usage{
