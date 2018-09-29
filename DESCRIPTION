@@ -19,7 +19,7 @@ Imports:
 Depends:
     R (>= 3.2.3),
     sp (>= 1.1.1)
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Suggests:
     R.rsp,
     maptools (>= 0.8),
@@ -29,3 +29,4 @@ Suggests:
     rgdal
 VignetteBuilder: R.rsp
 BugReports: https://github.com/michaeldorman/shadow/issues
+Encoding: UTF-8

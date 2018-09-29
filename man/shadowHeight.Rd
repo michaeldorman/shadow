@@ -11,9 +11,9 @@
   obstacles_height_field, solar_pos, b = 0.01,
   parallel = getOption("mc.cores"), filter_footprint = FALSE)
 
-\S4method{shadowHeight}{Raster}(location, obstacles, obstacles_height_field,
-  solar_pos, b = 0.01, parallel = getOption("mc.cores"),
-  filter_footprint = FALSE)
+\S4method{shadowHeight}{Raster}(location, obstacles,
+  obstacles_height_field, solar_pos, b = 0.01,
+  parallel = getOption("mc.cores"), filter_footprint = FALSE)
 }
 \arguments{
 \item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate shadow height}

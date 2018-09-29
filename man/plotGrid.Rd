@@ -4,8 +4,8 @@
 \alias{plotGrid}
 \title{Interactive plot for 3D spatial points}
 \usage{
-plotGrid(grid, color = c("grey", "red")[as.factor(grid$type)], size = 0.2,
-  ...)
+plotGrid(grid, color = c("grey", "red")[as.factor(grid$type)],
+  size = 0.2, ...)
 }
 \arguments{
 \item{grid}{A three-dimensional \code{SpatialPoints*} object}

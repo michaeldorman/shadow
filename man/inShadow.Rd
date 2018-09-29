@@ -8,7 +8,8 @@
 \alias{inShadow,Raster,missing,SpatialPolygonsDataFrame,character,matrix-method}
 \title{Logical shadow calculation (is given point shaded?) for 3D points considering sun position and obstacles}
 \usage{
-\S4method{inShadow}{SpatialPoints,Raster,missing,missing,missing}(location,
+
+  \S4method{inShadow}{SpatialPoints,Raster,missing,missing,missing}(location,
   shadowHeightRaster, obstacles, obstacles_height_field, solar_pos)
 
 

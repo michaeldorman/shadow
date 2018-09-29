@@ -67,17 +67,3 @@
 * Add 'sf' support (?)
 * Visibility algorithm (e.g. https://www.redblobgames.com/articles/visibility/)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
