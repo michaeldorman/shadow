@@ -55,12 +55,18 @@
 * Added temperature and wind speed columns in 'tmy'
 * Update vignette to comply with noew 'tmy' table
 
-# shadow 0.5.7
+# shadow 0.5.7 (2018-09-29)
 
 * Added 'beersheva' sample dataset with Beer-Sheva buildings
 * Added 'tmy2' sample dataset with Beer-Sheva TMY data
 * Added 'elev' sample dataset with Beer-Sheva elevation
 * Fixed 'Obstacles outline union' step in 'surfaceGrid' function to work with polygons with holes
+
+# shadow 0.5.9
+
+* Added 'flowlength' function
+* Added 'row.names=NULL' in 'coefDirect' to avoid row names warning
+* 'surfaceGrid' now returns 'roof' only points when res/2 > h, instead of error
 
 # To do
 

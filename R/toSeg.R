@@ -2,8 +2,8 @@
 #'
 #' Split lines or polygons to separate segments.
 #'
-#' @param	x	A \code{SpatialLines*} or a \code{SpatialPolygons*} object.
-#' @return	A \code{SpatialLines} object where each segment is represented by a separate feature.
+#' @param	x	A \code{SpatialLines*} or a \code{SpatialPolygons*} object
+#' @return	A \code{SpatialLines} object where each segment is represented by a separate feature
 #'
 #' @references
 #' This function uses a modified version of code from the following 'r-sig-geo' post by Roger Bivand:

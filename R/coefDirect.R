@@ -68,7 +68,8 @@ coefDirect = function(type, facade_az, solar_pos) {
       sun_az = solar_pos[i, 1],
       sun_elev = solar_pos[i, 2],
       coef = NA,
-      stringsAsFactors = FALSE
+      stringsAsFactors = FALSE,
+      row.names = NULL
       )
 
     # Azimuth difference

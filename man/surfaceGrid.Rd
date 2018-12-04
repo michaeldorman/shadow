@@ -34,9 +34,24 @@ The reason for introducing an offset is to avoid ambiguity as for whether the gr
 grid = surfaceGrid(
   obstacles = rishon,
   obstacles_height_field = "BLDG_HT",
-  res = 2,
-  offset = 0.01
+  res = 2
 )
+
+# When 'res' is smaller then height, facade will be left unsampled
+rishon_small = rishon
+rishon_small$BLDG_HT = 1
+grid = surfaceGrid(
+  obstacles = rishon_small,
+  obstacles_height_field = "BLDG_HT",
+  res = 2
+)
+table(grid$type)
+grid = surfaceGrid(
+  obstacles = rishon_small,
+  obstacles_height_field = "BLDG_HT",
+  res = 2.00001  # res/2 > h
+)
+table(grid$type)
 
 }
 \seealso{

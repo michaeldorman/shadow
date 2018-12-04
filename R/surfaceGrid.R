@@ -22,9 +22,24 @@
 #' grid = surfaceGrid(
 #'   obstacles = rishon,
 #'   obstacles_height_field = "BLDG_HT",
-#'   res = 2,
-#'   offset = 0.01
+#'   res = 2
 #' )
+#'
+#' # When 'res' is smaller then height, facade will be left unsampled
+#' rishon_small = rishon
+#' rishon_small$BLDG_HT = 1
+#' grid = surfaceGrid(
+#'   obstacles = rishon_small,
+#'   obstacles_height_field = "BLDG_HT",
+#'   res = 2
+#' )
+#' table(grid$type)
+#' grid = surfaceGrid(
+#'   obstacles = rishon_small,
+#'   obstacles_height_field = "BLDG_HT",
+#'   res = 2.00001  # res/2 > h
+#' )
+#' table(grid$type)
 #'
 #' @export
 
@@ -75,30 +90,38 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   for(i in unique(facade_sample$obs_id)) {
     tmp = facade_sample[facade_sample$obs_id == i, ]
     tmp$xy_id = 1:nrow(tmp)
-    sampled_heights = seq(
-      from = res / 2,
-      to = obstacles[[obstacles_height_field]][obstacles$obs_id == i],
-      by = res
-    )
-    for(h in sampled_heights) {
-      x = SpatialPointsDataFrame(
-        tmp,
-        data = cbind(
-          tmp@data,
-          height = h
-        )
+    current_build_height = obstacles[[obstacles_height_field]][obstacles$obs_id == i]
+    if(res / 2 <= current_build_height) {
+      sampled_heights = seq(
+        from = res / 2,
+        to = current_build_height,
+        by = res
       )
-      x$xy_id = 1:length(x)
-      facade_pnt = c(facade_pnt, x)
+      for(h in sampled_heights) {
+        x = SpatialPointsDataFrame(
+          tmp,
+          data = cbind(
+            tmp@data,
+            height = h
+          )
+        )
+        x$xy_id = 1:length(x)
+        facade_pnt = c(facade_pnt, x)
+      }
     }
   }
   facade_pnt = do.call(rbind, facade_pnt)
 
-  # Rearrange columns
-  facade_pnt$type = "facade"
   pnt_names = c("obs_id", "type", "seg_id", "xy_id", "facade_az", "height")
-  other_names = setdiff(names(facade_pnt), pnt_names)
-  facade_pnt = facade_pnt[, c(other_names, pnt_names)]
+
+  if(!is.null(facade_pnt)) {
+
+    # Rearrange columns
+    facade_pnt$type = "facade"
+    other_names = setdiff(names(facade_pnt), pnt_names)
+    facade_pnt = facade_pnt[, c(other_names, pnt_names)]
+
+  }
 
   #######################################
   # Roof sample points
@@ -115,10 +138,15 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   roof_pnt$height = roof_pnt[[obstacles_height_field]] + offset
 
   # Rearrange columns
+  other_names = setdiff(names(roof_pnt), pnt_names)
   roof_pnt = roof_pnt[, c(other_names, pnt_names)]
 
   # Combine
-  combined_pnt = rbind(roof_pnt, facade_pnt)
+  if(!is.null(facade_pnt)) {
+    combined_pnt = rbind(roof_pnt, facade_pnt)
+  } else {
+    combined_pnt = roof_pnt
+  }
 
   #######################################
   # Remove points encompassed "within" obstacle volume

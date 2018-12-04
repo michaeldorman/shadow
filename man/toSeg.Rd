@@ -7,10 +7,10 @@
 toSeg(x)
 }
 \arguments{
-\item{x}{A \code{SpatialLines*} or a \code{SpatialPolygons*} object.}
+\item{x}{A \code{SpatialLines*} or a \code{SpatialPolygons*} object}
 }
 \value{
-A \code{SpatialLines} object where each segment is represented by a separate feature.
+A \code{SpatialLines} object where each segment is represented by a separate feature
 }
 \description{
 Split lines or polygons to separate segments.
