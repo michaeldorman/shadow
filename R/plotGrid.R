@@ -12,7 +12,7 @@
 #' @examples
 #' \dontrun{
 #' grid = surfaceGrid(
-#'   obstacles = rishon,
+#'   obstacles = build,
 #'   obstacles_height_field = "BLDG_HT",
 #'   res = 1,
 #'   offset = 0.01

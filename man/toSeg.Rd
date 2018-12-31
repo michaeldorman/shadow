@@ -16,15 +16,14 @@ A \code{SpatialLines} object where each segment is represented by a separate fea
 Split lines or polygons to separate segments.
 }
 \examples{
-data(build)
 seg = toSeg(build[1, ])
 plot(seg, col = sample(rainbow(length(seg))))
 raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
 
 # Other data structures
 toSeg(geometry(build)) # SpatialPolygons
-toSeg(sidewalk) # SpatialLinesDataFrame
-toSeg(geometry(sidewalk)) # SpatialLinesDataFrame
+toSeg(boston_sidewalk) # SpatialLinesDataFrame
+toSeg(geometry(boston_sidewalk)) # SpatialLinesDataFrame
 
 }
 \references{

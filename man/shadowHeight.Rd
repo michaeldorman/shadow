@@ -8,12 +8,14 @@
 \title{Shadow height calculation considering sun position and obstacles}
 \usage{
 \S4method{shadowHeight}{SpatialPoints}(location, obstacles,
-  obstacles_height_field, solar_pos, b = 0.01,
-  parallel = getOption("mc.cores"), filter_footprint = FALSE)
+  obstacles_height_field, solar_pos = solarpos2(location, time),
+  time = NULL, b = 0.01, parallel = getOption("mc.cores"),
+  filter_footprint = FALSE)
 
 \S4method{shadowHeight}{Raster}(location, obstacles,
-  obstacles_height_field, solar_pos, b = 0.01,
-  parallel = getOption("mc.cores"), filter_footprint = FALSE)
+  obstacles_height_field, solar_pos = solarpos2(pnt, time),
+  time = NULL, b = 0.01, parallel = getOption("mc.cores"),
+  filter_footprint = FALSE)
 }
 \arguments{
 \item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate shadow height}
@@ -22,7 +24,9 @@
 
 \item{obstacles_height_field}{Name of attribute in \code{obstacles} with extrusion height for each feature}
 
-\item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different positions (e.g. at different times of day)}
+\item{solar_pos}{A \code{matrix} with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different positions (e.g. at different times of day)}
+
+\item{time}{When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{location}, using function \code{maptools::solarpos}. In such case \code{location} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object}
 
 \item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height}
 
@@ -58,60 +62,91 @@ For a correct geometric calculation, make sure that:\itemize{
 }
 \examples{
 # Single location
-location = rgeos::gCentroid(rishon)
-
+location = rgeos::gCentroid(build)
 \dontrun{
-location_geo = spTransform(location, "+proj=longlat +datum=WGS84")
-}
+location_geo = spTransform(location, "+proj=longlat +datum=WGS84")}
 location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
 solar_pos = maptools::solarpos(location_geo, time)
-plot(rishon, main = time)
+plot(build, main = time)
 plot(location, add = TRUE)
 sun = shadow:::.sunLocation(location = location, sun_az = solar_pos[1,1], sun_elev = solar_pos[1,2])
 sun_ray = ray(from = location, to = sun)
-rishon_outline = as(rishon, "SpatialLinesDataFrame")
-inter = rgeos::gIntersection(rishon_outline, sun_ray)
+build_outline = as(build, "SpatialLinesDataFrame")
+inter = rgeos::gIntersection(build_outline, sun_ray)
 plot(sun_ray, add = TRUE, col = "yellow")
 plot(inter, add = TRUE, col = "red")
 shadowHeight(
   location = location,
-  obstacles = rishon,
+  obstacles = build,
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos
+)
+
+# Automatically calculating 'solar_pos' using 'time'
+shadowHeight(
+  location = location,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  time = time
 )
 
 \dontrun{
-# Two locations and three times
-location0 = rgeos::gCentroid(rishon)
+
+# Two points - three times
+location0 = rgeos::gCentroid(build)
 location1 = raster::shift(location0, 0, -15)
 location2 = raster::shift(location0, -10, 20)
 locations = rbind(location1, location2)
+time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
 times = seq(from = time, by = "1 hour", length.out = 3)
-solar_pos = maptools::solarpos(location_geo, times)
-shadowHeight(
+shadowHeight(                            ## Using 'solar_pos'
   location = locations,
-  obstacles = rishon,
+  obstacles = build,
   obstacles_height_field = "BLDG_HT",
-  solar_pos = solar_pos
+  solar_pos = maptools::solarpos(location_geo, times)
+)
+shadowHeight(                            ## Using 'time'
+  location = locations,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  time = times
 )
 
-# Grid
-ext = as(raster::extent(rishon), "SpatialPolygons")
-r = raster::raster(ext, res = 1)
-proj4string(r) = proj4string(rishon)
+# Grid - three times
+time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
+times = seq(from = time, by = "1 hour", length.out = 3)
+ext = as(raster::extent(build), "SpatialPolygons")
+r = raster::raster(ext, res = 2)
+proj4string(r) = proj4string(build)
 x = Sys.time()
-shadow = shadowHeight(
-    location = r,
-    obstacles = rishon,
-    obstacles_height_field = "BLDG_HT",
-    solar_pos = solar_pos,
-    parallel = 3
-  )
-  y = Sys.time()
-  y - x
-plot(shadow[[1]], col = grey(seq(0.9, 0.2, -0.01)), main = time)
-raster::contour(shadow[[1]], add = TRUE)
-plot(rishon, add = TRUE, border = "red")
+shadow1 = shadowHeight(
+  location = r,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  time = times,
+  parallel = 3
+)
+y = Sys.time()
+y - x
+x = Sys.time()
+shadow2 = shadowHeight(
+  location = r,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solarpos2(r, times),
+  parallel = 3
+)
+y = Sys.time()
+y - x
+shadow = shadow1
+opar = par(mfrow = c(1, 3))
+for(i in 1:raster::nlayers(shadow)) {
+  plot(shadow[[i]], col = grey(seq(0.9, 0.2, -0.01)), main = raster::getZ(shadow)[i])
+  raster::contour(shadow[[i]], add = TRUE)
+  plot(build, border = "red", add = TRUE)
+}
+par(opar)
+
 }
 }

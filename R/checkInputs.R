@@ -1,5 +1,12 @@
 ##################################################################################
 
+.checkTime = function(time) {
+  if(!any(class(time) %in% "POSIXt"))
+    stop("'time' must be of class 'POSIXct' or 'POSIXlt'")
+}
+
+##################################################################################
+
 .checkLocation = function(location, length1 = TRUE) {
 
   # Check that 'location' is of length 1
@@ -73,6 +80,7 @@
   #     )
   #   )
   # }
+
 }
 
 ##################################################################################

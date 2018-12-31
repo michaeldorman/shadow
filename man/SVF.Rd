@@ -14,7 +14,7 @@
   res_angle = 5, b = 0.01, parallel = getOption("mc.cores"))
 }
 \arguments{
-\item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate SVF. If \code{location} is \code{SpatialPoints*}, then it can have 2 or 3 dimensions. In the latter case the 3rd dimension is assumed to be elevation above ground (in CRS units). If \code{location} is \code{RasterLayer} then SVF is calculated for ground locations represented by cell centers (raster values are ignored).}
+\item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate logical shadow values. If \code{location} is \code{SpatialPoints*}, then it can have 2 or 3 dimensions. A 2D \code{SpatialPoints*} is considered as a point(s) on the ground, i.e. 3D point(s) where \eqn{z=0}. In a 3D \code{SpatialPoints*} the 3rd dimension is assumed to be elevation above ground \eqn{z} (in CRS units). \code{Raster*} cells are considered as ground locations}
 
 \item{obstacles}{A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline}
 
@@ -43,39 +43,38 @@ Where \eqn{\beta} is the highest elevation angle (see equation 3 in Gal & Unger 
 }
 \examples{
 ## Individual locations
-data(rishon)
-location0 = rgeos::gCentroid(rishon)
+location0 = rgeos::gCentroid(build)
 location1 = raster::shift(location0, 0, -15)
 location2 = raster::shift(location0, -10, 20)
 locations = rbind(location1, location2)
 svfs = SVF(
   location = locations,
-  obstacles = rishon,
+  obstacles = build,
   obstacles_height_field = "BLDG_HT"
 )
-plot(rishon)
+plot(build)
 plot(locations, add = TRUE)
 raster::text(locations, round(svfs, 2), col = "red", pos = 3)
 
 \dontrun{
 
 ## Grid
-ext = as(raster::extent(rishon), "SpatialPolygons")
+ext = as(raster::extent(build), "SpatialPolygons")
 r = raster::raster(ext, res = 5)
-proj4string(r) = proj4string(rishon)
+proj4string(r) = proj4string(build)
 pnt = raster::rasterToPoints(r, spatial = TRUE)
 svfs = SVF(
     location = r,
-    obstacles = rishon,
+    obstacles = build,
     obstacles_height_field = "BLDG_HT",
     parallel = 3
   )
 plot(svfs, col = grey(seq(0.9, 0.2, -0.01)))
 raster::contour(svfs, add = TRUE)
-plot(rishon, add = TRUE, border = "red")
+plot(build, add = TRUE, border = "red")
 
 ## 3D points
-ctr = rgeos::gCentroid(rishon)
+ctr = rgeos::gCentroid(build)
 heights = seq(0, 28, 1)
 loc3d = data.frame(
     x = coordinates(ctr)[, 1],
@@ -83,15 +82,15 @@ loc3d = data.frame(
     z = heights
 )
 coordinates(loc3d) = ~ x + y + z
-proj4string(loc3d) = proj4string(rishon)
+proj4string(loc3d) = proj4string(build)
 svfs = SVF(
     location = loc3d,
-    obstacles = rishon,
+    obstacles = build,
     obstacles_height_field = "BLDG_HT",
     parallel = 3
 )
 plot(heights, svfs, type = "b", xlab = "Elevation (m)", ylab = "SVF", ylim = c(0, 1))
-abline(v = rishon$BLDG_HT, col = "red")
+abline(v = build$BLDG_HT, col = "red")
 
 ## Example from Erell et al. 2012 (p. 19 Fig. 1.2)
 

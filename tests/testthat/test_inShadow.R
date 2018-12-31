@@ -4,13 +4,7 @@ context("inShadow")
 
 test_that("'inShadow' calculation is correct", {
   expect_equal({
-    obstacles = rishon[c(2, 4), ]
-    # location = surfaceGrid(
-    #   obstacles = obstacles,
-    #   obstacles_height_field = "BLDG_HT",
-    #   res = 10,
-    #   offset = 0.01
-    # )
+    obstacles = build[c(2, 4), ]
     location = new(
       "SpatialPointsDataFrame"
       ,

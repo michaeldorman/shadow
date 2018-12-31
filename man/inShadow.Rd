@@ -3,25 +3,24 @@
 \docType{methods}
 \name{inShadow}
 \alias{inShadow}
-\alias{inShadow,SpatialPoints,Raster,missing,missing,missing-method}
-\alias{inShadow,SpatialPoints,missing,SpatialPolygonsDataFrame,character,matrix-method}
-\alias{inShadow,Raster,missing,SpatialPolygonsDataFrame,character,matrix-method}
+\alias{inShadow,SpatialPoints,Raster,missing,missing-method}
+\alias{inShadow,SpatialPoints,missing,ANY,ANY-method}
+\alias{inShadow,Raster,missing,ANY,ANY-method}
 \title{Logical shadow calculation (is given point shaded?) for 3D points considering sun position and obstacles}
 \usage{
-
-  \S4method{inShadow}{SpatialPoints,Raster,missing,missing,missing}(location,
+\S4method{inShadow}{SpatialPoints,Raster,missing,missing}(location,
   shadowHeightRaster, obstacles, obstacles_height_field, solar_pos)
 
+\S4method{inShadow}{SpatialPoints,missing,ANY,ANY}(location,
+  shadowHeightRaster, obstacles, obstacles_height_field,
+  solar_pos = solarpos2(location, time), time = NULL, ...)
 
-  \S4method{inShadow}{SpatialPoints,missing,SpatialPolygonsDataFrame,character,matrix}(location,
-  shadowHeightRaster, obstacles, obstacles_height_field, solar_pos, ...)
-
-
-  \S4method{inShadow}{Raster,missing,SpatialPolygonsDataFrame,character,matrix}(location,
-  shadowHeightRaster, obstacles, obstacles_height_field, solar_pos, ...)
+\S4method{inShadow}{Raster,missing,ANY,ANY}(location, shadowHeightRaster,
+  obstacles, obstacles_height_field, solar_pos = solarpos2(pnt, time),
+  time = NULL, ...)
 }
 \arguments{
-\item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate shadow height}
+\item{location}{A \code{SpatialPoints*} or \code{Raster*} object, specifying the location(s) for which to calculate logical shadow values. If \code{location} is \code{SpatialPoints*}, then it can have 2 or 3 dimensions. A 2D \code{SpatialPoints*} is considered as a point(s) on the ground, i.e. 3D point(s) where \eqn{z=0}. In a 3D \code{SpatialPoints*} the 3rd dimension is assumed to be elevation above ground \eqn{z} (in CRS units). \code{Raster*} cells are considered as ground locations}
 
 \item{shadowHeightRaster}{Raster representing shadow height}
 
@@ -29,7 +28,9 @@
 
 \item{obstacles_height_field}{Name of attribute in \code{obstacles} with extrusion height for each feature}
 
-\item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)}
+\item{solar_pos}{A \code{matrix} with two columns representing sun position(s); first column is the solar azimuth (in degrees from North), second column is sun elevation (in degrees); rows represent different positions (e.g. at different times of day)}
+
+\item{time}{When both \code{shadowHeightRaster} and \code{solar_pos} are unspecified, \code{time} can be passed to automatically calculate \code{solarpos} based on the time and the centroid of \code{location}, using function \code{maptools::solarpos}. In such case \code{location} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object.}
 
 \item{...}{Other parameters passed to \strong{\code{\link{shadowHeight}}}, such as \code{parallel}}
 }
@@ -47,8 +48,8 @@ In both cases the logical values express shadow state -
 }
 }
 \description{
-This function determines whether each given point in a set of 3D points (\code{location}), is shaded or not taking into account:\itemize{
-\item{Obstacles outline (\code{obstacles}), given by a polygonal layer with a height attribute (\code{obstacles_height_field})}
+This function determines whether each given point in a set of 3D points (\code{location}), is shaded or not, taking into account:\itemize{
+\item{Obstacles outline (\code{obstacles}), given by a polygonal layer with a height attribute (\code{obstacles_height_field})}, or alternatively a \code{Raster*} which is considered as a grid of ground locations
 \item{Sun position (\code{solar_pos}), given by azimuth and elevation angles}
 }
 Alternatively, the function determines whether each point is in shadow based on a raster representing shadow height \code{shadowHeightRaster}, in which case \code{obstacles}, \code{obstacles_height_field} and \code{solar_pos} are left unspecified.
@@ -66,19 +67,19 @@ opar = par(mfrow = c(1, 3))
 
 # Ground level
 location = sp::spsample(
-  rgeos::gBuffer(rgeos::gEnvelope(rishon), width = 20),
+  rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
   n = 100,
   type = "regular"
 )
 solar_pos = as.matrix(tmy[9, c("sun_az", "sun_elev")])
 s = inShadow(
   location = location,
-  obstacles = rishon,
+  obstacles = build,
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos
 )
 plot(location, col = ifelse(s[, 1], "grey", "yellow"), main = "h=0")
-plot(rishon, add = TRUE)
+plot(build, add = TRUE)
 
 # 15 meters above ground level
 coords = coordinates(location)
@@ -87,12 +88,12 @@ location1 = SpatialPoints(coords, proj4string = CRS(proj4string(location)))
 solar_pos = as.matrix(tmy[9, c("sun_az", "sun_elev")])
 s = inShadow(
   location = location1,
-  obstacles = rishon,
+  obstacles = build,
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos
 )
 plot(location, col = ifelse(s[, 1], "grey", "yellow"), main = "h=15")
-plot(rishon, add = TRUE)
+plot(build, add = TRUE)
 
 # 30 meters above ground level
 coords = coordinates(location)
@@ -101,12 +102,12 @@ location2 = SpatialPoints(coords, proj4string = CRS(proj4string(location)))
 solar_pos = as.matrix(tmy[9, c("sun_az", "sun_elev")])
 s = inShadow(
   location = location2,
-  obstacles = rishon,
+  obstacles = build,
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos
 )
 plot(location, col = ifelse(s[, 1], "grey", "yellow"), main = "h=30")
-plot(rishon, add = TRUE)
+plot(build, add = TRUE)
 
 par(opar)
 
@@ -115,7 +116,7 @@ par(opar)
 
 # Method for 3D points - Covering building surface
 
-obstacles = rishon[c(2, 4), ]
+obstacles = build[c(2, 4), ]
 location = surfaceGrid(
   obstacles = obstacles,
   obstacles_height_field = "BLDG_HT",
@@ -137,28 +138,37 @@ plotGrid(location, color = c("yellow", "grey")[as.factor(location$shadow)], size
 
 # Method for ground locations raster
 
-ext = as(raster::extent(rishon) + 20, "SpatialPolygons")
+ext = as(raster::extent(build) + 20, "SpatialPolygons")
 location = raster::raster(ext, res = 2)
-proj4string(location) = proj4string(rishon)
-obstacles = rishon[c(2, 4), ]
+proj4string(location) = proj4string(build)
+obstacles = build[c(2, 4), ]
 solar_pos = tmy[c(9, 16), c("sun_az", "sun_elev")]
 solar_pos = as.matrix(solar_pos)
-s = inShadow(
+s = inShadow(                ## Using 'solar_pos'
   location = location,
   obstacles = obstacles,
   obstacles_height_field = "BLDG_HT",
-  solar_pos = solar_pos
+  solar_pos = solar_pos,
+  parallel = 3
+)
+time = as.POSIXct(tmy$time[c(9, 16)], tz = "Asia/Jerusalem")
+s = inShadow(               ## Using 'time'
+  location = location,
+  obstacles = obstacles,
+  obstacles_height_field = "BLDG_HT",
+  time = time,
+  parallel = 3
 )
 plot(s)
 
 # Method for pre-calculated shadow height raster
 
-ext = as(raster::extent(rishon), "SpatialPolygons")
+ext = as(raster::extent(build), "SpatialPolygons")
 r = raster::raster(ext, res = 1)
-proj4string(r) = proj4string(rishon)
+proj4string(r) = proj4string(build)
 r[] = rep(seq(30, 0, length.out = ncol(r)), times = nrow(r))
 location = surfaceGrid(
-  obstacles = rishon[c(2, 4), ],
+  obstacles = build[c(2, 4), ],
   obstacles_height_field = "BLDG_HT",
   res = 2,
   offset = 0.01
@@ -179,8 +189,24 @@ r_pnt = SpatialPointsDataFrame(
     )
  )
 pnt = rbind(location[, "shadow"], r_pnt)
-
 plotGrid(pnt, color = c("yellow", "grey")[as.factor(pnt$shadow)], size = 0.5)
+
+# Automatically calculating 'solar_pos' using 'time' - Points
+location = sp::spsample(
+  rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
+  n = 500,
+  type = "regular"
+)
+time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
+s = inShadow(
+  location = location,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  time = time
+)
+plot(location, col = ifelse(s[, 1], "grey", "yellow"), main = time)
+plot(build, add = TRUE)
+
 }
 
 }

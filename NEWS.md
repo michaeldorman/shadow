@@ -53,7 +53,7 @@
 * 'returnList' argument in 'radiation'
 * Fixed mistakes in the 'time' column of 'tmy'
 * Added temperature and wind speed columns in 'tmy'
-* Update vignette to comply with noew 'tmy' table
+* Update vignette to comply with new 'tmy' table
 
 # shadow 0.5.7 (2018-09-29)
 
@@ -62,14 +62,26 @@
 * Added 'elev' sample dataset with Beer-Sheva elevation
 * Fixed 'Obstacles outline union' step in 'surfaceGrid' function to work with polygons with holes
 
-# shadow 0.5.9
+# shadow 0.5.9 (2018-12-04)
 
 * Added 'flowlength' function
 * Added 'row.names=NULL' in 'coefDirect' to avoid row names warning
 * 'surfaceGrid' now returns 'roof' only points when res/2 > h, instead of error
 
+# shadow 0.6.0 (...) RJournal paper
+
+* Added 'solarpos2' helper function
+* Added 'time' parameter in functions 'shadowHeight', 'inShadow', 'shadowFootprint' and 'radiation'
+* Renamed datasets ("rishon" -> "build", etc.)
+
 # To do
 
-* Add 'sf' support (?)
+* Switch from 'sp' to 'sf'
+* Set 'surfacegrid' class and define 'print' and 'plot' methods for it
+* Pass obstacles height as 'units' and check for agreement with CRS units
+* Return 'shadowHeight' as 'units' matrix
+
+# Other algorithms to add
+
 * Visibility algorithm (e.g. https://www.redblobgames.com/articles/visibility/)
 

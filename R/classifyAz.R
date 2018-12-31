@@ -5,8 +5,7 @@
 #' @return A \code{numeric} vector with the segment azimuth values (in decimal degrees)
 #'
 #' @examples
-#' data(rishon)
-#' build_seg = toSeg(rishon[1, ])
+#' build_seg = toSeg(build[1, ])
 #' az = classifyAz(build_seg)
 #' plot(build_seg, col = rainbow(4)[cut(az, c(0, 90, 180, 270, 360))])
 #' raster::text(

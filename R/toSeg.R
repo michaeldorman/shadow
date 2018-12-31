@@ -10,15 +10,14 @@
 #' \url{https://stat.ethz.ch/pipermail/r-sig-geo/2013-April/017998.html}
 #'
 #' @examples
-#' data(build)
 #' seg = toSeg(build[1, ])
 #' plot(seg, col = sample(rainbow(length(seg))))
 #' raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
 #'
 #' # Other data structures
 #' toSeg(geometry(build)) # SpatialPolygons
-#' toSeg(sidewalk) # SpatialLinesDataFrame
-#' toSeg(geometry(sidewalk)) # SpatialLinesDataFrame
+#' toSeg(boston_sidewalk) # SpatialLinesDataFrame
+#' toSeg(geometry(boston_sidewalk)) # SpatialLinesDataFrame
 #'
 #' @export
 

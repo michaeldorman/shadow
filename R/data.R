@@ -8,7 +8,7 @@
 #'   \item{BLDG_HT}{Building height, in meters}
 #' }
 
-"rishon"
+"build"
 
 #' Polygonal layer of three buildings in Boston
 #'
@@ -22,7 +22,7 @@
 #'   \item{height_m}{Building height, in meters}
 #' }
 
-"build"
+"boston_build"
 
 #' Polygonal layer of 376 buildings in Beer-Sheva
 #'
@@ -37,7 +37,7 @@
 #'   \item{elev}{Elevation above sea level of building base, in meters}
 #' }
 
-"beersheva"
+"beersheva_build"
 
 #' Polygonal layer of a building block in Boston
 #'
@@ -45,7 +45,7 @@
 #'
 #' @format A \code{SpatialPolygons} with a single feature.
 
-"block"
+"boston_block"
 
 #' Polygonal layer of a park in Boston
 #'
@@ -53,7 +53,7 @@
 #'
 #' @format A \code{SpatialPolygons} with a single feature.
 
-"park"
+"boston_park"
 
 #' Polygonal layer of sidewalks in Boston
 #'
@@ -61,7 +61,7 @@
 #'
 #' @format A \code{SpatialLinesDataFrame} with 78 features.
 
-"sidewalk"
+"boston_sidewalk"
 
 #' Typical Meteorological Year (TMY) solar radiation in Tel-Aviv
 #'
@@ -110,7 +110,7 @@
 #' @references
 #' https://lta.cr.usgs.gov/SRTM1Arc
 
-"elev"
+"beersheva_elev"
 
 
 

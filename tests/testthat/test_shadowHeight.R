@@ -4,15 +4,15 @@ context("shadowHeight")
 
 test_that("Shade height calculation is correct", {
   expect_equal({
-    data(rishon)
-    location = rgeos::gCentroid(rishon)
+    data(build)
+    location = rgeos::gCentroid(build)
     solar_pos = matrix(
       c(208.733303840646, 241.006416412884, 262.037856636259,
         28.7994405393304, 1.81958332207186, -34.5606455413366),
       ncol = 2)
     shadowHeight(
       location = location,
-      obstacles = rishon,
+      obstacles = build,
       obstacles_height_field = "BLDG_HT",
       solar_pos = solar_pos
       )
@@ -25,12 +25,12 @@ test_that("Shade height calculation is correct", {
 )
 
   expect_equal({
-    data(rishon)
-    location = rgeos::gCentroid(rishon)
+    data(build)
+    location = rgeos::gCentroid(build)
     solar_pos = matrix(c(343.665362102935, -81.0986528138936), ncol = 2)
     shadowHeight(
       location = location,
-      obstacles = rishon,
+      obstacles = build,
       obstacles_height_field = "BLDG_HT",
       solar_pos = solar_pos
       )
@@ -38,12 +38,12 @@ test_that("Shade height calculation is correct", {
   matrix(Inf, nrow = 1, ncol = 1) # Night = Infinite shade height at night
   )
   expect_equal({
-    data(rishon)
-    location = rgeos::gCentroid(rishon)
+    data(build)
+    location = rgeos::gCentroid(build)
     solar_pos = matrix(c(0, 80), ncol = 2)
     shadowHeight(
       location = location,
-      obstacles = rishon,
+      obstacles = build,
       obstacles_height_field = "BLDG_HT",
       solar_pos = solar_pos
       )

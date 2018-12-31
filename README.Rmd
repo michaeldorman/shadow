@@ -37,9 +37,6 @@ devtools::install_github("michaeldorman/shadow")
 library(shadow)
 library(raster)
 
-# Buildings layer
-build = rishon
-
 # Point
 location = rgeos::gCentroid(build)
 

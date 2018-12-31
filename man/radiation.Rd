@@ -4,7 +4,8 @@
 \alias{radiation}
 \title{Estimation of Direct and Diffuse Radiation Load on Extruded Polygon Surfaces}
 \usage{
-radiation(grid, obstacles, obstacles_height_field, solar_pos, solar_normal,
+radiation(grid, obstacles, obstacles_height_field,
+  solar_pos = solarpos2(obstacles, time), time = NULL, solar_normal,
   solar_diffuse, radius = Inf, returnList = FALSE,
   parallel = getOption("mc.cores"))
 }
@@ -15,13 +16,15 @@ radiation(grid, obstacles, obstacles_height_field, solar_pos, solar_normal,
 
 \item{obstacles_height_field}{Name of attribute in \code{obstacles} with extrusion height for each feature}
 
-\item{solar_pos}{A matrix with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different sun positions corresponding to the \code{solar_normal} and the \code{solar_diffuse} estimates. For example, if \code{solar_normal} and \code{solar_diffuse} refer to hourly measurements in a Typical Meteorological Year (TMY) dataset, then \code{solar_pos} needs to contain the corresponding hourly sun positions.}
+\item{solar_pos}{A \code{matrix} with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different sun positions corresponding to the \code{solar_normal} and the \code{solar_diffuse} estimates. For example, if \code{solar_normal} and \code{solar_diffuse} refer to hourly measurements in a Typical Meteorological Year (TMY) dataset, then \code{solar_pos} needs to contain the corresponding hourly sun positions}
+
+\item{time}{When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{obstacles}, using function \code{maptools::solarpos}. In such case \code{obstacles} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object}
 
 \item{solar_normal}{Direct Normal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}. Must be a vector with the same number of elements as the number of rows in \code{solar_pos}}
 
 \item{solar_diffuse}{Diffuse Horizontal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}. Must be a vector with the same number of elements as the number of rows in \code{solar_pos}}
 
-\item{radius}{Effective search radius (in CRS units) for considering obstacles when calculating shadow and SVF. The default is to use a global search, i.e. \code{radius=Inf}. Using a smaller radius can be used to speed up the computation when working on large areas. Note that the search radius is not specific per grid point; instead, a buffer is applied on all grid points combined, then "dissolving" the individual buffers, so that exacly the same obstacles apply to all grid points}
+\item{radius}{Effective search radius (in CRS units) for considering obstacles when calculating shadow and SVF. The default is to use a global search, i.e. \code{radius=Inf}. Using a smaller radius can be used to speed up the computation when working on large areas. Note that the search radius is not specific per grid point; instead, a buffer is applied on all grid points combined, then "dissolving" the individual buffers, so that exactly the same obstacles apply to all grid points}
 
 \item{returnList}{Logical, determines whether to return summed radiation over the entire period per 3D point (default, \code{FALSE}), or to return a list with all radiation values per time step (\code{TRUE})}
 
@@ -46,8 +49,8 @@ This is a wrapper function for calculating total diffuse, direct and total radia
 }
 \details{
 Input arguments for this function comprise the following:\itemize{
-\item{An extrauded polygon obstacles layer (\code{obstacles} and \code{obstacles_height_field}) inducing shading on the queried \code{grid}}
-\item{A grid of 3D points (\code{grid}) where radiation is to be estimated. May be created from the 'obstacles' layer, or a subset of it, using function \code{\link{surfaceGrid}}. For instance, in the code example (see below) radiation is estimated on a grid covering just one of four buildings in the \code{rishon} layer (the first building), but all four buildings are taken into account for evaluating self- and mutual-shading by the buildings.}
+\item{An extruded polygon obstacles layer (\code{obstacles} and \code{obstacles_height_field}) inducing shading on the queried \code{grid}}
+\item{A grid of 3D points (\code{grid}) where radiation is to be estimated. May be created from the 'obstacles' layer, or a subset of it, using function \code{\link{surfaceGrid}}. For instance, in the code example (see below) radiation is estimated on a grid covering just one of four buildings in the \code{build} layer (the first building), but all four buildings are taken into account for evaluating self- and mutual-shading by the buildings.}
 \item{Solar positions matrix (\code{solar_pos})}
 \item{Direct and diffuse radiation meteorological estimate vectors (\code{solar_normal} and \code{solar_diffuse})}
 }
@@ -65,7 +68,7 @@ Given these inputs, the function goes through the following steps:\itemize{
 
 # Create surface grid
 grid = surfaceGrid(
-  obstacles = rishon[1, ],
+  obstacles = build[1, ],
   obstacles_height_field = "BLDG_HT",
   res = 2
 )
@@ -74,16 +77,38 @@ solar_pos = tmy[, c("sun_az", "sun_elev")]
 solar_pos = as.matrix(solar_pos)
 
 # Summed 10-hour radiation estimates for two 3D points
-rad = radiation(
+rad1 = radiation(
   grid = grid[1:2, ],
-  obstacles = rishon,
+  obstacles = build,
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos[8:17, , drop = FALSE],
   solar_normal = tmy$solar_normal[8:17],
   solar_diffuse = tmy$solar_diffuse[8:17],
   returnList = TRUE
 )
-rad
+rad1
+
+\dontrun{
+
+# Same, using 'time' instead of 'solar_pos'
+
+rad2 = radiation(
+  grid = grid[1:2, ],
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  time = as.POSIXct(tmy$time[8:17], tz = "Asia/Jerusalem"),
+  solar_normal = tmy$solar_normal[8:17],
+  solar_diffuse = tmy$solar_diffuse[8:17],
+  returnList = TRUE
+)
+rad2
+
+# Differences due to the fact that 'tmy' data come with their own
+# solar positions, not exactly matching those calulated using 'maptools::solarpos'
+rad1$direct - rad2$direct
+rad1$diffuse - rad2$diffuse
+
+}
 
 \dontrun{
 
@@ -92,7 +117,7 @@ rad
 # Annual radiation estimates for entire surface of one building
 rad = radiation(
   grid = grid,
-  obstacles = rishon,
+  obstacles = build,
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos,
   solar_normal = tmy$solar_normal,

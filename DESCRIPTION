@@ -1,7 +1,7 @@
 Package: shadow
 Type: Package
 Title: Geometric Shadow Calculations
-Version: 0.5.9
+Version: 0.6.0
 Authors@R: c(
     person("Michael", "Dorman", email = "dorman@post.bgu.ac.il", role = c("aut", "cre")),
     person("Evyatar", "Erell", email = "erell@bgu.ac.il", role = c("ctb")),

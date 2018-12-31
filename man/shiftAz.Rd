@@ -20,11 +20,10 @@ The shifted \code{object}.
 Shift features by azimuth and distance
 }
 \examples{
-data(rishon)
 s = c(270, 90, 180, 0)
-rishon_shifted = shiftAz(rishon, az = s, dist = 2.5)
-plot(rishon)
-plot(rishon_shifted, add = TRUE, border = "red")
-raster::text(rgeos::gCentroid(rishon, byid = TRUE), s)
+build_shifted = shiftAz(build, az = s, dist = 2.5)
+plot(build)
+plot(build_shifted, add = TRUE, border = "red")
+raster::text(rgeos::gCentroid(build, byid = TRUE), s)
 
 }

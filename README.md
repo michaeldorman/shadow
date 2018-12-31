@@ -1,6 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version-ago/shadow)](https://cran.r-project.org/package=shadow) [![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/last-month/shadow)](https://cran.r-project.org/package=shadow)
+
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version-ago/shadow)](https://cran.r-project.org/package=shadow)
+[![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/last-month/shadow)](https://cran.r-project.org/package=shadow)
 
 ### Installation
 
@@ -23,9 +25,6 @@ devtools::install_github("michaeldorman/shadow")
 library(shadow)
 #> Loading required package: sp
 library(raster)
-
-# Buildings layer
-build = rishon
 
 # Point
 location = rgeos::gCentroid(build)
@@ -58,7 +57,6 @@ h = shadowHeight(
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos
   )
-#> Assuming BLDG_HT given in projection units (m)
 
 # Result
 h
@@ -81,7 +79,7 @@ text(location, paste(round(h, 2), "m"), pos = 3)
 plot(inter, add = TRUE, col = "red")
 ```
 
-![](README-demo1-1.png)
+![](README-demo1-1.png)<!-- -->
 
 ``` r
 
@@ -98,7 +96,6 @@ height_surface = shadowHeight(
   solar_pos = solar_pos,
   parallel = 2
   )
-#> Assuming BLDG_HT given in projection units (m)
 
 # Visualization
 plot(height_surface, col = grey(seq(0.9, 0.2, -0.01)))
@@ -111,4 +108,4 @@ plot(inter, add = TRUE, col = "red")
 plot(location, add = TRUE)
 ```
 
-![](README-demo1-2.png)
+![](README-demo1-2.png)<!-- -->

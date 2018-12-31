@@ -5,7 +5,7 @@ context("radiation")
 test_that("radiation calculation is correct", {
   expect_equal({
 
-    data(rishon)
+    data(build)
     data(tmy)
 
     # grid
@@ -76,7 +76,7 @@ test_that("radiation calculation is correct", {
 
     radiation(
       grid = grid,
-      obstacles = rishon,
+      obstacles = build,
       obstacles_height_field = "BLDG_HT",
       solar_pos = solar_pos[8:17, , drop = FALSE],
       solar_normal = tmy$solar_normal[8:17],
