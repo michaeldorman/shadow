@@ -40,11 +40,7 @@ shiftAz = function(object, az, dist) {
 
   for(i in 1:length(object)) {
 
-    object_shifted[[i]] = raster::shift(
-      object = object[i, ],
-      x = dist[i] * cos(az_rad[i]),
-      y = dist[i] * sin(az_rad[i])
-      )
+    object_shifted[[i]] = raster::shift(object[i, ], dist[i] * cos(az_rad[i]), dist[i] * sin(az_rad[i]))
 
     # Workaround for 'raster::shift' behavior of setting 'coord' dimnames
     if(class(object) %in% c("SpatialLines", "SpatialLinesDataFrame")) {

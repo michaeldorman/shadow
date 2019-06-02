@@ -36,6 +36,7 @@
 #' \item{\code{total}} Total radiation (direct + diffuse) for each grid point
 #' }
 #' Each row of the \code{data.frame} gives summed radiation values for the entire time period in \code{solar_pos}, \code{solar_normal} and \code{solar_diffuse}
+#'
 #' If \code{returnList=TRUE} then returned object is a \code{list} with two elements:\itemize{
 #' \item{\code{direct}} Total direct radiation for each grid point
 #' \item{\code{diffuse}} Total diffuse radiation for each grid point

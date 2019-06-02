@@ -22,11 +22,7 @@
 
   # Sun location
   sp::SpatialPointsDataFrame(
-    coords = raster::shift(
-      location,
-      x = dist_m * cos(az_rad),
-      y = dist_m * sin(az_rad)
-      ),
+    coords = raster::shift(location, dist_m * cos(az_rad), dist_m * sin(az_rad)),
     data = data
   )
 
