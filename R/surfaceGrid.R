@@ -27,7 +27,7 @@
 #' plot(grid)
 #' plot(grid, pch = 1, lwd = 0.1, col = "black", add = TRUE)
 #'
-#' # When 'res' is smaller then height, facade will be left unsampled
+#' # When 'res/2' is larger then height, facade will be left unsampled
 #' build_small = build
 #' build_small$BLDG_HT = 1
 #' grid = surfaceGrid(
@@ -35,6 +35,8 @@
 #'   obstacles_height_field = "BLDG_HT",
 #'   res = 2
 #' )
+#' plot(grid)
+#' plot(grid, pch = 1, lwd = 0.1, col = "black", add = TRUE)
 #' table(grid$type)
 #'
 #' grid = surfaceGrid(
@@ -42,7 +44,18 @@
 #'   obstacles_height_field = "BLDG_HT",
 #'   res = 2.00001  # res/2 > h
 #' )
+#' plot(grid)
+#' plot(grid, pch = 1, lwd = 0.1, col = "black", add = TRUE)
 #' table(grid$type)
+#'
+#' # When input already contains 'obs_id', 'type', 'seg_id', 'xy_id', 'facade_az' or 'ZZZ'
+#' build2 = build
+#' build2$ZZZ = 1
+#' grid = surfaceGrid(
+#'   obstacles = build2,
+#'   obstacles_height_field = "BLDG_HT",
+#'   res = 2
+#' )
 #'
 #' @export
 
@@ -50,6 +63,15 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
 
   # Check inputs
   .checkObstacles(obstacles, obstacles_height_field)
+
+  # Check column names
+  pnt_names = c("obs_id", "type", "seg_id", "xy_id", "facade_az")
+  if(any(names(obstacles) %in% pnt_names))
+    stop("'obstacles' cannot contain any of the following reserved column names: 'obs_id', 'type', 'seg_id', 'xy_id' and 'facade_az'")
+  if(any(names(obstacles) == "ZZZ")) {
+    obstacles$ZZZ = NULL
+    warning("'ZZZ' column removed from 'obstacles' since it is a reserved column name")
+  }
 
   #######################################
   # Facade sample points
@@ -105,7 +127,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
           tmp,
           data = cbind(
             tmp@data,
-            height = h
+            ZZZ = h
           )
         )
         x$xy_id = 1:length(x)
@@ -114,8 +136,6 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
     }
   }
   facade_pnt = do.call(rbind, facade_pnt)
-
-  pnt_names = c("obs_id", "type", "seg_id", "xy_id", "facade_az", "height")
 
   if(!is.null(facade_pnt)) {
 
@@ -138,7 +158,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   roof_pnt$xy_id = NA
   roof_pnt$facade_az = NA
   roof_pnt@data = cbind(roof_pnt@data, over(roof_pnt, obstacles))
-  roof_pnt$height = roof_pnt[[obstacles_height_field]] + offset
+  roof_pnt$ZZZ = roof_pnt[[obstacles_height_field]] + offset
 
   # Rearrange columns
   other_names = setdiff(names(roof_pnt), pnt_names)
@@ -156,15 +176,15 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
 
   max_height = over(combined_pnt, obstacles[, obstacles_height_field], fn = max)
   max_height = max_height[[obstacles_height_field]]
-  max_height[is.na(max_height)] = 0 # For points which do not intersect with 'obstacles'
-  external_point = combined_pnt$height > max_height
+  max_height[is.na(max_height)] = 0  # For points which do not intersect with 'obstacles'
+  external_point = combined_pnt$ZZZ > max_height
   combined_pnt = combined_pnt[external_point, ]
 
   #######################################
   # To 3D
 
   coords = coordinates(combined_pnt)
-  coords = cbind(coords, h = combined_pnt$height)
+  coords = cbind(coords, h = combined_pnt$ZZZ)
   combined_pnt = SpatialPointsDataFrame(
     coords = coords,
     data = combined_pnt@data,
@@ -172,7 +192,7 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   )
 
   # Remove 'height' attribute
-  combined_pnt$height = NULL
+  combined_pnt$ZZZ = NULL
 
   return(combined_pnt)
 

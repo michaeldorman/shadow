@@ -39,7 +39,7 @@ grid = surfaceGrid(
 plot(grid)
 plot(grid, pch = 1, lwd = 0.1, col = "black", add = TRUE)
 
-# When 'res' is smaller then height, facade will be left unsampled
+# When 'res/2' is larger then height, facade will be left unsampled
 build_small = build
 build_small$BLDG_HT = 1
 grid = surfaceGrid(
@@ -47,6 +47,8 @@ grid = surfaceGrid(
   obstacles_height_field = "BLDG_HT",
   res = 2
 )
+plot(grid)
+plot(grid, pch = 1, lwd = 0.1, col = "black", add = TRUE)
 table(grid$type)
 
 grid = surfaceGrid(
@@ -54,6 +56,8 @@ grid = surfaceGrid(
   obstacles_height_field = "BLDG_HT",
   res = 2.00001  # res/2 > h
 )
+plot(grid)
+plot(grid, pch = 1, lwd = 0.1, col = "black", add = TRUE)
 table(grid$type)
 
 }

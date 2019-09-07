@@ -75,13 +75,16 @@
 * Renamed datasets ("rishon" -> "build", etc.)
 * Updated vignette
 
-## shadow 0.6.1
+## shadow 0.6.1 (2019-06-03)
 
 * Fixed compatibility with 'shift' in new version of 'raster'
 
+## shadow 0.6.2
+
+* Input to 'surfaceGrid' is checked for absence of reserved column names: 'obs_id', 'type', 'seg_id', 'xy_id', 'facade_az' and 'ZZZ'
+
 ## To do
 
-* Solve error when input to 'surfaceGrid' already contains column named 'type'
 * Replace vignette with RJournal paper
 * Switch from 'sp' to 'sf'
 * Add tests
