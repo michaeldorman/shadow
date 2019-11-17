@@ -79,13 +79,16 @@
 
 * Fixed compatibility with 'shift' in new version of 'raster'
 
-## shadow 0.6.2
+## shadow 0.6.2 (2019-09-07)
 
 * Input to 'surfaceGrid' is checked for absence of reserved column names: 'obs_id', 'type', 'seg_id', 'xy_id', 'facade_az' and 'ZZZ'
 
+## shadow 0.6.3
+
+* Replaced vignette with final version of R-Journal paper
+
 ## To do
 
-* Replace vignette with RJournal paper
 * Switch from 'sp' to 'sf'
 * Add tests
 * Set 'surfacegrid' class and define 'print' and 'plot' methods for it
