@@ -18,19 +18,19 @@ knitr::opts_chunk$set(
 
 ### Introduction
 
-`shadow` is an R package for geometric shadow calculations in an urban environment. A detailed description can be found in the [R Journal paper (2019)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf)
+`shadow` is an R package for geometric shadow calculations in an urban environment. A detailed description can be found in the [R Journal paper (2019)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf):
 
 [![Abstract](abstract.svg)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf)
 
 ### Installation
 
-CRAN version - 
+CRAN version:
 
 ```{r installation1, eval=FALSE}
 install.packages("shadow")
 ```
 
-GitHub version -
+GitHub version:
 
 ```{r installation2, eval=FALSE}
 install.packages("devtools")

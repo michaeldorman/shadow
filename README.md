@@ -8,19 +8,19 @@
 
 `shadow` is an R package for geometric shadow calculations in an urban
 environment. A detailed description can be found in the [R Journal paper
-(2019)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf)
+(2019)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf):
 
 [![Abstract](abstract.svg)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf)
 
 ### Installation
 
-CRAN version -
+CRAN version:
 
 ``` r
 install.packages("shadow")
 ```
 
-GitHub version -
+GitHub version:
 
 ``` r
 install.packages("devtools")
