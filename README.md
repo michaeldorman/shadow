@@ -4,6 +4,14 @@
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version-ago/shadow)](https://cran.r-project.org/package=shadow)
 [![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/last-month/shadow)](https://cran.r-project.org/package=shadow)
 
+### Introduction
+
+`shadow` is an R package for geometric shadow calculations in an urban
+environment. A detailed description can be found in the [R Journal paper
+(2019)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf)
+
+[![Abstract](abstract.svg)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf)
+
 ### Installation
 
 CRAN version -
@@ -28,6 +36,8 @@ library(raster)
 
 # Point
 location = rgeos::gCentroid(build)
+#> Warning in fun(libname, pkgname): rgeos: versions of GEOS runtime 3.8.0-CAPI-1.13.1
+#> and GEOS at installation 3.7.1-CAPI-1.11.1differ
 
 # Time
 time = as.POSIXct(

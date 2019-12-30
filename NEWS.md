@@ -83,7 +83,7 @@
 
 * Input to 'surfaceGrid' is checked for absence of reserved column names: 'obs_id', 'type', 'seg_id', 'xy_id', 'facade_az' and 'ZZZ'
 
-## shadow 0.6.3
+## shadow 0.6.3 (2019-11-11)
 
 * Replaced vignette with final version of R-Journal paper
 
