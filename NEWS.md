@@ -87,6 +87,10 @@
 
 * Replaced vignette with final version of R-Journal paper
 
+## shadow 0.6.4
+
+* Replaced 'class(x) == "matrix"' to comply with R syntax
+
 ## To do
 
 * Switch from 'sp' to 'sf'

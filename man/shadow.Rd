@@ -3,7 +3,6 @@
 \docType{package}
 \name{shadow}
 \alias{shadow}
-\alias{shadow-package}
 \title{\code{shadow}: R Package for Geometric Shade Calculations}
 \description{
 Main functions for calculating:\itemize{

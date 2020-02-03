@@ -4,10 +4,18 @@
 \alias{radiation}
 \title{Estimation of Direct and Diffuse Radiation Load on Extruded Polygon Surfaces}
 \usage{
-radiation(grid, obstacles, obstacles_height_field,
-  solar_pos = solarpos2(obstacles, time), time = NULL, solar_normal,
-  solar_diffuse, radius = Inf, returnList = FALSE,
-  parallel = getOption("mc.cores"))
+radiation(
+  grid,
+  obstacles,
+  obstacles_height_field,
+  solar_pos = solarpos2(obstacles, time),
+  time = NULL,
+  solar_normal,
+  solar_diffuse,
+  radius = Inf,
+  returnList = FALSE,
+  parallel = getOption("mc.cores")
+)
 }
 \arguments{
 \item{grid}{A 3D \code{SpatialPointsDataFrame} layer, such as returned by function \code{\link{surfaceGrid}}, specifying the locations where radiation is to be estimated. The layer must include an attribute named \code{type}, with possible values being \code{"roof"} or \code{"facade"}, expressing surface orientation per 3D point. The layer must also include an attribute named \code{facade_az}, specifying facade azimuth (only for \code{"facade"} points, for \code{"roof"} points the value should be \code{NA}). The \code{type} and \code{facade_az} attributes are automatically created when creating the grid with the \code{\link{surfaceGrid}} function}

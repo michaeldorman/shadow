@@ -10,7 +10,7 @@
 environment. A detailed description can be found in the [R Journal paper
 (2019)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf):
 
-[![Abstract](abstract.svg)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf)
+[![Abstract](README-abstract.svg)](https://journal.r-project.org/archive/2019/RJ-2019-024/RJ-2019-024.pdf)
 
 ### Installation
 
@@ -36,8 +36,8 @@ library(raster)
 
 # Point
 location = rgeos::gCentroid(build)
-#> Warning in fun(libname, pkgname): rgeos: versions of GEOS runtime 3.8.0-CAPI-1.13.1
-#> and GEOS at installation 3.7.1-CAPI-1.11.1differ
+#> Warning in fun(libname, pkgname): rgeos: versions of GEOS runtime 3.7.1-CAPI-1.11.1
+#> and GEOS at installation 3.6.2-CAPI-1.10.2differ
 
 # Time
 time = as.POSIXct(

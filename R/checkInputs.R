@@ -1,11 +1,11 @@
-##################################################################################
+################################################################
 
 .checkTime = function(time) {
   if(!any(class(time) %in% "POSIXt"))
     stop("'time' must be of class 'POSIXct' or 'POSIXlt'")
 }
 
-##################################################################################
+################################################################
 
 .checkLocation = function(location, length1 = TRUE) {
 
@@ -22,12 +22,12 @@
 
 }
 
-##################################################################################
+################################################################
 
 .checkSolarPos = function(solar_pos, length1) {
 
   # Matrix
-  if(class(solar_pos) != "matrix")
+  if(!is(solar_pos, "matrix"))
     stop("'solar_pos' must be a 'matrix' object")
 
   # 1-row
@@ -48,7 +48,7 @@
 
 }
 
-##################################################################################
+################################################################
 
 .checkObstacles = function(obstacles, obstacles_height_field) {
 
@@ -64,26 +64,13 @@
   if(!obstacles_height_field %in% names(obstacles))
     stop("'obstacles_height_field' not found in attribute table of 'obstacles'")
 
-  # Check that height values are posivive
+  # Check that height values are positive
   if(any(obstacles@data[, obstacles_height_field] < 0))
     stop("'obstacles_height_field' cannot contain negative values")
 
-  # # Print units assumption
-  # if(messages) {
-  #   message(
-  #     paste0(
-  #       "Assuming ", obstacles_height_field, " given in projection units (",
-  #       gsub(" .*", "",
-  #            gsub(".*\\+units=", "", sp::proj4string(obstacles))
-  #       ),
-  #       ")"
-  #     )
-  #   )
-  # }
-
 }
 
-##################################################################################
+################################################################
 
 .checkSolarRad = function(solar_normal, solar_diffuse, solar_pos) {
 
@@ -98,7 +85,7 @@
 
 }
 
-##################################################################################
+################################################################
 
 .checkGrid = function(grid) {
 
@@ -123,7 +110,7 @@
 
 }
 
-##################################################################################
+################################################################
 
 .checkLinePoly = function(x) {
 
@@ -140,4 +127,4 @@
 
 }
 
-##################################################################################
+################################################################

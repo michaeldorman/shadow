@@ -24,6 +24,7 @@
 #' @import sp
 #' @import raster
 #' @importFrom methods as
+#' @importFrom methods is
 #' @importFrom utils setTxtProgressBar
 #' @importFrom utils txtProgressBar
 

@@ -60,6 +60,15 @@ plot(grid)
 plot(grid, pch = 1, lwd = 0.1, col = "black", add = TRUE)
 table(grid$type)
 
+# When input already contains 'obs_id', 'type', 'seg_id', 'xy_id', 'facade_az' or 'ZZZ'
+build2 = build
+build2$ZZZ = 1
+grid = surfaceGrid(
+  obstacles = build2,
+  obstacles_height_field = "BLDG_HT",
+  res = 2
+)
+
 }
 \seealso{
 Function \code{\link{plotGrid}} to visualize grid.
