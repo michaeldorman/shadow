@@ -20,7 +20,7 @@
 #' \item{If input \code{location} is a \code{SpatialPoints*}, then returned object is a \code{matrix} where rows represent spatial locations (\code{location} features), columns represent solar positions (\code{solar_pos} rows) and values represent shadow state}
 #' \item{If input \code{location} is a \code{Raster*}, then returned object is a \code{RasterLayer} or \code{RasterStack}, where raster layers represent solar positions (\code{solar_pos} rows) and pixel values represent shadow state}
 #' }
-#' In both cases the logical values express shadow state -
+#' In both cases the logical values express shadow state:
 #' \itemize{
 #' \item{\code{TRUE} means the location is in shadow}
 #' \item{\code{FALSE} means the location is not in shadow}
@@ -327,6 +327,7 @@ setMethod(
 
     # Unique ground locations
     coord = as.data.frame(coordinates(location))
+    coord$id = 1:nrow(coord)
     coord_unique = coord[!duplicated(coord[, 1:2]), 1:2]
 
     # Point layer of unique ground locations
@@ -355,11 +356,13 @@ setMethod(
           ...
         )[, 1]
 
-      coord = plyr::join(
-        coord,
-        coord_unique,
-        names(coord)[1:2]
-        )
+      coord = merge(
+        x = coord,
+        y = coord_unique,
+        by = names(coord)[1:2],
+        all.x = TRUE
+      )
+      coord = coord[order(coord$id), ]
 
       result[, col] = !(coord$shadow_height < coord[, 3] | is.na(coord$shadow_height))
 

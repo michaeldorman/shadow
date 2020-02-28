@@ -87,19 +87,21 @@
 
 * Replaced vignette with final version of R-Journal paper
 
-## shadow 0.6.4
+## shadow 0.6.4 (2020-02-03)
 
 * Replaced 'class(x) == "matrix"' to comply with R syntax
 
-## To do
+## shadow 0.6.5
+
+* Removed 'plyr' dependency
+* Removed function 'flowlength' (moved to package 'geobgu')
+
+## Other ideas
 
 * Switch from 'sp' to 'sf'
 * Add tests
 * Set 'surfacegrid' class and define 'print' and 'plot' methods for it
 * Pass obstacles height as 'units' and check for agreement with CRS units
 * Return 'shadowHeight' as 'units' matrix
-
-## Other algorithms to add
-
 * Visibility algorithm (e.g. https://www.redblobgames.com/articles/visibility/)
 
