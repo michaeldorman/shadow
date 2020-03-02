@@ -95,6 +95,7 @@
 
 * Removed 'plyr' dependency
 * Removed function 'flowlength' (moved to package 'geobgu')
+* Fixed 'shadowFootprint' error when the polygon has duplicated points by removing zero-length segments
 
 ## Other ideas
 

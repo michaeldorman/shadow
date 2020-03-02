@@ -86,8 +86,13 @@ setMethod(
       # Calculate shift distance
       dist = obstacles@data[i, obstacles_height_field] / tan(deg2rad(solar_pos[1,2]))
 
-      # Shift segments
+      # Polygon to line segments
       seg = shadow::toSeg(obstacles[i, ])
+
+      # Discard zero-length segments
+      seg = seg[rgeos::gLength(seg, byid = TRUE) > 0, ]
+
+      # Shift segments
       seg_shifted = shadow::shiftAz(seg, az = solar_pos[1, 1], dist = -dist)
 
       # Container for footprints of individual segments of one 'obstacles' feature
