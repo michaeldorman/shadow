@@ -115,11 +115,3 @@ plot(sun_ray, add = TRUE, col = "yellow")
 plot(inter, add = TRUE, col = "red")
 plot(location, add = TRUE)
 ```
-
-
-
-
-
-
-
-

@@ -91,11 +91,16 @@
 
 * Replaced 'class(x) == "matrix"' to comply with R syntax
 
-## shadow 0.6.5
+## shadow 0.6.4.1 (2020-04-01)
+
+* Automatic update by Kurt Hornik to reduce PDF size
+
+## shadow 0.6.7
 
 * Removed 'plyr' dependency
 * Removed function 'flowlength' (moved to package 'geobgu')
 * Fixed 'shadowFootprint' error when the polygon has duplicated points by removing zero-length segments
+* Reduced vignette PDF size
 
 ## Other ideas
 
@@ -105,4 +110,5 @@
 * Pass obstacles height as 'units' and check for agreement with CRS units
 * Return 'shadowHeight' as 'units' matrix
 * Visibility algorithm (e.g. https://www.redblobgames.com/articles/visibility/)
+
 

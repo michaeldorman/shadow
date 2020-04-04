@@ -36,8 +36,6 @@ library(raster)
 
 # Point
 location = rgeos::gCentroid(build)
-#> Warning in fun(libname, pkgname): rgeos: versions of GEOS runtime 3.8.0-CAPI-1.13.1
-#> and GEOS at installation 3.7.1-CAPI-1.11.1differ
 
 # Time
 time = as.POSIXct(

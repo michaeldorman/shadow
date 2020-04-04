@@ -1,7 +1,7 @@
 Package: shadow
 Type: Package
 Title: Geometric Shadow Calculations
-Version: 0.6.5
+Version: 0.6.7
 Authors@R: c(
     person("Michael", "Dorman", email = "dorman@post.bgu.ac.il", role = c("aut", "cre")),
     person("Evyatar", "Erell", email = "erell@bgu.ac.il", role = c("ctb")),
@@ -25,7 +25,8 @@ Suggests:
     testthat,
     reshape2 (>= 1.4.2),
     threejs,
-    rgdal
+    rgdal,
+    stars
 VignetteBuilder: R.rsp
 URL: https://github.com/michaeldorman/shadow/
 BugReports: https://github.com/michaeldorman/shadow/issues/

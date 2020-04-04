@@ -1,5 +1,5 @@
 ## Test environments
-* local Ubuntu 18.04 install, R 3.6.2
+* local Ubuntu 18.04 install, R 3.6.3
 * win-builder (devel and release)
 * R-hub builder
 
@@ -8,7 +8,3 @@ There were no ERRORs or WARNINGs.
 
 ## Downstream dependencies
 None.
-
-## Notes
-This release addresses the problems reported on:
-https://cran.r-project.org/web/checks/check_results_shadow.html
