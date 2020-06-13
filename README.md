@@ -23,8 +23,8 @@ install.packages("shadow")
 GitHub version:
 
 ``` r
-install.packages("devtools")
-devtools::install_github("michaeldorman/shadow")
+install.packages("remotes")
+remotes::install_github("michaeldorman/shadow")
 ```
 
 ### Quick demo
@@ -36,6 +36,8 @@ library(raster)
 
 # Point
 location = rgeos::gCentroid(build)
+#> Warning in fun(libname, pkgname): rgeos: versions of GEOS runtime 3.8.0-CAPI-1.13.1
+#> and GEOS at installation 3.7.1-CAPI-1.11.1differ
 
 # Time
 time = as.POSIXct(
@@ -103,7 +105,7 @@ height_surface = shadowHeight(
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos,
   parallel = 2
-  )
+)
 
 # Visualization
 plot(height_surface, col = grey(seq(0.9, 0.2, -0.01)))

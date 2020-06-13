@@ -104,8 +104,9 @@
 
 ## Other ideas
 
+* Replace 'testthat' with 'tinytest'
 * Switch from 'sp' to 'sf'
-* Add tests
+* Add new tests
 * Set 'surfacegrid' class and define 'print' and 'plot' methods for it
 * Pass obstacles height as 'units' and check for agreement with CRS units
 * Return 'shadowHeight' as 'units' matrix

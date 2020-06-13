@@ -4,14 +4,16 @@
 \name{beersheva_build}
 \alias{beersheva_build}
 \title{Polygonal layer of 376 buildings in Beer-Sheva}
-\format{A \code{SpatialPolygonsDataFrame} with 10 features and 4 attributes:
+\format{
+A \code{SpatialPolygonsDataFrame} with 10 features and 4 attributes:
 \describe{
   \item{build_id}{Building ID}
   \item{floors}{Number of floors for building}
   \item{apartments}{Number of apartments}
   \item{height_m}{Building height, in meters}
   \item{elev}{Elevation above sea level of building base, in meters}
-}}
+}
+}
 \usage{
 beersheva_build
 }

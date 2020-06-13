@@ -4,7 +4,9 @@
 \name{boston_sidewalk}
 \alias{boston_sidewalk}
 \title{Polygonal layer of sidewalks in Boston}
-\format{A \code{SpatialLinesDataFrame} with 78 features.}
+\format{
+A \code{SpatialLinesDataFrame} with 78 features.
+}
 \usage{
 boston_sidewalk
 }

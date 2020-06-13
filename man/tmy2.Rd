@@ -4,7 +4,9 @@
 \name{tmy2}
 \alias{tmy2}
 \title{Typical Meteorological Year (TMY) solar radiation in Beer-Sheva}
-\format{A \code{data.frame} with 8760 rows and 7 columns.}
+\format{
+A \code{data.frame} with 8760 rows and 7 columns.
+}
 \usage{
 tmy2
 }

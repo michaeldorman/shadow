@@ -40,7 +40,7 @@
 #' # Ground level
 #' location = sp::spsample(
 #'   rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
-#'   n = 100,
+#'   n = 80,
 #'   type = "regular"
 #' )
 #' solar_pos = as.matrix(tmy[9, c("sun_az", "sun_elev")])

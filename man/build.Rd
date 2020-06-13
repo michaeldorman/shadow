@@ -4,11 +4,13 @@
 \name{build}
 \alias{build}
 \title{Polygonal layer of four buildings in Rishon}
-\format{A \code{SpatialPolygonsDataFrame} with 4 features and 2 attributes:
+\format{
+A \code{SpatialPolygonsDataFrame} with 4 features and 2 attributes:
 \describe{
   \item{build_id}{Building ID}
   \item{BLDG_HT}{Building height, in meters}
-}}
+}
+}
 \usage{
 build
 }

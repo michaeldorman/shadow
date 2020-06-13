@@ -1,10 +1,9 @@
 ## Test environments
-* local Ubuntu 18.04 install, R 3.6.3
+* local Ubuntu 18.04 install, R 4.0.1
 * win-builder (devel and release)
-* R-hub builder
 
 ## R CMD check results
-There were no ERRORs or WARNINGs. 
+There were no ERRORs or WARNINGs
 
 ## Downstream dependencies
 None.

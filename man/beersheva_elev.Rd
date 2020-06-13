@@ -4,7 +4,9 @@
 \name{beersheva_elev}
 \alias{beersheva_elev}
 \title{DEM of Ramot neighborhood, Beer-Sheva}
-\format{A \code{RasterLayer} representing a grid of 1974 raster cells, each cell is a 30*30 meters rectangle. Data source is the Shuttle Radar Topography Mission (SRTM) 1 Arc-Second Global dataset.}
+\format{
+A \code{RasterLayer} representing a grid of 1974 raster cells, each cell is a 30*30 meters rectangle. Data source is the Shuttle Radar Topography Mission (SRTM) 1 Arc-Second Global dataset.
+}
 \usage{
 beersheva_elev
 }

@@ -4,7 +4,9 @@
 \name{boston_park}
 \alias{boston_park}
 \title{Polygonal layer of a park in Boston}
-\format{A \code{SpatialPolygons} with a single feature.}
+\format{
+A \code{SpatialPolygons} with a single feature.
+}
 \usage{
 boston_park
 }
