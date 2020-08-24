@@ -95,12 +95,16 @@
 
 * Automatic update by Kurt Hornik to reduce PDF size
 
-## shadow 0.6.7
+## shadow 0.6.7 (2020-06-13)
 
 * Removed 'plyr' dependency
 * Removed function 'flowlength' (moved to package 'geobgu')
 * Fixed 'shadowFootprint' error when the polygon has duplicated points by removing zero-length segments
 * Reduced vignette PDF size
+
+## shadow 0.6.8
+
+* Replaced sample 'sp' layers to comply with WKT2 CRS specification
 
 ## Other ideas
 
