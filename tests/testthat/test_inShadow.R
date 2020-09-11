@@ -5,6 +5,7 @@ context("inShadow")
 test_that("'inShadow' calculation is correct", {
   expect_equal({
     obstacles = build[c(2, 4), ]
+    this_CRS = slot(build, "proj4string")
     location = new(
       "SpatialPointsDataFrame"
       ,
@@ -745,8 +746,7 @@ test_that("'inShadow' calculation is correct", {
         .Dimnames = list(c("x1", "x2", "h"), c("min", "max"))
       )
       ,
-      proj4string = new("CRS"
-                        , projargs = "+proj=utm +zone=36 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
+      proj4string = this_CRS # new("CRS", projargs = "+proj=utm +zone=36 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
     )
     solar_pos = tmy[c(9, 16), c("sun_az", "sun_elev")]
     solar_pos = as.matrix(solar_pos)
