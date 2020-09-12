@@ -6,6 +6,7 @@ test_that("radiation calculation is correct", {
   expect_equal({
 
     data(build)
+    this_CRS = slot(build, "proj4string")
     data(tmy)
 
     # grid
@@ -68,7 +69,7 @@ test_that("radiation calculation is correct", {
         .Dimnames = list(c("x1", "x2", "h"), c("min", "max"))
       )
       ,
-      proj4string = new("CRS", projargs = "+proj=utm +zone=36 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
+      proj4string = this_CRS # new("CRS", projargs = "+proj=utm +zone=36 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
     )
 
     solar_pos = tmy[, c("sun_az", "sun_elev")]
