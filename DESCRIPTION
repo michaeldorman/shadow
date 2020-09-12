@@ -1,12 +1,13 @@
 Package: shadow
 Type: Package
 Title: Geometric Shadow Calculations
-Version: 0.6.8
+Version: 0.6.9
 Authors@R: c(
     person("Michael", "Dorman", email = "dorman@post.bgu.ac.il", role = c("aut", "cre")),
     person("Evyatar", "Erell", email = "erell@bgu.ac.il", role = c("ctb")),
     person("Itai", "Kloog", email = "ikloog@gmail.com", role = c("ctb")),
-    person("Adi", "Vulkan", email = "vulkan@post.bgu.ac.il", role = c("ctb")))
+    person("Adi", "Vulkan", email = "vulkan@post.bgu.ac.il", role = c("ctb")),
+    person("Roger", "Bivand", email = "roger.bivand@nhh.no", role = c("ctb")))
 Description: Functions for calculating: (1) shadow height, (2) logical shadow flag, (3) shadow footprint, (4) Sky View Factor and (5) radiation load. Basic required inputs include a polygonal layer of obstacle outlines along with their heights (i.e. "extruded polygons"), sun azimuth and sun elevation. The package also provides functions for related preliminary calculations: breaking polygons into line segments, determining azimuth of line segments, shifting segments by azimuth and distance, constructing the footprint of a line-of-sight between an observer and the sun, and creating a 3D grid covering the surface area of extruded polygons.
 License: MIT + file LICENSE
 LazyData: TRUE

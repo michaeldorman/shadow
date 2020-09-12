@@ -102,9 +102,13 @@
 * Fixed 'shadowFootprint' error when the polygon has duplicated points by removing zero-length segments
 * Reduced vignette PDF size
 
-## shadow 0.6.8
+## shadow 0.6.8 (2020-08-25)
 
 * Replaced sample 'sp' layers to comply with WKT2 CRS specification
+
+## shadow 0.6.9
+
+* Revision of CRS in sample data (by Roger Bivand)
 
 ## Other ideas
 
