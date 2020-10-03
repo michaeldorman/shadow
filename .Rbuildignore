@@ -8,3 +8,6 @@
 cran-comments.md
 README.md
 README.Rmd
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

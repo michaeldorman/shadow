@@ -115,3 +115,9 @@ plot(sun_ray, add = TRUE, col = "yellow")
 plot(inter, add = TRUE, col = "red")
 plot(location, add = TRUE)
 ```
+
+```{r, include=FALSE}
+file.copy("README-abstract.png", "docs/README-abstract.png")
+file.copy("README-demo1-1.png", "docs/README-demo1-1.png")
+file.copy("README-demo1-2.png", "docs/README-demo1-2.png")
+```

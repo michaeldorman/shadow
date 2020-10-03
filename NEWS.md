@@ -109,6 +109,7 @@
 ## shadow 0.6.9
 
 * Revision of CRS in sample data (by Roger Bivand)
+* Added 'pkgdown' site
 
 ## Other ideas
 
@@ -119,5 +120,3 @@
 * Pass obstacles height as 'units' and check for agreement with CRS units
 * Return 'shadowHeight' as 'units' matrix
 * Visibility algorithm (e.g. https://www.redblobgames.com/articles/visibility/)
-
-

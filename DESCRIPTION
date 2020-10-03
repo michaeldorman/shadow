@@ -29,6 +29,6 @@ Suggests:
     rgdal,
     stars
 VignetteBuilder: R.rsp
-URL: https://github.com/michaeldorman/shadow/
+URL: https://michaeldorman.github.io/shadow/, https://github.com/michaeldorman/shadow/
 BugReports: https://github.com/michaeldorman/shadow/issues/
 Encoding: UTF-8
