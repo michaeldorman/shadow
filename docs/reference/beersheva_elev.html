@@ -128,8 +128,20 @@
     <p>A <code>RasterLayer</code> representing a grid of 1974 raster cells, each cell is a 30*30 meters rectangle. Data source is the Shuttle Radar Topography Mission (SRTM) 1 Arc-Second Global dataset.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>https://lta.cr.usgs.gov/SRTM1Arc</p>
+    <p><a href='https://lta.cr.usgs.gov/SRTM1Arc'>https://lta.cr.usgs.gov/SRTM1Arc</a></p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>beersheva_elev</span>
+</div><div class='output co'>#&gt; class      : RasterLayer 
+#&gt; dimensions : 47, 42, 1974  (nrow, ncol, ncell)
+#&gt; resolution : 30, 30  (x, y)
+#&gt; extent     : 670636.6, 671896.6, 3461431, 3462841  (xmin, xmax, ymin, ymax)
+#&gt; crs        : +proj=utm +zone=36 +datum=WGS84 +units=m +no_defs 
+#&gt; source     : memory
+#&gt; names      : elev_m 
+#&gt; values     : 283.2574, 356.0146  (min, max)
+#&gt; </div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/raster/man/plot.html'>plot</a></span><span class='op'>(</span><span class='va'>beersheva_elev</span><span class='op'>)</span>
+</div><div class='img'><img src='beersheva_elev-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

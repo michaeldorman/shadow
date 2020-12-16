@@ -13,7 +13,11 @@ beersheva_elev
 \description{
 Digital Elevation Model (DEM) of Ramot neighborhood, Beer-Sheva. Raster values represent elevation above sea level, in meters.
 }
+\examples{
+beersheva_elev
+plot(beersheva_elev)
+}
 \references{
-https://lta.cr.usgs.gov/SRTM1Arc
+\url{https://www.usgs.gov/centers/eros/science/usgs-eros-archive-digital-elevation-shuttle-radar-topography-mission-srtm-1-arc}
 }
 \keyword{datasets}

@@ -7,6 +7,9 @@
 #'   \item{build_id}{Building ID}
 #'   \item{BLDG_HT}{Building height, in meters}
 #' }
+#' @examples
+#' build
+#' plot(build, axes = TRUE)
 
 "build"
 
@@ -21,6 +24,9 @@
 #'   \item{part_floor}{Number of floors for part}
 #'   \item{height_m}{Building height, in meters}
 #' }
+#' @examples
+#' boston_build
+#' plot(boston_build, axes = TRUE)
 
 "boston_build"
 
@@ -36,6 +42,9 @@
 #'   \item{height_m}{Building height, in meters}
 #'   \item{elev}{Elevation above sea level of building base, in meters}
 #' }
+#' @examples
+#' beersheva_build
+#' plot(beersheva_build, axes = TRUE)
 
 "beersheva_build"
 
@@ -44,6 +53,9 @@
 #' A \code{SpatialPolygons} object representing the boundaries of a building block in Central Boston.
 #'
 #' @format A \code{SpatialPolygons} with a single feature.
+#' @examples
+#' boston_block
+#' plot(boston_block, axes = TRUE)
 
 "boston_block"
 
@@ -52,6 +64,9 @@
 #' A \code{SpatialPolygons} object representing the boundaries of a park in Central Boston.
 #'
 #' @format A \code{SpatialPolygons} with a single feature.
+#' @examples
+#' boston_park
+#' plot(boston_park, axes = TRUE)
 
 "boston_park"
 
@@ -60,6 +75,9 @@
 #' A \code{SpatialLinesDataFrame} object representing sidewalks in Central Boston.
 #'
 #' @format A \code{SpatialLinesDataFrame} with 78 features.
+#' @examples
+#' boston_sidewalk
+#' plot(boston_sidewalk, axes = TRUE)
 
 "boston_sidewalk"
 
@@ -78,7 +96,9 @@
 #' @format A \code{data.frame} with 8760 rows and 7 columns.
 #'
 #' @references
-#' https://energyplus.net/weather-location/europe_wmo_region_6/ISR//ISR_Tel.Aviv-Bet.Dagan.401790_MSI
+#' \url{https://energyplus.net/weather-location/europe_wmo_region_6/ISR//ISR_Tel.Aviv-Bet.Dagan.401790_MSI}
+#' @examples 
+#' head(tmy)
 
 "tmy"
 
@@ -97,7 +117,9 @@
 #' @format A \code{data.frame} with 8760 rows and 7 columns.
 #'
 #' @references
-#' https://energyplus.net/weather-location/europe_wmo_region_6/ISR//ISR_Beer.Sheva.401900_MSI
+#' \url{https://energyplus.net/weather-location/europe_wmo_region_6/ISR//ISR_Beer.Sheva.401900_MSI}
+#' @examples 
+#' head(tmy2)
 
 "tmy2"
 
@@ -108,9 +130,10 @@
 #' @format A \code{RasterLayer} representing a grid of 1974 raster cells, each cell is a 30*30 meters rectangle. Data source is the Shuttle Radar Topography Mission (SRTM) 1 Arc-Second Global dataset.
 #'
 #' @references
-#' https://lta.cr.usgs.gov/SRTM1Arc
+#' \url{https://www.usgs.gov/centers/eros/science/usgs-eros-archive-digital-elevation-shuttle-radar-topography-mission-srtm-1-arc}
+#' @examples
+#' beersheva_elev
+#' plot(beersheva_elev)
 
 "beersheva_elev"
-
-
 

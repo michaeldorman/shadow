@@ -37,6 +37,10 @@ install.packages("remotes")
 remotes::install_github("michaeldorman/shadow")
 ```
 
+## Documentation
+
+The complete documentation can be found at [https://michaeldorman.github.io/shadow/](https://michaeldorman.github.io/shadow/).
+
 ### Quick demo
 
 ```{r demo1}
@@ -50,19 +54,21 @@ location = rgeos::gCentroid(build)
 time = as.POSIXct(
   "2004-12-24 13:30:00",
   tz = "Asia/Jerusalem"
-  )
+)
 
 # Location in geographical coordinates
+proj4string(location) = CRS("+init=epsg:32636")
 location_geo = sp::spTransform(
   location,
-  "+proj=longlat +datum=WGS84"
-  )
+  CRS("+init=epsg:4326")
+)
+crs(location) = NA
 
 # Solar position
 solar_pos = maptools::solarpos(
   crds = location_geo,
   dateTime = time
-  )
+)
 solar_pos
 
 # Shadow height at a single point
@@ -71,7 +77,7 @@ h = shadowHeight(
   obstacles = build,
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos
-  )
+)
 
 # Result
 h
@@ -81,7 +87,7 @@ sun = shadow:::.sunLocation(
   location = location,
   sun_az = solar_pos[1, 1],
   sun_elev = solar_pos[1, 2]
-  )
+)
 sun_ray = ray(from = location, to = sun)
 build_outline = as(build, "SpatialLinesDataFrame")
 inter = rgeos::gIntersection(build_outline, sun_ray)
@@ -92,9 +98,8 @@ text(location, paste(round(h, 2), "m"), pos = 3)
 plot(inter, add = TRUE, col = "red")
 
 # Raster template
-ext = as(raster::extent(build)+50, "SpatialPolygons")
-r = raster::raster(ext, res = 2)
-proj4string(r) = proj4string(build)
+ext = as(extent(build)+50, "SpatialPolygons")
+r = raster(ext, res = 2)
 
 # Shadow height surface
 height_surface = shadowHeight(
@@ -117,7 +122,6 @@ plot(location, add = TRUE)
 ```
 
 ```{r, include=FALSE}
-file.copy("README-abstract.png", "docs/README-abstract.png")
-file.copy("README-demo1-1.png", "docs/README-demo1-1.png")
-file.copy("README-demo1-2.png", "docs/README-demo1-2.png")
+x = list.files(pattern = "^README-.*\\.png$")
+file.copy(x, "docs/", overwrite = TRUE)
 ```

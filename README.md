@@ -27,6 +27,11 @@ install.packages("remotes")
 remotes::install_github("michaeldorman/shadow")
 ```
 
+## Documentation
+
+The complete documentation can be found at
+<https://michaeldorman.github.io/shadow/>.
+
 ### Quick demo
 
 ``` r
@@ -41,19 +46,21 @@ location = rgeos::gCentroid(build)
 time = as.POSIXct(
   "2004-12-24 13:30:00",
   tz = "Asia/Jerusalem"
-  )
+)
 
 # Location in geographical coordinates
+proj4string(location) = CRS("+init=epsg:32636")
 location_geo = sp::spTransform(
   location,
-  "+proj=longlat +datum=WGS84"
-  )
+  CRS("+init=epsg:4326")
+)
+crs(location) = NA
 
 # Solar position
 solar_pos = maptools::solarpos(
   crds = location_geo,
   dateTime = time
-  )
+)
 solar_pos
 #>          [,1]     [,2]
 #> [1,] 208.7333 28.79944
@@ -64,15 +71,7 @@ h = shadowHeight(
   obstacles = build,
   obstacles_height_field = "BLDG_HT",
   solar_pos = solar_pos
-  )
-#> Warning in proj4string(location): CRS object has comment, which is lost in
-#> output
-#> Warning in proj4string(obstacles): CRS object has comment, which is lost in
-#> output
-#> Warning in sp::proj4string(from): CRS object has comment, which is lost in
-#> output
-#> Warning in RGEOSBinTopoFunc(spgeom1, spgeom2, byid, id, drop_lower_td,
-#> unaryUnion_if_byid_false, : spgeom1 and spgeom2 have different proj4 strings
+)
 
 # Result
 h
@@ -84,14 +83,10 @@ sun = shadow:::.sunLocation(
   location = location,
   sun_az = solar_pos[1, 1],
   sun_elev = solar_pos[1, 2]
-  )
+)
 sun_ray = ray(from = location, to = sun)
-#> Warning in sp::proj4string(from): CRS object has comment, which is lost in
-#> output
 build_outline = as(build, "SpatialLinesDataFrame")
 inter = rgeos::gIntersection(build_outline, sun_ray)
-#> Warning in RGEOSBinTopoFunc(spgeom1, spgeom2, byid, id, drop_lower_td,
-#> unaryUnion_if_byid_false, : spgeom1 and spgeom2 have different proj4 strings
 plot(build)
 plot(sun_ray, add = TRUE, col = "yellow")
 plot(location, add = TRUE)
@@ -104,10 +99,8 @@ plot(inter, add = TRUE, col = "red")
 ``` r
 
 # Raster template
-ext = as(raster::extent(build)+50, "SpatialPolygons")
-r = raster::raster(ext, res = 2)
-proj4string(r) = proj4string(build)
-#> Warning in proj4string(build): CRS object has comment, which is lost in output
+ext = as(extent(build)+50, "SpatialPolygons")
+r = raster(ext, res = 2)
 
 # Shadow height surface
 height_surface = shadowHeight(
@@ -117,10 +110,6 @@ height_surface = shadowHeight(
   solar_pos = solar_pos,
   parallel = 2
 )
-#> Warning in proj4string(location): CRS object has comment, which is lost in
-#> output
-#> Warning in proj4string(obstacles): CRS object has comment, which is lost in
-#> output
 
 # Visualization
 plot(height_surface, col = grey(seq(0.9, 0.2, -0.01)))

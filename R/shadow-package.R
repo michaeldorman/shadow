@@ -27,5 +27,8 @@
 #' @importFrom methods is
 #' @importFrom utils setTxtProgressBar
 #' @importFrom utils txtProgressBar
+#' @importFrom parallel mclapply
+#' @importFrom parallel makeCluster
+#' @importFrom parallel parLapply
 
 NULL

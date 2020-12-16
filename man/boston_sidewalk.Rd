@@ -13,4 +13,8 @@ boston_sidewalk
 \description{
 A \code{SpatialLinesDataFrame} object representing sidewalks in Central Boston.
 }
+\examples{
+boston_sidewalk
+plot(boston_sidewalk, axes = TRUE)
+}
 \keyword{datasets}

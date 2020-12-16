@@ -8,6 +8,7 @@
 #'
 #' @examples
 #' time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
+#' proj4string(build) = CRS("+init=epsg:32636")
 #' solarpos2(build, time)
 #'
 #' @export
@@ -24,7 +25,7 @@ solarpos2 = function(location, time) {
   location_ctr = rgeos::gCentroid(location)
 
   # Transform to lon-lat
-  location_ctr = sp::spTransform(location_ctr, "+proj=longlat +datum=WGS84")
+  location_ctr = sp::spTransform(location_ctr, CRS("+init=epsg:4326"))
 
   # Calculate solar position
   maptools::solarpos(location_ctr, time)

@@ -13,4 +13,8 @@ boston_block
 \description{
 A \code{SpatialPolygons} object representing the boundaries of a building block in Central Boston.
 }
+\examples{
+boston_block
+plot(boston_block, axes = TRUE)
+}
 \keyword{datasets}

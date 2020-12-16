@@ -127,6 +127,17 @@
 
     <p>A <code>SpatialLinesDataFrame</code> with 78 features.</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='va'>boston_sidewalk</span>
+</div><div class='output co'>#&gt; class       : SpatialLinesDataFrame 
+#&gt; features    : 78 
+#&gt; extent      : 328900, 329148, 4690530, 4690805  (xmin, xmax, ymin, ymax)
+#&gt; crs         : +proj=utm +zone=19 +datum=WGS84 +units=m +no_defs 
+#&gt; variables   : 3
+#&gt; names       : OBJECTID,     TYPE,       ShapeSTLen 
+#&gt; min values  :   100131, CWALK-CL, 1.60299290715796 
+#&gt; max values  :    99792, SWALK-CL, 314.796524738377 </div><div class='input'><span class='fu'><a href='https://rdrr.io/pkg/raster/man/plot.html'>plot</a></span><span class='op'>(</span><span class='va'>boston_sidewalk</span>, axes <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+</div><div class='img'><img src='boston_sidewalk-1.png' alt='' width='700' height='433' /></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

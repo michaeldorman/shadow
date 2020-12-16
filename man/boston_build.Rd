@@ -19,4 +19,8 @@ boston_build
 \description{
 A \code{SpatialPolygonsDataFrame} object representing the outlines of three buildings located in Central Boston. The attribute \code{height_m} contains building height, in meters.
 }
+\examples{
+boston_build
+plot(boston_build, axes = TRUE)
+}
 \keyword{datasets}

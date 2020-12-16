@@ -1,0 +1,938 @@
+---
+title: "`shadow`: R Package for Geometric Shadow Calculations in an Urban Environment"
+author:
+  - Michael Dorman^[Department of Geography and Environmental Development, Ben-Gurion University of the Negev, dorman@post.bgu.ac.il]
+  - Evyatar Erell^[The Jacob Blaustein Institutes for Desert Research and the Department of Geography and Environmental Development, Ben-Gurion University of the Negev]
+  - Adi Vulkan^[Department of Geography and Environmental Development, Ben-Gurion University of the Negev]
+  - Itai Kloog^[Department of Geography and Environmental Development, Ben-Gurion University of the Negev]
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+abstract: |
+  | This paper introduces the `shadow` package for R. The package provides functions for shadow-related calculations in the urban environment, namely shadow height, shadow footprint and Sky View Factor (SVF) calculations, as well as a wrapper function to estimate solar radiation while taking shadow effects into account. All functions operate on a layer of polygons with a height attribute, also known as "extruded polygons" or 2.5D vector data. Such data are associated with accuracy limitations in representing urban environments. However, unlike 3D models, polygonal layers of building outlines along with their height are abundantly available and their processing does not require specialized closed-source 3D software. The present package thus brings spatio-temporal shadow, SVF and solar radiation calculation capabilities to the open-source spatial analysis workflow in R. Package functionality is demonstrated using small reproducible examples for each function. Wider potential use cases include urban environment applications such as evaluation of micro-climatic influence for urban planning, studying urban climatic comfort and estimating photovoltaic energy production potential. 
+  | **Note**: This is a revised version of @dorman2019shadow, adapted to the changes in package structure since the initial published version.
+output:
+  bookdown::pdf_document2:
+    latex_engine: xelatex
+bibliography: introduction2.bib
+vignette: >
+  %\VignetteIndexEntry{Introduction to package 'shadow' (updated)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(
+  cache = FALSE, 
+  fig.align = "center"
+)
+```
+
+\section{Introduction}
+
+Spatial analysis of the urban environment [@biljecki2015applications] frequently requires estimating whether a given point is shaded or not, given a representation of spatial obstacles (e.g. buildings) and a time-stamp with its associated solar position. For example, we may be interested in:
+
+* Calculating the amount of time a given roof or facade is shaded, to determine the utility of installing photovoltaic cells for \textbf{electricity production} [e.g., @redweik2013solar].
+* Calculating shadow footprint on vegetated areas, to determine the expected influence of a tall new building on the surrounding \textbf{microclimate} [e.g., @bourbia2010impact]. 
+
+Such calculations are usually carried out using GIS-based models [@freitas2015modelling], in either **vector-based 3D** or **raster-based 2.5D** settings. Both approaches have their advantages and limitations, as discussed in the following paragraphs. 
+
+Shadow calculations on vector-based 3D models of the urban environment are mostly restricted to proprietary closed-source software such as \textbf{ArcGIS} [@esri2017arcgis] or \textbf{SketchUp} [@sketchup], though recently some open-source models such as \textbf{SURFSUN3D} have been developed [@liang2015open]. One of the drawbacks of using closed-source software in this context is the difficulty of adjusting the software for specific needs and uncommon scenarios. This problem is especially acute in research settings, where flexibility and extensibility are essential for exploring new computational approaches. The other difficulty with using 3D software in urban spatial analysis concerns interoperability of file formats. Since ordinary vector spatial data formats, such as the \textit{ESRI Shapefile}, cannot represent three-dimensional surfaces, 3D software is associated with specialized file formats. The latter cannot be readily imported to a general-purpose geocomputational environment such as R or Python [@van2011python], thus fragmenting the analysis workflow. Moreover, most 3D software, such as those mentioned above, are design-oriented, thus providing advanced visualization capabilities but limited quantitative tools (calculating areas, angles, coordinates, etc.). Finally, true-3D databases of large urban areas are difficult to obtain, while vector-based 2.5D databases (building outline and height, see below) are almost universal. The advantages of true-3D software are "wasted" when the input data are 2.5D, while the disadvantages, such as lack of quantitative procedures and data interoperability difficulties, still remain. 
+
+Raster-based 2.5D solutions, operating on a Digital Elevation Model (DEM) raster, are much simpler and have thus been more widely implemented in various software for several decades [@kumar1997modelling, ratti2004raster]. For example, raster-based shadow calculations are available in open-source software such as the **r.sun** command [@hofierka2002solar] in `GRASS GIS` [@grass_gis_software], the \textbf{UMEP} plugin [@lindberg2018urban] for `QGIS` [@qgis_software] and package `insol` [@insol] in R. In the proprietary \textbf{ArcGIS} software, raster-based shadow calculations are provided through the \textbf{Solar Analyst} extension [@fu1999design]. Thanks to this variety of tools, raster-based shadow modelling can be easily incorporated within a general spatial analysis workflow. However, raster-based models are more suitable for large-scale analysis of natural terrain, rather than fine-scale urban environments, for the following reasons:
+
+* A raster representing surface elevation, known as a DEM, at sufficiently high resolution for the urban context, may not be available and is expensive to produce, e.g. using airborne Light Detection And Ranging (LiDAR) surveys [e.g., @redweik2013solar]. Much more commonly, municipalities and other sources such as OpenStreetMap [@haklay2008openstreetmap] offer 2.5D vector-based data on cities, i.e. polygonal layers of building outlines associated with height attributes.
+* Rasters are composed of pixels, which have no natural association to specific urban elements, such as an individual building, thus making it more difficult to associate analysis results with the corresponding urban elements. 
+* Vertical surfaces, such as building facades, are rare in natural terrain yet very common in urban environments. Raster-based representation of facades is problematic since the latter correspond to (vertical) discontinuities in the 2.5D digital elevation model, requiring unintuitive workarounds [@redweik2013solar].
+
+It should be noted that more specialized approaches have been recently developed to address some of the above-mentioned difficulties, but they are usually not available as software packages [e.g., @redweik2013solar, hofierka2012new]. 
+
+The `shadow` package [@shadow] aims at addressing these limitations by introducing a simple 2.5D vector-based algorithm for calculating shadows, Sky View Factor (SVF) and solar radiation estimates in the urban environment. The algorithms operate on a polygonal layer extruded to 2.5D, also known as \textit{Levels-of-Detail (LoD) 1} in the terminology of the CityGML standard [@groger2012citygml]. On the one hand, the advantages of individual urban element representation (over raster-based approach) and input data availability (over both raster-based and full 3D approaches) are maintained. On the other hand, the drawbacks of closed-source software and difficult interoperability (as opposed to full 3D environment) are avoided. 
+
+As demonstrated below, functions in the `shadow` package operate on a vector layer of obstacle outlines (e.g. buildings) along with their heights, passed as a `"SpatialPolygonsDataFrame"` object defined in package `sp` [@asdar, sp]. The latter makes incorporating shadow calculations in *Spatial*\footnote{\url{https://cran.r-project.org/web/views/Spatial.html}} analysis workflow in R straightforward. Functions to calculate shadow height, shadow ground footprint, Sky View Factor (SVF) and solar radiation are implemented in the package. 
+
+# Theory
+
+## Shadow height
+
+All functions currently included in `shadow` are based on trigonometric relations in the triangle defined by the sun's rays, the ground---or a plane parallel to the ground---and an obstacle. 
+
+For example, **shadow height** at any given ground point can be calculated based on (1) sun elevation, (2) the height of the building(s) that stand in the way of sun rays and (3) the distance(s) between the queried point and the building(s) along the sun rays projection on the ground. Figure \@ref(fig:illustrationshadowheight) depicts a scenario where shadow is being cast by building A onto the facade of building B, given the solar position defined by its elevation angle $\alpha_{elev}$ and azimuth angle $\alpha_{az}$. Once the intersection point is identified (marked with \textcolor{red}{x} in Figure \@ref(fig:illustrationshadowheight)), shadow height ($h_{shadow}$) at the queried point ($viewer$) can be calculated based on (1) sun elevation ($\alpha_{elev}$), (2) the height of building A ($h_{build}$) and (3) the distance ($dist_{1}$) between the $viewer$ and intersection point \textcolor{red}{x} (Equation \ref{eq:eq_shadow_h}). 
+
+```{r illustrationshadowheight, fig.cap="Shadow height calculation", out.width="70%", echo=FALSE}
+knitr::include_graphics("./images/shadow_height2b.pdf")
+```
+
+\begin{equation} \label{eq:eq_shadow_h}
+h_{shadow} = h_{build} - dist_{1} \cdot tan(\alpha_{elev})
+\end{equation}
+
+The latter approach can be extended to the general case of shadow height calculation at any ground location and given any configuration of obstacles. For example, if there is more than one obstacle potentially casting shadow on the queried location, we can calculate $h_{shadow}$ for each obstacle and then take the maximum value.
+
+\subsection{Logical shadow flag}
+
+Once the shadow height is determined, we may evaluate whether any given 3D point is in shadow or not. This is done simply by comparing the Z-coordinate (i.e. height) of the queried point with the calculated shadow height at the same X-Y (i.e. ground) location. 
+
+\subsection{Shadow footprint}
+
+Instead of calculating shadow height at a pre-specified point (e.g. the $viewer$ in Figure \ref{fig:illustrationshadowheight}), we can set $h_{shadow}$ to zero and calculate the distance ($dist_{2}$) where the shadow intersects ground level (Equation \ref{eq:eq_shadow_footprint}). 
+
+\begin{equation} \label{eq:eq_shadow_footprint}
+dist_{2} = \frac{h_{build}}{tan(\alpha_{elev})}
+\end{equation}
+
+Shifting the obstacle outline by the resulting distance ($dist_{2}$) in a direction opposite to sun azimuth ($\alpha_{az}$) yields a \textbf{shadow footprint} outline [@weisthal2014]. Shadow footprints are useful to calculate the exact ground area that is shaded at specific time. For example, Figure \@ref(fig:illustrationshadowfootprint) shows the shadow footprints produced by a single building at different times of a given day. 
+
+```{r illustrationshadowfootprint, fig.cap="Shadow footprints cast by a building on a horizontal ground surface at hourly intervals on 2004-06-24. The building, indicated by the gray shaded area, is located at 31.97°N 34.78°E, and is 21.38 meters tall", out.width="80%", echo=FALSE}
+knitr::include_graphics("./images/shadow_image_rishon.pdf")
+```
+
+\subsection{Sky View Factor (SVF)}
+
+The \textbf{Sky View Factor} [@beckers2013solar; @erell2012urban; @grimmond2001rapid] is the extent of sky observed from a point as a proportion of the entire sky hemisphere. The SVF can be calculated based on the maximal angles ($\beta$) formed in triangles defined by the queried location and the obstacles (Figure \ref{fig:illustrationsvf}), evaluated in multiple circular cross-sections surrounding the queried location. Once the maximal angle $\beta_{i}$ is determined for a given angular section $i$, $SVF_{i}$ for that particular section is defined [@gal2014new] in Equation \ref{eq:eq_svf}.
+
+```{r illustrationsvf, fig.cap="Sky View factor calculation", out.width="35%", echo=FALSE}
+knitr::include_graphics("./images/SVF2.pdf")
+```
+
+\begin{equation} \label{eq:eq_svf}
+SVF_{i} = 1 - sin^2(\beta_{i})
+\end{equation}
+
+For example, in case ($\beta_{i}=45^\circ$), as depicted in Figure \ref{fig:illustrationsvf}, $SVF_{i}$ is equal to:
+
+$$SVF_{i} = 1 - sin^2(45^\circ) = 0.5$$
+
+Averaging $SVF_{i}$ values for all $i=1,2,...,n$ circular cross-sections gives the final $SVF$ estimate for the queried location (Equation \ref{eq:eq_svf_final}). 
+
+\begin{equation} \label{eq:eq_svf_final}
+SVF = \frac{\sum_{i=1}^{n}SVF_{i}}{n}
+\end{equation}
+
+The number of evaluated cross sections depends on the chosen angular resolution. For example, an angular resolution of $5^\circ$ means the number of cross sections is $n=360^\circ/5^\circ=72$ (Figure \ref{fig:svfrays}).
+
+```{r, echo=FALSE, message=FALSE}
+library(shadow)
+location = rgeos::gCentroid(build)
+park_location = raster::shift(location, dy = 20, dx = -8)
+park = rgeos::gBuffer(park_location, width = 12)
+angles = seq(0, 359, 5)
+sun = mapply(
+  shadow:::.sunLocation,
+  sun_az = angles,
+  MoreArgs = list(
+    location = location,
+    sun_elev = 10
+    )
+)
+rays = mapply(
+  ray,
+  MoreArgs = list(from = location),
+  to = sun
+  )
+rays$makeUniqueIDs = TRUE
+rays = do.call(rbind, rays)
+```
+
+```{r svfrays, echo=FALSE, fig.cap="Angular cross sections for calculating the Sky View Factor (SVF)", fig.width=5, fig.height=4.5, out.width="50%"}
+build_outline = as(build, "SpatialLinesDataFrame")
+inter = rgeos::gIntersection(build_outline, rays)
+opar = par(mar = rep(1, 4))
+plot(build)
+plot(rays, add = TRUE, col = "yellow")
+plot(inter, add = TRUE, col = "red")
+plot(location, add = TRUE)
+par(opar)
+```
+
+\subsection{Solar radiation}
+
+\subsubsection{\textit{Components}}
+
+Frequently, evaluating whether a given location is shaded, and when, is just a first step towards evaluating the amount of solar radiation for a given period of time. The annual insolation at a given point is naturally affected by the degree of shading throughout the year, but shading is not the only factor. 
+
+The three components of the solar radiation are the **direct**, **diffuse** and **reflected** radiation:
+
+* \textbf{Direct} radiation refers to solar radiation traveling on a straight line from the sun to the surface of the earth. Direct radiation can be estimated by taking into account: (1) shading, (2) surface orientation relatively to the sun, and (3) meteorological measurements of direct radiation on a horizontal plane or on a plane normal to the beam of sunlight.
+* \textbf{Diffuse} radiation refers to solar radiation reaching the Earth's surface after having been scattered from the direct solar beam by molecules or particulates in the atmosphere. Diffuse radiation can be estimated by taking into account: (1) SVF, and (2) meteorological measurements of diffuse radiation at an exposed location. 
+* \textbf{Reflected} radiation refers to the sunlight that has been reflected off non-atmospheric obstacles such as ground surface cover or buildings. Most urban surfaces have a low albedo: asphalt reflects only 5-10 percent of incident solar radiation, brick and masonry 20-30 percent, and vegetation about 20 percent. Because a dense urban neighborhood will typically experience multiple reflections, an iterative process is required for a complete analysis. Calculating reflected radiation requires taking into account reflective properties of the various surfaces, their geometrical arrangement [@givoni1998climate] and their view factors from the receiving surface, which is beyond the scope of the `shadow` package. 
+
+The diffuse radiation component is the dominant one on overcast days, when most radiation is scattered, while the direct radiation component is dominant under clear sky conditions when direct radiation reaches the earth's surface.
+
+\subsubsection{\textit{Direct Normal Irradiance}}
+
+Equation \ref{eq:coef} specifies the Coefficient of Direct Normal Irradiance for a vertical \textbf{facade} surface, as function of solar position given by the difference between facade azimuth and sun azimuth angles, and sun elevation angle, at time $t$. 
+
+\begin{equation} \label{eq:coef}
+{\theta_{facade,t}} = cos({\alpha_{az,t}} - {\alpha'_{az}}) \cdot cos({\alpha_{elev,t}})
+\end{equation}
+
+Where $\theta_{facade,t}$ is the Coefficient of Direct Normal Irradiance on a facade at time $t$, $\alpha_{az,t}$ is the sun azimuth angle at time $t$ (see Figure \ref{fig:illustrationshadowheight}), $\alpha'_{az}$ is the facade azimuth angle, i.e. the direction where the facade is facing, and $\alpha_{elev,t}$ is sun elevation angle at time $t$ (see Figure \ref{fig:illustrationshadowheight}). Note that all of latter variables, with the exception of facade azimuth angle $\alpha'_{az}$, are specific for the time interval $t$ due to the variation in solar position. 
+
+Horizontal \textbf{roof} surfaces, unlike facades, are not tilted towards any particular azimuth\footnote{It should be noted that roof surfaces may be pitched rather than horizontal; however 2.5D models, which `shadow` supports, can only represent horizontal roofs}. Equation \ref{eq:coef} thus simplifies to Equation \ref{eq:coef_roof} when referring to a roof, rather than a facade, surface. 
+
+\begin{equation} \label{eq:coef_roof}
+{\theta_{roof,t}} = cos(90^\circ - {\alpha_{elev,t}})
+\end{equation}
+
+Figure \ref{fig:coefplot} demonstrates the relation given in Equations \ref{eq:coef} and \ref{eq:coef_roof} for the entire relevant range of solar positions relative to facade or roof orientation. Again, note that for roof surfaces, the ${\theta_{roof,t}}$ coefficient is only dependent on sun elevation angle ${\alpha_{elev,t}}$ (Equation \ref{eq:coef_roof}) as illustrated on the \textbf{right} panel of Figure \ref{fig:coefplot}. (The code for producing Figure \ref{fig:coefplot} can be found in the help page of function `coefDirect` from `shadow`). 
+
+For example, the \textbf{left} panel in Figure \ref{fig:coefplot} shows that maximal proportion of incoming solar radiation (i.e. $\theta_{facade,t} = 1$) on a facade surface is attained when facade azimuth is equal to sun azimuth and sun elevation is 0 (${\alpha_{elev,t}}=0^\circ$, i.e. facade directly facing the sun). Similarly, the right panel shows that maximal proportion of solar radiation on a roof surface (i.e. $\theta_{roof,t} = 1$) is attained when the sun is at the zenith (${\alpha_{elev,t}}=90^\circ$, i.e. sun directly above the roof). 
+
+```{r coefplot, echo=FALSE, fig.cap="Coefficient of Direct Normal Irradiance, as function of solar position, expressed as the difference between facade and sun azimuths (X-axis) and sun elevation (Y-axis). The \\textbf{left} panel refers to a facade, the \\textbf{right} panel refers to a roof. Note that a roof has no azimuth, thus the X-axis is irrelevant for the \\textbf{right} panel and only shown for uniformity", fig.height=3.5, fig.width=8.9, out.width="100%"}
+opar = par(mfrow = c(1, 2)) 
+
+# Demonstration - Direct beam radiation coefficient on 'facades'
+sun_az = seq(270, 90, by = -5)
+sun_elev = seq(0, 90, by = 5)
+solar_pos = expand.grid(sun_az = sun_az, sun_elev = sun_elev)
+solar_pos$coef = coefDirect(type = "facade", facade_az = 180, solar_pos = as.matrix(solar_pos))[1, ]
+coef = reshape2::acast(solar_pos, sun_az ~ sun_elev, value.var = "coef")
+image(
+  180 - sun_az, sun_elev, coef,
+  col = rev(heat.colors(10)),
+  breaks = seq(0, 1, 0.1),
+  asp = 1,
+  xlab = "Facade azimuth - Sun azimuth (°)",
+  ylab = "Sun elevation (°)",
+  main = "Facade",
+  axes = FALSE
+)
+box()
+axis(1, at = seq(-90, 90, 30))
+axis(2, at = seq(-90, 90, 30))
+contour(180 - sun_az, sun_elev, coef, add = TRUE)
+
+# Demonstration - Direct beam radiation coefficient on 'roofs'
+solar_pos$coef = coefDirect(type = "roof", facade_az = 180, solar_pos = as.matrix(solar_pos))[1, ]
+coef = reshape2::acast(solar_pos, sun_az ~ sun_elev, value.var = "coef")
+image(
+  180 - sun_az, sun_elev, coef,
+  col = rev(heat.colors(10)),
+  breaks = seq(0, 1, 0.1),
+  asp = 1,
+  xlab = "Facade azimuth - Sun azimuth (°)",
+  ylab = "Sun elevation (°)",
+  main = "Roof",
+  axes = FALSE
+)
+box()
+axis(1, at = seq(-90, 90, 30))
+axis(2, at = seq(-90, 90, 30))
+contour(180 - sun_az, sun_elev, coef, add = TRUE)
+
+par(opar)
+```
+
+Once the Coefficient of Direct Normal Irradiance $\theta_{facade,t}$ or $\theta_{roof,t}$ is determined, the Direct Normal Irradiance meteorological measurement ${rad_{direct,t}}$ referring to the same time interval $t$, usually on an hourly time step, is multiplied by the coefficient at a point on the building surface to give the local irradiation at that point (Equation \ref{eq:rad_direct}). The result ${rad'_{direct,t}}$ is the corrected Direct Irradiance the surface receives given its orientation relative to the solar position. 
+
+\begin{equation} \label{eq:rad_direct}
+{rad'_{direct,t}} = \theta_t \cdot {rad_{direct,t}}
+\end{equation}
+
+Both ${rad_{direct,t}}$ and ${rad'_{direct,t}}$, as well as ${rad_{diffuse,t}}$, ${rad'_{diffuse,t}}$ (Equation \ref{eq:rad_diffuse}) and $rad'_{total}$ (Equation \ref{eq:eq_rad_sum}) (see below), are given for each time interval $t$ in units of power per unit area, such as $kWh / m^2$. 
+
+\subsubsection{\textit{Diffuse Horizontal Irradiance}}
+
+Moving on to discussing the second component in the radiation balance, the diffuse irradiance. Diffuse irradiance is given by the meteorological measurement of Diffuse Horizontal Irradiance ${rad_{diffuse,t}}$, which needs to be corrected for the specific proportion of viewed sky given surrounding obstacles expressed by $SVF$. Assuming isotropic contribution [@freitas2015modelling], ${rad'_{diffuse,t}}$ is the corrected diffuse irradiance the surface receives (Equation \ref{eq:rad_diffuse}). Note that $SVF$ is unrelated to solar position; it is a function of the given configuration of the queried location and surrounding obstacles, and is thus invariable for all time intervals $t$. 
+
+\begin{equation} \label{eq:rad_diffuse}
+{rad'_{diffuse,t}} = SVF \cdot {rad_{diffuse,t}}
+\end{equation}
+
+\subsubsection{\textit{Total irradiance}}
+
+Finally, the direct and diffuse radiation estimates are summed for all time intervals $t$ to obtain the total (e.g. annual) insolation for the given surface $rad'_{total}$ (Equation \ref{eq:eq_rad_sum}). The sum refers to $n$ intervals $t=1,2,...,n$, commonly $n=24\times365=8,760$ when referring to an annual radiation estimate using an hourly time step. 
+
+\begin{equation} \label{eq:eq_rad_sum}
+rad'_{total} = \sum_{t=1}^{n}{rad'_{direct,t}} + \sum_{t=1}^{n}{rad'_{diffuse,t}}
+\end{equation}
+
+\section{Package structure}
+
+The `shadow` package contains four "low-level" functions, one "high-level" function, and several "helper functions".
+
+The "low-level" functions calculate distinct aspects of shading, and the SVF:
+
+* `shadowHeight`---Calculates shadow height
+* `inShadow`---Determines a logical shadow flag (in shadow or not)
+* `shadowFootprint`---Calculates shadow footprint
+* `SVF`---Calculates the SVF
+
+Table \ref{table:input_output} gives a summary of the (main) input and output object types for each of the "low-level" functions. The following list clarifies the exact object classes referenced in the table:
+
+* The queried locations \textbf{points} (e.g. the $viewer$ point in Figure \ref{fig:illustrationshadowheight}) can be specified in several ways. Points (`"SpatialPoints*"`) can be either 2D, specifying ground locations, or 3D\footnote{The third dimension of 3D points has to be specified using three-dimensional \textit{coordinates}, rather than a "height" attribute in a 2D point layer (see Examples section)}---specifying any location on the ground or above ground. Alternatively, a \textbf{raster} (\}) can be used to specify a regular grid of ground locations. Note that the shadow height calculation only makes sense for ground locations, as height above ground is what the function calculates, so it is not applicable for 3D points
+* The obstacle \textbf{polygons} are specified as a `"SpatialPolygonsDataFrame"` object having a \textbf{height} attribute ("extrusion" height) given in the same units as the layer Coordinate Reference System (CRS), usually meters. Geographic coordinates (long/lat) are not allowed because these units are meaningless for specifying height 
+* Solar position \textbf{matrix} is given as a `"matrix"` object, where the first column specifies \textbf{sun azimuth} angle and the second column specifies \textbf{sun elevation} angle. Both angles should be given in decimal degrees, where:
+    * \textbf{sun azimuth} (e.g. $\alpha_{az}$ in Figure \ref{fig:illustrationshadowheight}) is measured clockwise relative to North, i.e North = $0^\circ$, East = $90^\circ$, South = $180^\circ$, West = $270^\circ$
+    * \textbf{sun elevation} (e.g. $\alpha_{elev}$ in Figure \ref{fig:illustrationshadowheight}) is measured relatively to a horizontal surface, i.e. sun on the horizon = $0^\circ$, sun at its zenith = $90^\circ$
+* The \textbf{output} of \texttt{shadowHeight} and \texttt{inShadow} is a numeric or logical `"matrix"`, respectively, where rows represent locations and columns represent solar positions. The output of \texttt{shadowFootprint} is a polygonal layer of footprints. The output of \texttt{SVF} is a numeric vector where values correspond to locations. All functions that can accept a raster of ground locations return a corresponding raster of computed values
+
+\begin{table}
+\centering
+\begin{tabular}{l | c | c | c | c }
+\textbf{Function} & \textcolor{blue}{\textbf{Location}} & \textcolor{blue}{\textbf{Obstacles}} & \textcolor{blue}{\textbf{Sun Pos.}} & \textcolor{red}{\textbf{Output}} \\
+\hline \hline
+\texttt{shadowHeight} & Points (2D) / Raster & Polygons & Matrix & Numeric matrix / Raster \\ 
+\texttt{inShadow} & Points (2D/3D) / Raster & Polygons & Matrix & Logical matrix / Raster \\ 
+\texttt{shadowFootprint} & - & Polygons & Matrix & Polygons \\
+\texttt{SVF} & Points (2D/3D) / Raster & Polygons & - & Numeric vector / Raster \\
+\end{tabular}
+\caption{Inputs and outputs for main functions in package \texttt{shadow}}
+\label{table:input_output}
+\end{table}
+
+The "high-level" function \texttt{radiation} is a wrapper around \texttt{inShadow} and \texttt{SVF} for calculating direct and diffuse solar radiation on the obstacle surface area (i.e. building roofs and facades). In addition to the geometric layers and solar positions, this function also requires meteorological measurements of direct and diffuse radiation at an unobstructed weather station. The `shadow` package provides a sample Typical Meteorological Year (TMY) dataset \texttt{tmy} to illustrate the usage of the \texttt{radiation} function (see below). Similar TMY datasets were generated for many areas [e.g., @pusat2015generation] and are generally available from meteorological agencies, or from databases for building energy simulation such as EnergyPlus [@energyplus]. 
+
+Finally, the `shadow` package provides several "helper functions" which are used internally by "low-level" and "high-level" functions, but can also be used independently:
+
+* \texttt{classifyAz}---Determines the azimuth where the perpendicular of a line segment is facing; used internally to classify facade azimuth
+* \texttt{coefDirect}---Calculates the Coefficient of Direct Normal Irradiance reduction (Equations \ref{eq:coef} and \ref{eq:coef_roof})
+* \texttt{plotGrid}---Makes an interactive plot of 3D spatial points. This is a wrapper around `scatterplot3js` from package `threejs` [@threejs]
+* \texttt{ray}---Creates a spatial line between two given points
+* \texttt{shiftAz}---Shifts spatial features by azimuth and distance
+* \texttt{surfaceGrid}---Creates a 3D point layer with a grid which covers the facades and roofs of obstacles
+* \texttt{toSeg}---Splits polygons or lines to segments
+
+The following section provides a manual for using these functions through a simple example with four buildings. 
+
+\section{Examples}
+
+In this section we demonstrate the main functionality of `shadow`, namely calculating:
+
+* Shadow height (function `shadowHeight`)
+* Logical shadow flag (function `inShadow`)
+* Shadow footprint (function `shadowFootprint`)
+* Sky View Factor (function `SVF`)
+* Solar radiation (function `radiation`)
+
+Before going into the examples, we load the `shadow` package. Package `sp` is loaded automatically along with `shadow`. Packages `raster` [@raster] and `rgeos` [@rgeos} are used throughout the following code examples for preparing the inputs and presenting the results, so they are loaded as well. 
+
+```{r, message=FALSE}
+library(shadow)
+library(raster)
+library(rgeos)
+```
+
+In the examples, we will use a small real-life dataset representing four buildings in Rishon-Le-Zion, Israel (Figure \ref{fig:studyarea}), provided with package `shadow` and named `build`.
+
+The following code section also creates a hypothetical circular green park located 20 meters to the north and 8 meters to the west from the buildings layer centroid (hereby named `park`). 
+
+```{r}
+location = gCentroid(build)
+park_location = shift(location, dy = 20, dx = -8)
+park = gBuffer(park_location, width = 12)
+```
+
+The following expressions visualize the `build` and `park` layers as shown in Figure \ref{fig:studyarea}. Note that the `build` layer has an attribute named `BLDG_HT` specifying the height of each building (in meters), as shown using text labels on top of each building outline.
+
+```{r, eval=FALSE}
+plot(build, col = "lightgrey")
+text(gCentroid(build, byid = TRUE), build$BLDG_HT)
+plot(park, col = "lightgreen", add = TRUE)
+```
+
+```{r studyarea, echo=FALSE, fig.cap="Sample data: a buildings layer and a green park layer. Text labels express building height in meters.", fig.width=5, fig.height=4, out.width="100%"}
+opar = par(mar = rep(0, 4))
+plot(build, col = "lightgrey")
+text(gCentroid(build, byid = TRUE), build$BLDG_HT)
+plot(park, col = "lightgreen", add = TRUE)
+par(opar)
+```
+
+\subsection{Shadow height}
+
+The `shadowHeight` function calculates shadow height(s) at the specified point location(s), given a layer of obstacles and solar position(s). The `shadowHeight` function, as well as other functions that require a solar position argument such as `inShadow`, `shadowFootprint` and `radiation` (see below), alternatively accept a time argument instead of the solar position. In case a time (`time`) argument is passed instead of solar position (`solar_pos`), the function internally calculates solar position using the lon/lat of the `location` layer centroid and the specified time, using function `solarpos` from package `maptools` [@maptools]. 
+
+In the following example, we would like to calculate shadow height at the centroid of the buildings layer (`build`) on 2004-12-24 at 13:30:00. First we create the queried points layer (`location`), in this case consisting of a single point: the `build` layer centroid. This is our layer of locations where we would like to calculate shadow height.
+
+```{r}
+location = gCentroid(build)
+```
+
+Next we need to specify the solar position, i.e. sun elevation and azimuth, at the particular time and location (31.967°N 34.777°E), or let the function calculate it automatically based on the time. Using the former option, we can figure out solar position using function `solarpos` from package `maptools`. To do that, we first define a `"POSIXct"` object specifying the time we are interested in:
+
+```{r}
+time = as.POSIXct(
+  x = "2004-12-24 13:30:00",
+  tz = "Asia/Jerusalem"
+)
+```
+
+Second, we find the longitude and latitude of the point by reprojecting it to a geographic CRS\footnote{Note that calculating solar position is the only example where lon/lat coordinates are needed when working with `shadow`. All other spatial inputs are required to be passed in a projected CRS, due to the fact that obstacles height is meaningless to specify in lon/lat degree units}.  
+
+```{r}
+proj4string(location) = CRS("+init=epsg:32636")
+location_geo = spTransform(
+  x = location,
+  CRSobj = "+proj=longlat +datum=WGS84"
+)
+proj4string(location) = NA_character_
+```
+
+Finally, we use the `solarpos` function to find solar position, given longitude, latitude and time:
+
+```{r, message=FALSE}
+library(maptools)
+solar_pos = solarpos(
+  crds = location_geo,
+  dateTime = time
+)
+```
+
+We now know the sun azimuth (`r round(solar_pos[1,1], 1)`°) and elevation (`r round(solar_pos[1,2], 1)`°):
+
+```{r}
+solar_pos
+```
+
+Given the solar position along with the layer of obstacles `build`, shadow height in `location` can be calculated using the `shadowHeight` function, as follows:
+
+```{r}
+h = shadowHeight(
+  location = location,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos
+)
+```
+
+The resulting object contains the shadow height value of `r round(h, 2)` meters:
+
+```{r}
+h
+```
+
+The second (shorter) approach is letting the function calculate solar position for us, in which case we can pass just the spatial layers and the `time`, without needing to calculate solar position ourselves: 
+
+```{r, warning=FALSE}
+proj4string(location) = CRS("+init=epsg:32636")
+shadowHeight(
+  location = location,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  time = time
+)
+proj4string(location) = NA_character_
+```
+
+The results of both approaches are identical. The first approach, where solar position is manually defined, takes more work and thus may appear unnecessary. However, it is useful for situations when we want to use specific solar positions from an external data source, or to evaluate arbitrary solar positions that cannot be observed in the queried location in real life.
+
+Either way, the resulting object `h` is a `"matrix"`, though in this case it only has a single row and a single column. The `shadowHeight` function accepts location layers with more than one point, in which case the resulting `"matrix"` will have additional rows. It also accepts more than one solar position or time value (see below), in which case the resulting `"matrix"` will have additional columns. It is thus possible to obtain a matrix of shadow height values for a set of locations in a set of times. 
+
+Figure \ref{fig:ray} illustrates how the shadow height calculation was carried out. First, a line of sight is drawn between the point of interest and the sun direction based on sun azimuth (shown as a yellow line). Next, potential intersections are detected (marked with \textcolor{red}{+} symbols). Finally, shadow height induced by each intersection is calculated based on the distance towards intersection, sun elevation and intersected building height (see Figure \ref{fig:illustrationshadowheight}). The final result is the maximum of the per-intersection heights. 
+
+```{r, echo=FALSE}
+sun = shadow:::.sunLocation(
+  location = location,
+  sun_az = solar_pos[1, 1],
+  sun_elev = solar_pos[1, 2]
+)
+sun_ray = ray(from = location, to = sun)
+build_outline = as(build, "SpatialLinesDataFrame")
+inter = gIntersection(build_outline, sun_ray)
+```
+
+```{r ray, echo=FALSE, fig.cap="Shadow height ($m$) at a single point (indicated by black $+$ symbol)", fig.width=5, fig.height=4, out.width="100%"}
+opar = par(mar = rep(1, 4))
+plot(build)
+plot(sun_ray, add = TRUE, lwd = 3, col = "yellow")
+plot(location, add = TRUE)
+text(location, paste(round(h, 2), "m"), pos = 3)
+plot(inter, add = TRUE, col = "red")
+text(gCentroid(build, byid = TRUE), build$BLDG_HT)
+par(opar)
+```
+
+The procedure can be readily expanded to calculate a continuous surface of shadow heights, as the `shadowHeight` function also accepts `Raster` objects (package `raster`). The raster serves as a template, defining the grid where shadow height values will be calculated. For example, in the following code section we create such a template raster covering the examined area plus a 50-meter buffer on all sides, with a spatial resolution of 2 meters: 
+
+```{r}
+ext = as(extent(build) + 50, "SpatialPolygons")
+r = raster(ext, res = 2)
+proj4string(r) = proj4string(build)
+```
+
+Now we can calculate a shadow height raster by simply replacing the `location` argument with the raster `r`:
+
+```{r, message=FALSE}
+height_surface = shadowHeight(
+  location = r,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos,
+  parallel = 5
+)
+```
+
+The result (`height_surface`), in this case, is not a matrix---it is a shadow height surface (a `"RasterLayer"` object) of the same spatial dimensions as the input template `r`. Note that unshaded pixels get an `NA` shadow height value, thus plotted in white (Figure \ref{fig:heightresult}). Also note the partial shadow on the roof of the north-eastern building (top-right) caused by the neighboring building to the south-west. 
+
+The additional `parallel=5` argument splits the calculation of raster cells among 5 processor cores, thus making it faster. A different number can be specified, depending the number of available cores. Behind the scenes, parallel processing relies on the `parallel` package [@rcoreteam].  
+
+```{r heightresult, echo=FALSE, fig.cap="Shadow height ($m$) surface, and an individual shadow height value (indicated by black $+$ symbol at the center of the image)", fig.width=6, fig.height=4, out.width="100%"}
+opar = par(mar = rep(1, 4))
+plot(height_surface, col = grey(seq(0.9, 0.2, -0.01)), axes = FALSE, box = TRUE)
+contour(height_surface, add = TRUE)
+plot(build, add = TRUE, border = "red")
+text(location, paste(round(h, 2), "m"), halo = TRUE, pos = 3, col = "red", font = 2)
+plot(sun_ray, add = TRUE, lwd = 3, col = "yellow")
+plot(inter, add = TRUE, col = "red")
+plot(location, add = TRUE)
+text(gCentroid(build, byid = TRUE), build$BLDG_HT)
+par(opar)
+```
+
+\subsection{Shadow (logical)}
+
+Function `shadowHeight`, introduced in the previous section, calculates *shadow height* for a given ground location. In practice, the metric of interest is very often *whether* a given 3D location is in shade or not. Such a logical flag can be determined by comparing the Z-coordinate (i.e. the height) of the queried point with the calculated shadow height at the same X-Y location. The `inShadow` function is a wrapper around `shadowHeight` for doing that. 
+
+The `inShadow` function gives the logical shadow/non-shadow classification for a set of 3D points. The function basically calculates shadow height for a given unique ground location (X-Y), then compares it with the elevation (Z) of all points in that location. The points which are positioned "above" the shadow are considered non-shaded (receiving the value of `FALSE`), while the points which are positioned "below" the shadow are considered shaded (receiving the value of `TRUE`). 
+
+The 3D points we are interested in when doing urban analysis are usually located on the surface of elements such as buildings. The `surfaceGrid` helper function can be used to automatically generate a **grid** of such surface points. The inputs for this function include the obstacle layer for which to generate a surface grid and the required grid resolution. The returned object is a 3D point layer.
+
+For example, the following expression calculates a 3D point layer named `grid` covering the `build` surface at a resolution of 2 meters:
+
+```{r}
+grid = surfaceGrid(
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  res = 2
+)
+```
+
+The resulting grid points are associated with all attributes of the original obstacles each surface point corresponds to, as well as six new attributes:
+
+* `obs_id`---Unique consecutive ID for each feature in `obstacles`
+* `type`---Either `"facade"` or `"roof"`
+* `seg_id`---Unique consecutive ID for each facade segment (only for "facade" points)
+* `xy_id`---Unique consecutive ID for each ground location (only for "facade" points)
+* `facade_az`---The azimuth of the corresponding facade, in decimal degrees (only for "facade" points)
+
+In this case, the resulting 3D point grid has `r scales::comma(nrow(grid))` features, starting with `"roof"` points -
+
+```{r}
+head(grid)
+```
+
+Then going through the `"facade"` points: 
+
+```{r}
+tail(grid)
+```
+
+Printing the coordinates confirms that, indeed, `grid` is a 3D point layer having three-dimensional coordinates where the third dimension `h` represents height above ground: 
+
+```{r}
+head(coordinates(grid))
+```
+
+Once the 3D grid is available, we can evaluate whether each point is in shadow or not, at the specified solar position(s), using the `inShadow` wrapper function: 
+
+```{r, eval=FALSE}
+s = inShadow(
+  location = grid,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos
+)
+```
+
+```{r, include=FALSE}
+s = inShadow(
+  location = grid,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos
+)
+```
+
+The resulting object `s` is a `"logical"` matrix with rows corresponding to the grid features and columns corresponding to the solar positions. In this particular case a single solar position was evaluated, thus the matrix has just one column: 
+
+```{r}
+dim(s)
+```
+
+The `scatter3D` function from package `plot3D` [@plot3d] is useful for visualizing the result. In the following code section, we use two separate `scatter3D` function calls to plot the grid with both variably colored filled circles (yellow or grey) and constantly colored (black) outlines. 
+
+```{r, eval=FALSE}
+library(plot3D)
+scatter3D(
+  x = coordinates(grid)[, 1],
+  y = coordinates(grid)[, 2],
+  z = coordinates(grid)[, 3],
+  theta = 55,
+  colvar = s[, 1],
+  col = c("yellow", "grey"),
+  pch = 16,
+  scale = FALSE,
+  colkey = FALSE,
+  cex = 1.1
+)
+scatter3D(
+  x = coordinates(grid)[, 1],
+  y = coordinates(grid)[, 2],
+  z = coordinates(grid)[, 3],
+  theta = 55,
+  col = "black",
+  pch = 1,
+  lwd = 0.1,
+  scale = FALSE,
+  colkey = FALSE,
+  cex = 1.1,
+  add = TRUE
+)
+```
+
+```{r shadowlogical, echo=FALSE, fig.cap="Buildings surface points in shadow (grey) and in direct sunlight (yellow) on 2004-12-24 13:30:00", fig.width=6.28, fig.height=5, out.width="100%"}
+library(plot3D)
+opar = par(mar = rep(0, 4))
+scatter3D(
+  x = coordinates(grid)[, 1],
+  y = coordinates(grid)[, 2],
+  z = coordinates(grid)[, 3],
+  theta = 55,
+  colvar = s[, 1],
+  col = c("yellow", "grey"),
+  pch = 16,
+  scale = FALSE,
+  colkey = FALSE,
+  cex = 1.1
+)
+scatter3D(
+  x = coordinates(grid)[, 1],
+  y = coordinates(grid)[, 2],
+  z = coordinates(grid)[, 3],
+  theta = 55,
+  col = "black",
+  pch = 1,
+  lwd = 0.1,
+  scale = FALSE,
+  colkey = FALSE,
+  cex = 1.1,
+  add = TRUE
+)
+par(opar)
+```
+
+The output is shown in Figure \ref{fig:shadowlogical}. It shows the 3D `grid` points, along with the `inShadow` classification encoded as point color: grey for shaded surfaces, yellow for sun-exposed surfaces. 
+
+\subsection{Shadow footprint}
+
+The `shadowFootprint` function calculates the geometry of shadow projection on the ground. The resulting footprint layer can be used for various applications. For example, a shadow footprint layer can be used to calculate the proportion of shaded surface in a defined area, or to examine which obstacles are responsible for shading a given urban element. 
+
+```{r, echo=FALSE}
+time2 = as.POSIXct(
+  x = "2004-06-24 09:30:00",
+  tz = "Asia/Jerusalem"
+)
+solar_pos2 = solarpos(
+  crds = location_geo,
+  dateTime = time2
+)
+```
+
+In the following example, the `shadowFootprint` function is used to determine the extent of shading on the hypothetical green park (Figure \ref{fig:studyarea}) at different times of day. First, let us consider a single time instance of 2004-06-24 09:30:00. At this particular time and geographical location, the solar position is at an azimuth of `r round(solar_pos2[1,1], 1)`° and at an elevation of `r round(solar_pos2[1,2], 1)`°:
+
+```{r}
+time2 = as.POSIXct(
+  x = "2004-06-24 09:30:00",
+  tz = "Asia/Jerusalem"
+)
+solar_pos2 = solarpos(
+  crds = location_geo,
+  dateTime = time2
+)
+solar_pos2
+```
+
+The following expression calculates the shadow footprint for this particular solar position. 
+
+```{r, message=FALSE}
+footprint = shadowFootprint(
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos2
+)
+```
+
+The resulting object `footprint` is a polygonal layer (`"SpatialPolygonsDataFrame"` object) which can be readily used in other spatial calculations. For example, the footprint and park polygons can be \textit{intersected} to calculate the proportion of shaded park area within total park area, as follows. 
+
+```{r}
+park_shadow = gIntersection(park, footprint)
+shade_prop = gArea(park_shadow) / gArea(park)
+shade_prop
+```
+
+The numeric result `shade_prop` gives the proportion of shaded park area, `r round(shade_prop, 2)` in this case (Figure \ref{fig:footprint}).
+
+```{r, footprint, echo=FALSE, fig.cap="Shaded park proportion on 2004-06-24 09:30:00", fig.width=7, fig.height=4.5, out.width="100%"}
+opar = par(mar = rep(0, 4))
+plot(footprint, col = adjustcolor("lightgrey", alpha.f = 0.5))
+plot(build, col = "darkgrey", add = TRUE)
+plot(park, col = "lightgreen", add = TRUE)
+plot(park_shadow, col = adjustcolor("darkgreen", alpha.f = 0.5), add = TRUE)
+text(gCentroid(park_shadow), round(shade_prop, 2), halo = TRUE, font = 2, cex = 1.5, col = "red")
+par(opar)
+```
+
+The shadow footprint calculation can also be repeated for a sequence of times, rather than a single one, to monitor the daily (monthly, annual, etc.) course of shaded park area proportion. To do that, we first need to prepare the set of solar positions in the evaluated dates/times. Again, this can be done using function `solarpos`. For example, the following code creates a matrix named `solar_pos_seq` containing solar positions over the 2004-06-24 at hourly intervals:
+
+```{r}
+time_seq = seq(
+  from = as.POSIXct("2004-06-24 03:30:00", tz = "Asia/Jerusalem"),
+  to = as.POSIXct("2004-06-24 22:30:00", tz = "Asia/Jerusalem"),
+  by = "1 hour"
+)
+solar_pos_seq = solarpos(
+  crds = location_geo,
+  dateTime = time_seq
+)
+```
+
+Note that the choice of an \textit{hourly} interval is arbitrary. Shorter intervals (e.g. 30 mins) can be used for increased accuracy. 
+
+To calculate the shaded park proportion at each time step we can loop over the `solar_pos_seq` matrix, each time:
+
+* Calculating shadow footprint
+* Intersecting the shadow footprint with the park outline
+* Calculating the ratio of intersection and total park area
+
+The code of such a `for` loop is given below. 
+
+```{r}
+shadow_props = rep(NA, nrow(solar_pos_seq))
+for(i in 1:nrow(solar_pos_seq)) {
+  if(solar_pos_seq[i, 2] < 0) shadow_props[i] = 1 else {
+      footprint =
+        shadowFootprint(
+          obstacles = build,
+          obstacles_height_field = "BLDG_HT",
+          solar_pos = solar_pos_seq[i, , drop = FALSE]
+          )
+    park_shadow = gIntersection(park, footprint)
+    if(is.null(park_shadow))
+      shadow_props[i] = 0
+    else
+      shadow_props[i] = gArea(park_shadow) / gArea(park)
+    }
+}
+```
+
+The loop creates a numeric vector named `shadow_props`. This vector contains shaded proportions for the park in agreement with the times we specified in `time_seq`. Note that two conditional statements are being used to deal with special cases:
+
+* Shadow proportion is set to 1 (i.e. maximal) when sun is below the horizon
+* Shadow proportion is set to 0 (i.e. minimal) when no intersections are detected between the park and the shadow footprint
+
+Plotting `shadow_props` as function of `time_seq (Figure \ref{fig:timeseries}) summarizes the daily course of shaded park proportion on the 2004-06-24. The individual value of `r round(shade_prop, 2)` which we have calculated for 09:30 in the previous example (Figure \ref{fig:footprint}) is highlighted in red.
+
+```{r timeseries, echo=FALSE, fig.cap="Shaded park proportion at each hourly time step on 2004-06-24", fig.width=6, fig.height=3.5, out.width="100%"}
+plot(
+  time_seq,
+  shadow_props,
+  xlab = "Time",
+  ylab = "Shaded proportion",
+  type = "b"
+)
+text(
+  x = time_seq[7]+4000, y = shadow_props[7] + 0.07,
+  label = round(shadow_props[7], 2),
+  col = "red", font = 2
+)
+```
+
+\subsection{Sky View Factor}
+
+The `SVF` function can be used to estimate the SVF at any 3D point location. For example, the following expression calculates the SVF on the ground\footnote{Recall (Table \ref{table:input_output}) that the `inShadow` and `SVF` functions accept either 2D or 3D points, whereas 2D points are treated as ground locations} at the centroid of the `build` layer (Figure \ref{fig:svfrays}). 
+
+```{r, message=FALSE}
+s = SVF(
+  location = location,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT"
+)
+```
+
+The resulting SVF is `r format(round(s, 3), nsmall=3)`, meaning that about `r scales::percent(s)` of the sky area are visible (Figure \ref{fig:svfsurface2}) from this particular location. 
+
+```{r}
+s
+```
+
+Note that the `SVF` function has a tuning parameter named `res_angle` which can be used to modify angular resolution (default is $5^\circ$, as shown in Figure \ref{fig:svfrays}). A smaller `res_angle` value will give more accurate SVF but slower calculation.
+
+Given a "template" grid, the latter calculation can be repeated to generate a continuous surface of SVF estimates for a grid of ground locations. In the following code section we calculate an SVF surface using the same raster template with a resolution of 2 meters from the shadow height example (see above). 
+
+```{r, echo=FALSE}
+svf_start = Sys.time()
+```
+
+
+```{r, message=FALSE}
+svf_surface = SVF(
+  location = r,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  parallel = 5
+)
+```
+
+```{r, echo=FALSE}
+svf_end = Sys.time()
+svf_time = svf_end - svf_start
+```
+
+Note that the `parallel=5` option is used once again to make the calculation run simultaneously on 5 cores. The resulting SVF surface is shown in Figure \ref{fig:svfsurface2}. As could be expected, SVF values are lowest in the vicinity of buildings due to their obstruction of the sky. 
+
+```{r svfsurface2, echo=FALSE, fig.cap="Sky View Factor (SVF) surface, with SVF value for an individual point (indicated by black $+$ symbol at the center of the image)", fig.width=6.1, fig.height=4.17, out.width="100%"}
+opar = par(mar = rep(1, 4))
+plot(svf_surface, axes = FALSE, box = TRUE) 
+contour(svf_surface, add = TRUE)
+plot(build, border = "red", add = TRUE)
+plot(location, add = TRUE)
+text(location, round(s, 3), halo = TRUE, pos = 3, col = "red", font = 2)
+par(opar)
+```
+
+\subsection{Solar radiation}
+
+Shadow height, shadow footprint and SVF can be considered as low-level geometric calculations. Frequently, the ultimate aim of an analysis is the estimation of insolation, which is dependent on shadow and SVF but also on surface orientation and meteorological solar radiation conditions. Thus, the low-level geometric calculations are frequently combined and wrapped with meteorological solar radiation estimates to take the geometry into account when evaluating insolation over a given time interval. The `shadow` package provides this kind of wrapper function named `radiation`. 
+
+The `radiation` function needs several parameters to run: 
+
+* \textbf{3D points grid} representing surfaces where the solar radiation is evaluated. It is important to specify whether each grid point is on a "roof" or on a "facade", and the azimuth it is facing (only for "facade"). A grid with those attributes can be automatically produced using the `surfaceGrid` function (see above)
+* \textbf{Obstacles layer} defined with `obstacles`, having an `obstacles_height_field` attribute (see above)
+* \textbf{Solar positions} defined with `solar_pos` (see above)
+* \textbf{Meteorological estimates} defined with `solar_normal` and `solar_diffuse`, corresponding to the same time intervals given by `solar_pos`
+
+Given this set of inputs, the `radiation` function:
+
+* calculates whether each `grid` surface point is in shadow or not, for each solar position `solar_pos`, using the `inShadow` function (Equation \ref{eq:eq_shadow_h}),
+* calculates the Coefficient of Direct Normal Irradiance reduction, for each `grid` surface point at each solar position `solar_pos`, using the `coefDirect` function (Equations \ref{eq:coef} and \ref{eq:coef_roof}),
+* combines shadow, the coefficient and the meteorological estimate `solar_normal` to calculate the `direct` radiation (Equation \ref{eq:rad_direct}),
+* calculates the SVF for each `grid` surface point, using the `SVF` function (Equations \ref{eq:eq_svf} and \ref{eq:eq_svf_final}),
+* combines the SVF and the meteorological estimate `solar_diffuse` to calculate the \textbf{diffuse} radiation (Equation \ref{eq:rad_diffuse})
+* and calculates the sums of the \textbf{direct}, \textbf{diffuse} and \textbf{total} (i.e. direct+diffuse) solar radiation per `grid` surface point for the entire period (Equation \ref{eq:eq_rad_sum}).
+
+To demonstrate the `radiation` function, we need one more component not used in the previous examples: the reference solar radiation data. The `shadow` package comes with a sample Typical Meteorological Year (TMY) dataset named `tmy` that can be used for this purpose. This dataset was compiled for the same geographical area where the buildings are located, and therefore can be realistically used in our example. 
+
+The `tmy` object is a `data.frame` with `r scales::comma(nrow(shadow::tmy))` rows, where each row corresponds to an hourly interval over an entire year ($24\times365=8,760$). The attributes given for each hourly interval include solar position (`sun_az`, `sun_elev`) and solar radiation estimates (`solar_normal`, `solar_diffuse`). Both solar radiation measurements are given in $W/m^2$ units. 
+
+```{r}
+head(tmy, 10)
+```
+
+The Direct Normal Irradiance (`solar_normal`) is the amount of solar radiation received per unit area by a surface that is always held normal to the incoming rays from the sun's current position in the sky. This is an estimate of maximal **direct radiation**, obtained on an optimally tilted surface. The Diffuse Horizontal Irradiance (`solar_diffuse`) is the amount of radiation received per unit area at a surface that has not arrived on a direct path from the sun, but has been scattered by molecules and particles in the atmosphere. This is an estimate of **diffuse radiation**.  
+
+To use the solar positions from the `tmy` dataset, we create a separate matrix with just the `sun_az` and `sun_elev` columns: 
+
+```{r}
+solar_pos = as.matrix(tmy[, c("sun_az", "sun_elev")])
+```
+
+The first few rows of this matrix are: 
+
+```{r}
+head(solar_pos)
+```
+
+Now we have everything needed to run the `radiation` function. We are hereby using the same `grid` layer with 3D points covering the roofs and facades of the four buildings created above using the `surfaceGrid` function (Figure \ref{fig:shadowlogical}), the layer of `obstacles`, and the solar position and measured solar radiation at a reference weather station from the `tmy` table. 
+
+```{r, eval=FALSE}
+rad = radiation(
+  grid = grid,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos,
+  solar_normal = tmy$solar_normal,
+  solar_diffuse = tmy$solar_diffuse,
+  parallel = 5
+)
+```
+
+```{r, include=FALSE}
+rad_start = Sys.time()
+rad = radiation(
+  grid = grid,
+  obstacles = build,
+  obstacles_height_field = "BLDG_HT",
+  solar_pos = solar_pos,
+  solar_normal = tmy$solar_normal,
+  solar_diffuse = tmy$solar_diffuse,
+  parallel = 5
+)
+rad_end = Sys.time()
+rad_time = rad_end - rad_start
+```
+
+The returned object `rad` is a `data.frame` with the summed direct, diffuse and total (i.e. direct+diffuse) solar radiation estimates, as well as the SVF, for each specific surface location in `grid`. Summation takes place over the entire period given by `solar_pos`, `solar_normal` and `solar_diffuse`. In the present case it is an **annual** insolation. The units of measurement are therefore $Wh/m^2$ summed over an entire year.  
+
+For example, the following printout:
+
+```{r}
+head(rad)
+```
+
+refers to the first six surface points which are part of the same roof, thus sharing similar annual solar radiation estimates. Overall, however, the differences in insolation are very substantial among different locations on the buildings surfaces, as shown in Figure \ref{fig:radiationresult}. For example, the roofs receive about twice as much direct radiation as the south-facing facades. The code for producing Figure \ref{fig:radiationresult}, using function `scatter3D` (see Figure \ref{fig:shadowlogical}), can be found on the help page of the `radiation` function and is thus omitted here to save space. Note that the figure shows radiation estimates in $kWh/m^2$ units, i.e. the values from the `rad` table (above) divided by 1000. 
+
+```{r, echo=FALSE, radiationresult, fig.cap="Annual direct, diffuse and total radiation estimates per grid point ($kWh/m^2$). Note that the y-axis points to the north.", fig.width=5, fig.height=10}
+opar = par(mfrow=c(3, 1), oma = c(5,4,0,0) + 0.1,
+          mar = c(0,0,3,3) + 0.1)
+scatter3D(
+  x = coordinates(grid)[, 1],
+  y = coordinates(grid)[, 2],
+  z = coordinates(grid)[, 3],
+  colvar = rad$direct / 1000,
+  scale = FALSE,
+  theta = 55,
+  pch = 20,
+  cex = 1.35,
+  clab = expression(paste("kWh / ", m^2)),
+  main = "Direct radiation"
+)
+scatter3D(
+  x = coordinates(grid)[, 1],
+  y = coordinates(grid)[, 2],
+  z = coordinates(grid)[, 3],
+  colvar = rad$diffuse / 1000,
+  scale = FALSE,
+  theta = 55,
+  pch = 20,
+  cex = 1.35,
+  clab = expression(paste("kWh / ", m^2)),
+  main = "Diffuse radiation"
+)
+scatter3D(
+  x = coordinates(grid)[, 1],
+  y = coordinates(grid)[, 2],
+  z = coordinates(grid)[, 3],
+  colvar = rad$total / 1000,
+  scale = FALSE,
+  theta = 55,
+  pch = 20,
+  cex = 1.35,
+  clab = expression(paste("kWh / ", m^2)),
+  main = "Total radiation"
+)
+par(opar)
+```
+
+\section{Discussion}
+
+The `shadow` package introduces a simple geometric model for shadow-related calculations in an urban environment. Specifically, the package provides functions for calculating shadow height, shadow footprint and SVF. The latter can be combined with TMY data to estimate insolation on built surfaces. It is, to the best of our knowledge, the only R package aimed at shadow calculations in a \textit{vector-based} representation of the urban environment. It should be noted that the `insol` package provides similar functionality for a \textit{raster-based} environment, but the latter is more suitable for modelling large-scale natural environments rather than detailed urban landscapes. 
+
+The unique aspect of our approach is that calculations are based on a vector layer of polygons extruded to a given height, known as 2.5D, such as building footprints with a height attribute. The vector-based 2.5D approach has several advantages over the two commonly used alternative ones: vector-based 3D and raster-based models. Firstly, the availability of 2.5D input data is much greater compared to both specialized 3D models and high-resolution raster surfaces. Building layers for entire cities are generally available from various sources, ranging from local municipality GIS systems to global crowd-sourced datasets (e.g. OpenStreetMap) [@haklay2008openstreetmap]. Secondly, processing does not require closed-source software, or interoperability with complex specialized software, as opposed to working with 3D models. Thirdly, results are easily associated back to the respective urban elements such as buildings, parks, roofs facades, etc., as well as their attributes, via a spatial join operation (e.g. using function `over` in R package `sp`). For example, we can easily determine which building is responsible for shading the green park in the above shadow footprint example (Figure \ref{fig:footprint}). This is unlike a raster-based approach, where the input is a continuous surface with no attributes, thus having no natural association to individual urban elements or objects. 
+
+However, it should be noted that the 2.5D vector-based approach requires several assumptions and has some limitations. When the assumptions do not hold, results may be less accurate compared to the above-mentioned alternative approaches. For example, it is impossible to represent geometric shapes that are not a simple extrusion in 2.5D (though, as mentioned above, urban surveys providing such detailed data are not typically available). An ellipsoid tree, a bridge with empty space underneath, a balcony extruding outwards from a building facade, etc., can only be represented with a polyhedral surface in a full vector-based 3D environment [@groger2012citygml; @biljecki2016improved]. Recently, classes for representing true-3D urban elements, such as the Simple Feature type `POLYHEDRALSURFACE`, have been implemented in R package `sf` [@sf]. However, functions for working with those classes, such as calculating 3D-intersection, are still lacking. Implementing such functions in R could bring new urban analysis capabilities to the R environment in the future, in which solar analysis of 3D city models probably comprise a major use case [@biljecki2015applications]. 
+
+It should also be noted that a vector-based calculation may be generally slower than a raster based calculation. This becomes important when the study area is very large. Though the present algorithms can be optimized to some extent, they probably cannot compete with raster-based calculations where sun ray intersections can be computed using fast ray-tracing algorithms based on matrix input [@amanatides1987fast], as opposed to computationally intensive search for intersections between a line and a polygonal layer in a vector-based environment. For example, calculating the SVF surface shown in Figure \ref{fig:svfsurface2} requires processing `r 360/5` angular sections × `r scales::comma(raster::ncell(svf_surface))` raster cells = `r scales::comma(raster::ncell(svf_surface) * (360/5))` SVF calculations, which takes about `r round(as.numeric(svf_time, unit = "mins"), 1)` minutes using five cores on an ordinary desktop computer (Intel® Core™ i7-6700 CPU @ 3.40GHz × 8). The annual radiation estimate shown in Figure \ref{fig:radiationresult} however takes about `r round(as.numeric(rad_time, unit = "hours"), 1)` hours to calculate, as it requires SVF calculation for `r scales::comma(nrow(grid))` grid points, as well as `r scales::comma(sum(!duplicated(sp::coordinates(grid)[, 1:2])))` ground locations × `r scales::comma(nrow(shadow::tmy))` hours = `r scales::comma(sum(!duplicated(sp::coordinates(grid)[, 1:2]))*nrow(shadow::tmy))` shadow height calculations. 
+
+To summarize, the `shadow` package can be used to calculate shadow, SVF and solar radiation in an urban environment using widely available polygonal building data, inside the R environment [e.g., @vulkan2018]. Potential use cases include urban environment applications such as evaluation of micro-climatic influence for urban planning, studying urban well-being (e.g. climatic comfort) and estimating photovoltaic energy production potential. 
+
+\section{Acknowledgements}
+
+The `shadow` package was developed as part of a study funded by the Israel Ministry of National Infrastructures, Energy and Water Resources under research grant # 021-11-215. 
+
+The authors would like thank the Editor and an anonymous reviewer for the review of this article and for the thoughtful comments. 
+
+# References
+
+\bibliography{RJreferences}
+

@@ -36,8 +36,6 @@
 #' @examples
 #' # Single location
 #' location = rgeos::gCentroid(build)
-#' \dontrun{
-#' location_geo = spTransform(location, "+proj=longlat +datum=WGS84")}
 #' location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
 #' time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
 #' solar_pos = maptools::solarpos(location_geo, time)
@@ -57,6 +55,8 @@
 #' )
 #'
 #' # Automatically calculating 'solar_pos' using 'time'
+#' proj4string(build) = CRS("+init=epsg:32636")
+#' proj4string(location) = CRS("+init=epsg:32636")
 #' shadowHeight(
 #'   location = location,
 #'   obstacles = build,

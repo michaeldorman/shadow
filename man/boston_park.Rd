@@ -13,4 +13,8 @@ boston_park
 \description{
 A \code{SpatialPolygons} object representing the boundaries of a park in Central Boston.
 }
+\examples{
+boston_park
+plot(boston_park, axes = TRUE)
+}
 \keyword{datasets}

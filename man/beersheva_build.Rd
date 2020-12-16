@@ -20,4 +20,8 @@ beersheva_build
 \description{
 A \code{SpatialPolygonsDataFrame} object representing the outlines of 367 buildings in the Ramot neighborhood, Beer-Sheva. The attribute \code{height_m} contains building height, in meters.
 }
+\examples{
+beersheva_build
+plot(beersheva_build, axes = TRUE)
+}
 \keyword{datasets}

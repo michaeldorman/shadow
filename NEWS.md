@@ -106,14 +106,19 @@
 
 * Replaced sample 'sp' layers to comply with WKT2 CRS specification
 
-## shadow 0.6.9
+## shadow 0.6.9 (2020-10-10)
 
 * Revision of CRS in sample data (by Roger Bivand)
 * Added 'pkgdown' site
+* Set CRS of 'build' to 'NA' to avoid check errors
+
+## shadow 0.7.0
+
+* Added revised vignette 'introduction2'
 
 ## Other ideas
 
-* Replace 'testthat' with 'tinytest'
+* Fix CRS warnings
 * Switch from 'sp' to 'sf'
 * Add new tests
 * Set 'surfacegrid' class and define 'print' and 'plot' methods for it
