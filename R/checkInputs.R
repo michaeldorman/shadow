@@ -57,7 +57,7 @@
     stop("'obstacles' not in projected CRS")
 
   # Check class
-  if(class(obstacles) != "SpatialPolygonsDataFrame")
+  if(!inherits(obstacles, "SpatialPolygonsDataFrame"))
     stop("'obstacles' is not 'SpatialPolygonsDataFrame'")
 
   # Check that height fields exist

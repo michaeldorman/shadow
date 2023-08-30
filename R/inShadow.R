@@ -223,7 +223,7 @@ setMethod(
 
     # Convert to 3D if necessary
     if(dimensions(location) == 2) {
-      if(class(location) == "SpatialPoints") {
+      if(is(location, "SpatialPoints")) {
         coords = coordinates(location)
         coords = cbind(coords, z = rep(0, nrow(coords)))
         location = sp::SpatialPoints(
@@ -231,7 +231,7 @@ setMethod(
           proj4string = sp::CRS(sp::proj4string(location))
           )
       }
-      if(class(location) == "SpatialPointsDataFrame") {
+      if(is(location, "SpatialPointsDataFrame")) {
         coords = coordinates(location)
         coords = cbind(coords, z = rep(0, nrow(coords)))
         location = sp::SpatialPointsDataFrame(
@@ -305,7 +305,7 @@ setMethod(
 
     # Convert to 3D if necessary
     if(dimensions(location) == 2) {
-      if(class(location) == "SpatialPoints") {
+      if(is(location, "SpatialPoints")) {
         coords = coordinates(location)
         coords = cbind(coords, z = rep(0, nrow(coords)))
         location = sp::SpatialPoints(
@@ -313,7 +313,7 @@ setMethod(
           proj4string = sp::CRS(sp::proj4string(location))
         )
       }
-      if(class(location) == "SpatialPointsDataFrame") {
+      if(is(location, "SpatialPointsDataFrame")) {
         coords = coordinates(location)
         coords = cbind(coords, z = rep(0, nrow(coords)))
         location = sp::SpatialPointsDataFrame(

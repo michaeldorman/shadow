@@ -75,7 +75,7 @@
       if(is.null(inter)) svf[i] = 1 else {
 
         # If some of the intersections are lines then convert to points
-        if(class(inter) == "SpatialCollections") {
+        if(is(inter, "SpatialCollections")) {
           lin = inter@lineobj
           inter = inter@pointobj
           for(lin_i in 1:length(lin)) {

@@ -25,6 +25,6 @@ A table with hourly solar radiation estimates for a typical meteorological year 
 head(tmy)
 }
 \references{
-\url{https://energyplus.net/weather-location/europe_wmo_region_6/ISR//ISR_Tel.Aviv-Bet.Dagan.401790_MSI}
+\url{https://energyplus.net/weather-location/europe_wmo_region_6/ISR/ISR_Tel.Aviv-Bet.Dagan.401790_MSI}
 }
 \keyword{datasets}

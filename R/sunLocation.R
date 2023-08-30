@@ -16,7 +16,7 @@
   height = data.frame(height = dist_m * tan(sun_elev))
 
   # Attribute table
-  if(class(location) == "SpatialPointsDataFrame")
+  if(is(location, "SpatialPointsDataFrame"))
     data = cbind(location@data, height) else
       data = height
 
