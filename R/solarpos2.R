@@ -1,6 +1,6 @@
 #' Calculate solar position(s) for location and time
 #'
-#' This is a wrapper function around \code{maptools::solarpos}, adapted for accepting location as a \code{Spatial*} layer or a \code{Raster}. The function calculates layer centroid, transforms it to lon-lat, then calls \code{maptools::solarpos} to calculate solar position(s) for that point at the given time(s)
+#' This is a wrapper function around \code{suntools::solarpos}, adapted for accepting location as a \code{Spatial*} layer or a \code{Raster}. The function calculates layer centroid, transforms it to lon-lat, then calls \code{suntools::solarpos} to calculate solar position(s) for that point at the given time(s)
 #'
 #' @param	location	A \code{Spatial*} or a \code{Raster} object
 #' @param	time	A \code{SpatialLines*} or a \code{SpatialPolygons*} object
@@ -11,6 +11,7 @@
 #' proj4string(build) = CRS("+init=epsg:32636")
 #' solarpos2(build, time)
 #'
+#' @importFrom suntools solarpos
 #' @export
 
 solarpos2 = function(location, time) {
@@ -28,6 +29,6 @@ solarpos2 = function(location, time) {
   location_ctr = sp::spTransform(location_ctr, CRS("+init=epsg:4326"))
 
   # Calculate solar position
-  maptools::solarpos(location_ctr, time)
+  suntools::solarpos(location_ctr, time)
 
 }

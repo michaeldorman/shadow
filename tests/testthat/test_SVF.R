@@ -5,7 +5,8 @@ context("SVF")
 test_that("SVF calculation is correct", {
   expect_equal({
     data(build)
-    location0 = rgeos::gCentroid(build)
+#    location0 = rgeos::gCentroid(build)
+    location0 = as(sf::st_geometry(sf::st_centroid(sf::st_union(sf::st_as_sf(build)))), "Spatial")
     SVF(
       location = location0,
       obstacles = build,
@@ -16,7 +17,8 @@ test_that("SVF calculation is correct", {
 )
   expect_equal({
     data(build)
-    location0 = rgeos::gCentroid(build)
+#    location0 = rgeos::gCentroid(build)
+    location0 = as(sf::st_geometry(sf::st_centroid(sf::st_union(sf::st_as_sf(build)))), "Spatial")
     location1 = raster::shift(location0, 0, -15)
     SVF(
       location = location1,
@@ -28,7 +30,8 @@ test_that("SVF calculation is correct", {
   )
   expect_equal({
     data(build)
-    location0 = rgeos::gCentroid(build)
+#    location0 = rgeos::gCentroid(build)
+    location0 = as(sf::st_geometry(sf::st_centroid(sf::st_union(sf::st_as_sf(build)))), "Spatial")
     location2 = raster::shift(location0, -10, 20)
     SVF(
       location = location2,

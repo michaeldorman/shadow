@@ -37,7 +37,7 @@
 
 \item{solar_pos}{A \code{matrix} with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different positions (e.g. at different times of day)}
 
-\item{time}{When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{location}, using function \code{maptools::solarpos}. In such case \code{location} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object}
+\item{time}{When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{location}, using function \code{suntools::solarpos}. In such case \code{location} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object}
 
 \item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height}
 
@@ -76,7 +76,7 @@ For a correct geometric calculation, make sure that:\itemize{
 location = rgeos::gCentroid(build)
 location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-solar_pos = maptools::solarpos(location_geo, time)
+solar_pos = suntools::solarpos(location_geo, time)
 plot(build, main = time)
 plot(location, add = TRUE)
 sun = shadow:::.sunLocation(location = location, sun_az = solar_pos[1,1], sun_elev = solar_pos[1,2])
@@ -115,7 +115,7 @@ shadowHeight(                            ## Using 'solar_pos'
   location = locations,
   obstacles = build,
   obstacles_height_field = "BLDG_HT",
-  solar_pos = maptools::solarpos(location_geo, times)
+  solar_pos = suntools::solarpos(location_geo, times)
 )
 shadowHeight(                            ## Using 'time'
   location = locations,

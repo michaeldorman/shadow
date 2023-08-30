@@ -10,7 +10,7 @@
 #' @param obstacles A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
 #' @param solar_pos A \code{matrix} with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different positions (e.g. at different times of day)
-#' @param time When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{location}, using function \code{maptools::solarpos}. In such case \code{location} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object
+#' @param time When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{location}, using function \code{suntools::solarpos}. In such case \code{location} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object
 #' @param b Buffer size when joining intersection points with building outlines, to determine intersection height
 #' @param parallel Number of parallel processes or a predefined socket cluster. With \code{parallel=1} uses ordinary, non-parallel processing. Parallel processing is done with the \code{parallel} package
 #' @param filter_footprint Should the points be filtered using \code{shadowFootprint} before calculating shadow height? This can make the calculation faster when there are many point which are not shaded
@@ -38,7 +38,7 @@
 #' location = rgeos::gCentroid(build)
 #' location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
 #' time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-#' solar_pos = maptools::solarpos(location_geo, time)
+#' solar_pos = suntools::solarpos(location_geo, time)
 #' plot(build, main = time)
 #' plot(location, add = TRUE)
 #' sun = shadow:::.sunLocation(location = location, sun_az = solar_pos[1,1], sun_elev = solar_pos[1,2])
@@ -77,7 +77,7 @@
 #'   location = locations,
 #'   obstacles = build,
 #'   obstacles_height_field = "BLDG_HT",
-#'   solar_pos = maptools::solarpos(location_geo, times)
+#'   solar_pos = suntools::solarpos(location_geo, times)
 #' )
 #' shadowHeight(                            ## Using 'time'
 #'   location = locations,
