@@ -116,10 +116,13 @@
 
 * Added revised vignette 'introduction2'
 
-## Other ideas
+## shadow 0.7.2
 
 * Fix CRS warnings
 * Switch from 'sp' to 'sf'
+
+## shadow 0.8
+
 * Add new tests
 * Set 'surfacegrid' class and define 'print' and 'plot' methods for it
 * Pass obstacles height as 'units' and check for agreement with CRS units

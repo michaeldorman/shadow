@@ -18,6 +18,6 @@ beersheva_elev
 plot(beersheva_elev)
 }
 \references{
-\url{https://www.usgs.gov/centers/eros/science/usgs-eros-archive-digital-elevation-shuttle-radar-topography-mission-srtm-1-arc}
+\url{https://www.usgs.gov/centers/eros/science/usgs-eros-archive-digital-elevation-shuttle-radar-topography-mission-srtm-1}
 }
 \keyword{datasets}

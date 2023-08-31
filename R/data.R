@@ -96,7 +96,7 @@
 #' @format A \code{data.frame} with 8760 rows and 7 columns.
 #'
 #' @references
-#' \url{https://energyplus.net/weather-location/europe_wmo_region_6/ISR//ISR_Tel.Aviv-Bet.Dagan.401790_MSI}
+#' \url{https://energyplus.net/weather-location/europe_wmo_region_6/ISR/ISR_Tel.Aviv-Bet.Dagan.401790_MSI}
 #' @examples 
 #' head(tmy)
 
@@ -117,7 +117,7 @@
 #' @format A \code{data.frame} with 8760 rows and 7 columns.
 #'
 #' @references
-#' \url{https://energyplus.net/weather-location/europe_wmo_region_6/ISR//ISR_Beer.Sheva.401900_MSI}
+#' \url{https://energyplus.net/weather-location/europe_wmo_region_6/ISR/ISR_Beer.Sheva.401900_MSI}
 #' @examples 
 #' head(tmy2)
 
@@ -130,7 +130,7 @@
 #' @format A \code{RasterLayer} representing a grid of 1974 raster cells, each cell is a 30*30 meters rectangle. Data source is the Shuttle Radar Topography Mission (SRTM) 1 Arc-Second Global dataset.
 #'
 #' @references
-#' \url{https://www.usgs.gov/centers/eros/science/usgs-eros-archive-digital-elevation-shuttle-radar-topography-mission-srtm-1-arc}
+#' \url{https://www.usgs.gov/centers/eros/science/usgs-eros-archive-digital-elevation-shuttle-radar-topography-mission-srtm-1}
 #' @examples
 #' beersheva_elev
 #' plot(beersheva_elev)

@@ -28,7 +28,7 @@
     if(is.null(inter)) shade_height = NA else {
 
       # If some of the intersections are lines
-      if(class(inter) == "SpatialCollections") {
+      if(is(inter, "SpatialCollections")) {
 
         lin = inter@lineobj
         inter = inter@pointobj
