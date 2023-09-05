@@ -18,7 +18,8 @@ A \code{SpatialLines} object.
 The function connects two points into a line segment.
 }
 \examples{
-ctr = rgeos::gCentroid(build)
+# ctr = rgeos::gCentroid(build)
+ctr = as(sf::st_centroid(sf::st_as_sf(build)), "Spatial")
 angles = seq(0, 359, 20)
 sun = mapply(
   shadow:::.sunLocation,

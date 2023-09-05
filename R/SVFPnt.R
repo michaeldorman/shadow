@@ -39,16 +39,17 @@
     # 2D mode - if point is *on* a building then 'SVF=NA'
     (
       dimensions(location) == 2 & # 2D
-        rgeos::gIntersects(location, obstacles) # Intersects with 'obstacles'
+#        rgeos::gIntersects(location, obstacles) # Intersects with 'obstacles'
+        any(unlist(sf::st_intersects(sf::st_as_sf(location), sf::st_as_sf(obstacles))))
     ) ||
 
     # 3D mode - if point is *inside* building then 'SVF=NA'
     dimensions(location) == 3 & ( # 3D
-      rgeos::gIntersects(location, obstacles) && # Intersects with 'obstacles'
+#      rgeos::gIntersects(location, obstacles) && # Intersects with 'obstacles'
+      any(unlist(sf::st_intersects(sf::st_as_sf(location), sf::st_as_sf(obstacles)))) &&
       coordinates(location)[, 3] < obstacles[location, ]@data[, obstacles_height_field] # Location z < Obstacle h
-    )
-
-     ) svf_final = NA else {
+      )
+    ) svf_final = NA else {
 
     svf = rep(NA, length(rays))
 
@@ -60,8 +61,8 @@
       # if(dimensions(location) == 2) {
 
         # 2D mode - Intersections with 'obstacles' outline
-        inter = rgeos::gIntersection(obstacles_outline, ray1)
-
+#        inter = rgeos::gIntersection(obstacles_outline, ray1)
+        inter = sf::st_intersection(sf::st_as_sf(obstacles_outline), sf::st_as_sf(ray1))
       # }
 
       # if(dimensions(location) == 3) {
@@ -72,25 +73,31 @@
       # }
 
       # No intersections means 'SVF=1'
-      if(is.null(inter)) svf[i] = 1 else {
+      if(nrow(inter) == 0L) svf[i] = 1 else {
 
         # If some of the intersections are lines then convert to points
-        if(is(inter, "SpatialCollections")) {
-          lin = inter@lineobj
-          inter = inter@pointobj
-          for(lin_i in 1:length(lin)) {
-            lin_pnt = lin[lin_i, ]
-            lin_pnt = coordinates(lin_pnt)[[1]][[1]]
-            lin_pnt = sp::SpatialPoints(
-              lin_pnt,
-              proj4string = CRS(proj4string(inter))
-            )
-            inter = sp::rbind.SpatialPoints(inter, lin_pnt)
-          }
+#        if(is(inter, "SpatialCollections")) {
+#          lin = inter@lineobj
+#          inter = inter@pointobj
+#          for(lin_i in 1:length(lin)) {
+#            lin_pnt = lin[lin_i, ]
+#            lin_pnt = coordinates(lin_pnt)[[1]][[1]]
+#            lin_pnt = sp::SpatialPoints(
+#              lin_pnt,
+#              proj4string = CRS(proj4string(inter))
+#            )
+#            inter = sp::rbind.SpatialPoints(inter, lin_pnt)
+#          }
+        if(length(grep("GEOMETRY", sf::st_geometry_type(inter))) > 0) {
+
+          lin = sf::st_cast(sf::st_collection_extract(inter, "LINESTRING"), "POINT")
+          inter = sf::st_collection_extract(inter, "POINT")
+
+          inter = as(c(st_geometry(inter), st_geometry(lin)), "Spatial")
         }
 
         # Set row names
-        row.names(inter) = 1:length(inter)
+        row.names(inter) = 1:nrow(inter)
 
         # Extract 'obstacles' / 'surface' data for each intersection
         # if(dimensions(location) == 2) outline = obstacles_outline
@@ -100,12 +107,15 @@
             inter,
             sp::over(
               inter,
-              rgeos::gBuffer(obstacles_outline, byid = TRUE, width = b),
-              fn = max)
+#              rgeos::gBuffer(obstacles_outline, byid = TRUE, width = b),
+              as(sf::st_buffer(sf::st_as_sf(obstacles_outline), dist = b), 
+                "Spatial"),
+            fn = max)
           )
 
         # Distance between examined location and intersections
-        inter$dist = rgeos::gDistance(inter, location, byid = TRUE)[1, ]
+#        inter$dist = rgeos::gDistance(inter, location, byid = TRUE)[1, ]
+        inter$dist = sf::st_distance(sf::st_as_sf(inter), sf::st_as_sf(location))
 
         # Maximal angle of obstruction calculation
 

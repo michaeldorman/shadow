@@ -21,7 +21,7 @@
 #'
 #' @examples
 #' time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-#' proj4string(build) = CRS("+init=epsg:32636")
+#' proj4string(build) = CRS("EPSG:32636")
 #' location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
 #' solar_pos = suntools::solarpos(location_geo, time)
 #' footprint1 =               ## Using 'solar_pos'
@@ -42,6 +42,12 @@
 #' plot(build, add = TRUE, col = "darkgrey")
 #'
 #' @export
+#' @importFrom sf st_buffer
+#' @importFrom sf st_as_sf
+#' @importFrom sf st_length
+#' @importFrom sf st_convex_hull
+#' @importFrom sf st_union
+#' @importFrom methods as
 #' @name shadowFootprint
 
 NULL
@@ -88,7 +94,8 @@ setMethod(
       seg = shadow::toSeg(obstacles[i, ])
 
       # Discard zero-length segments
-      seg = seg[rgeos::gLength(seg, byid = TRUE) > 0, ]
+#      seg = seg[rgeos::gLength(seg, byid = TRUE) > 0, ]
+      seg = seg[as(sf::st_length(sf::st_as_sf(seg)), "Spatial") > 0, ]
 
       # Shift segments
       seg_shifted = shadow::shiftAz(seg, az = solar_pos[1, 1], dist = -dist)
@@ -99,7 +106,8 @@ setMethod(
       for(j in 1:length(seg)) {
 
         f = sp::rbind.SpatialLines(seg[j, ], seg_shifted[j, ], makeUniqueIDs = TRUE)
-        f = rgeos::gConvexHull(f)
+        # f = rgeos::gConvexHull(f)
+        f = as(sf::st_convex_hull(sf::st_as_sf(f)), "Spatial")
         footprint[[j]] = f
 
       }
@@ -107,9 +115,12 @@ setMethod(
       # Bind footprings of individual segments of one 'obstacles' feature
       footprint$makeUniqueIDs = TRUE
       footprint = do.call(sp::rbind.SpatialPolygons, footprint)
-      footprint = rgeos::gUnaryUnion(footprint)
-      footprint = rgeos::gBuffer(footprint, width = b)
-      footprint_final[[i]] = rgeos::gUnion(footprint, obstacles[i, ])
+#      footprint = rgeos::gUnaryUnion(footprint)
+#      footprint = rgeos::gBuffer(footprint, width = b)
+#      footprint_final[[i]] = rgeos::gUnion(footprint, obstacles[i, ])
+       footprint = sf::st_union(sf::st_as_sf(footprint))
+       footprint = sf::st_buffer(footprint, dist = b)
+       footprint_final[[i]] = as(sf::st_union(footprint), "Spatial")
 
       }
 

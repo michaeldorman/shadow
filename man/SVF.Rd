@@ -54,7 +54,8 @@ Where \eqn{\beta} is the highest elevation angle (see equation 3 in Gal & Unger 
 }
 \examples{
 ## Individual locations
-location0 = rgeos::gCentroid(build)
+# location0 = rgeos::gCentroid(build)
+location0 = as(sf::st_centroid(sf::st_union(sf::st_geometry(sf::st_as_sf(build)))), "Spatial")
 location1 = raster::shift(location0, 0, -15)
 location2 = raster::shift(location0, -10, 20)
 locations = rbind(location1, location2)
@@ -85,7 +86,8 @@ raster::contour(svfs, add = TRUE)
 plot(build, add = TRUE, border = "red")
 
 ## 3D points
-ctr = rgeos::gCentroid(build)
+# ctr = rgeos::gCentroid(build)
+ctr = as(sf::st_centroid(sf::st_union(sf::st_geometry(sf::st_as_sf(build)))), "Spatial")
 heights = seq(0, 28, 1)
 loc3d = data.frame(
     x = coordinates(ctr)[, 1],

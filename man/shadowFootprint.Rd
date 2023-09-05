@@ -36,7 +36,7 @@ The calculation method was inspired by Morel Weisthal's MSc thesis at the Ben-Gu
 }
 \examples{
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-proj4string(build) = CRS("+init=epsg:32636")
+proj4string(build) = CRS("EPSG:32636")
 location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
 solar_pos = suntools::solarpos(location_geo, time)
 footprint1 =               ## Using 'solar_pos'

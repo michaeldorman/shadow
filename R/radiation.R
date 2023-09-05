@@ -43,6 +43,9 @@
 #' }
 #' Each of the elements is a \code{matrix} with rows corresponding to \code{grid} points and columns corresponding to time steps in \code{solar_pos}, \code{solar_normal} and \code{solar_diffuse}
 #' @export
+#' @importFrom sf st_buffer
+#' @importFrom sf st_as_sf
+#' @importFrom methods as
 #'
 #' @examples
 #'
@@ -168,7 +171,8 @@ radiation = function(
 
   # Remove obstacles outside of search radius
   if(radius < Inf) {
-    b = rgeos::gBuffer(grid, width = radius)
+#    b = rgeos::gBuffer(grid, width = radius)
+    b = as(sf::st_buffer(sf::st_as_sf(grid), dist = radius), "Spatial")
     obstacles = obstacles[b, ]
   }
 

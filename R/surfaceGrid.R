@@ -58,6 +58,12 @@
 #' )
 #'
 #' @export
+#' @importFrom sf st_buffer
+#' @importFrom sf st_geometry
+#' @importFrom sf st_length
+#' @importFrom sf st_union
+#' @importFrom sf st_as_sf
+#' @importFrom methods as
 
 surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
 
@@ -83,13 +89,16 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   obstacles_outline = as(obstacles, "SpatialLinesDataFrame")
 
   # Obstacles outline union
-  obstacles_outline = rgeos::gLineMerge(raster::disaggregate(obstacles_outline))
+#  obstacles_outline = rgeos::gLineMerge(raster::disaggregate(obstacles_outline))
+  obstacles_outline = sf::st_geometry(sf::st_as_sf(raster::disaggregate(obstacles_outline)))
+  obstacles_outline = as(sf::st_union(obstacles_outline), "Spatial")
 
   # Point sample along facades
   facade_sample =
     spsample(
       obstacles_outline,
-      n = round(rgeos::gLength(obstacles_outline)) / res,
+#      n = round(rgeos::gLength(obstacles_outline)) / res,
+      n = round(sf::st_length(sf::st_as_sf(obstacles_outline))) / res,
       type = "regular"
     )
 
@@ -99,8 +108,8 @@ surfaceGrid = function(obstacles, obstacles_height_field, res, offset = 0.01) {
   seg$seg_id = 1:nrow(seg)
 
   # Segments buffer
-  seg_b = rgeos::gBuffer(seg, width = offset, byid = TRUE)
-
+#  seg_b = rgeos::gBuffer(seg, width = offset, byid = TRUE)
+  seg_b = as(sf::st_buffer(sf::st_as_sf(seg), dist = offset), "Spatial")
   # Classify 'facade_az' per facade sample point
   facade_sample =
     SpatialPointsDataFrame(

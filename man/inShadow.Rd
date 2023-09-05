@@ -83,7 +83,8 @@ opar = par(mfrow = c(1, 3))
 
 # Ground level
 location = sp::spsample(
-  rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
+  # rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
+  as(sf::st_buffer(sf::st_as_sfc(sf::st_bbox(sf::st_as_sf(build))), dist = 20), "Spatial"),
   n = 80,
   type = "regular"
 )
@@ -209,7 +210,8 @@ plotGrid(pnt, color = c("yellow", "grey")[as.factor(pnt$shadow)], size = 0.5)
 
 # Automatically calculating 'solar_pos' using 'time' - Points
 location = sp::spsample(
-  rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
+  # rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
+  as(sf::st_buffer(sf::st_as_sfc(sf::st_bbox(sf::st_as_sf(build))), dist = 20), "Spatial"),
   n = 500,
   type = "regular"
 )

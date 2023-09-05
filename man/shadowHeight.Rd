@@ -73,7 +73,8 @@ For a correct geometric calculation, make sure that:\itemize{
 }
 \examples{
 # Single location
-location = rgeos::gCentroid(build)
+# location = rgeos::gCentroid(build)
+location = as(sf::st_centroid(sf::st_union(sf::st_as_sf(build))), "Spatial")
 location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
 solar_pos = suntools::solarpos(location_geo, time)
@@ -82,7 +83,8 @@ plot(location, add = TRUE)
 sun = shadow:::.sunLocation(location = location, sun_az = solar_pos[1,1], sun_elev = solar_pos[1,2])
 sun_ray = ray(from = location, to = sun)
 build_outline = as(build, "SpatialLinesDataFrame")
-inter = rgeos::gIntersection(build_outline, sun_ray)
+# inter = rgeos::gIntersection(build_outline, sun_ray)
+inter = as(sf::st_intersection(sf::st_as_sf(build_outline), sf::st_as_sf(sun_ray)), "Spatial")
 plot(sun_ray, add = TRUE, col = "yellow")
 plot(inter, add = TRUE, col = "red")
 shadowHeight(
@@ -105,7 +107,8 @@ shadowHeight(
 \dontrun{
 
 # Two points - three times
-location0 = rgeos::gCentroid(build)
+# location0 = rgeos::gCentroid(build)
+location0 = as(sf::st_centroid(sf::st_union(sf::st_as_sf(build))), "Spatial")
 location1 = raster::shift(location0, 0, -15)
 location2 = raster::shift(location0, -10, 20)
 locations = rbind(location1, location2)
