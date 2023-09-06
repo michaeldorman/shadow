@@ -19,7 +19,7 @@ This is a wrapper function around \code{suntools::solarpos}, adapted for accepti
 }
 \examples{
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-proj4string(build) = CRS("+init=epsg:32636")
+proj4string(build) = CRS("EPSG:32636")
 solarpos2(build, time)
 
 }

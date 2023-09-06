@@ -9,7 +9,7 @@
 #'
 #' @examples
 #' # ctr = rgeos::gCentroid(build)
-#' ctr = as(sf::st_centroid(sf::st_as_sf(build)), "Spatial")
+#' ctr = as(sf::st_centroid(sf::st_union(sf::st_geometry(sf::st_as_sf(build)))), "Spatial")
 #' angles = seq(0, 359, 20)
 #' sun = mapply(
 #'   shadow:::.sunLocation,

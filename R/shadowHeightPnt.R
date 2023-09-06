@@ -34,11 +34,11 @@
 
     # Intersections with buildings outline
 #    inter = rgeos::gIntersection(obstacles_outline, sun_ray)
-    inter = sf::st_intersection(sf::st_as_sf(location), sf::st_as_sf(sun))
+    inter = sf::st_intersection(sf::st_geometry(sf::st_as_sf(location)), sf::st_geometry(sf::st_as_sf(sun)))
 
     # No intersections means there is no shade
 #    if(is.null(inter)) shade_height = NA else {
-    if(nrow(inter) == 0L) shade_height = NA else {
+    if(length(inter) == 0L) shade_height = NA else {
 
       # If some of the intersections are lines
 #      if(is(inter, "SpatialCollections")) {

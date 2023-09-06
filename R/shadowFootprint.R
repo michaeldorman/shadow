@@ -47,6 +47,7 @@
 #' @importFrom sf st_length
 #' @importFrom sf st_convex_hull
 #' @importFrom sf st_union
+#' @importFrom sf st_geometry
 #' @importFrom methods as
 #' @name shadowFootprint
 
@@ -95,7 +96,7 @@ setMethod(
 
       # Discard zero-length segments
 #      seg = seg[rgeos::gLength(seg, byid = TRUE) > 0, ]
-      seg = seg[as(sf::st_length(sf::st_as_sf(seg)), "Spatial") > 0, ]
+      seg = seg[unclass(sf::st_length(sf::st_as_sf(seg))) > 0, ]
 
       # Shift segments
       seg_shifted = shadow::shiftAz(seg, az = solar_pos[1, 1], dist = -dist)
@@ -107,7 +108,7 @@ setMethod(
 
         f = sp::rbind.SpatialLines(seg[j, ], seg_shifted[j, ], makeUniqueIDs = TRUE)
         # f = rgeos::gConvexHull(f)
-        f = as(sf::st_convex_hull(sf::st_as_sf(f)), "Spatial")
+        f = as(sf::st_convex_hull(sf::st_geometry(sf::st_union(sf::st_as_sf(f)))), "Spatial")
         footprint[[j]] = f
 
       }
@@ -118,9 +119,9 @@ setMethod(
 #      footprint = rgeos::gUnaryUnion(footprint)
 #      footprint = rgeos::gBuffer(footprint, width = b)
 #      footprint_final[[i]] = rgeos::gUnion(footprint, obstacles[i, ])
-       footprint = sf::st_union(sf::st_as_sf(footprint))
+       footprint = sf::st_union(sf::st_geometry(sf::st_as_sf(footprint)))
        footprint = sf::st_buffer(footprint, dist = b)
-       footprint_final[[i]] = as(sf::st_union(footprint), "Spatial")
+       footprint_final[[i]] = as(sf::st_union(sf::st_geometry(footprint)), "Spatial")
 
       }
 

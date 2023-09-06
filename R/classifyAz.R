@@ -10,7 +10,7 @@
 #' plot(build_seg, col = rainbow(4)[cut(az, c(0, 90, 180, 270, 360))])
 #' raster::text(
 #'   # rgeos::gCentroid(build_seg, byid = TRUE),
-#'   as(sf::st_centroid(sf::st_as_sf(build_seg)), "Spatial"),
+#'   as(sf::st_centroid(sf::st_geometry(sf::st_as_sf(build_seg))), "Spatial"),
 #'   round(az)
 #' )
 #'

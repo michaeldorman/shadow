@@ -62,7 +62,7 @@
 
         # 2D mode - Intersections with 'obstacles' outline
 #        inter = rgeos::gIntersection(obstacles_outline, ray1)
-        inter = sf::st_intersection(sf::st_as_sf(obstacles_outline), sf::st_as_sf(ray1))
+        inter = sf::st_intersection(sf::st_geometry(sf::st_as_sf(obstacles_outline)), sf::st_geometry(sf::st_as_sf(ray1)))
       # }
 
       # if(dimensions(location) == 3) {
@@ -73,7 +73,7 @@
       # }
 
       # No intersections means 'SVF=1'
-      if(nrow(inter) == 0L) svf[i] = 1 else {
+      if(length(inter) == 0L) svf[i] = 1 else {
 
         # If some of the intersections are lines then convert to points
 #        if(is(inter, "SpatialCollections")) {
@@ -97,7 +97,9 @@
         }
 
         # Set row names
-        row.names(inter) = 1:nrow(inter)
+        
+        inter = as(as(inter, "Spatial"), "SpatialPoints")
+        row.names(inter) = 1:length(inter)
 
         # Extract 'obstacles' / 'surface' data for each intersection
         # if(dimensions(location) == 2) outline = obstacles_outline

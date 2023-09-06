@@ -46,7 +46,7 @@
 #' sun_ray = ray(from = location, to = sun)
 #' build_outline = as(build, "SpatialLinesDataFrame")
 #' # inter = rgeos::gIntersection(build_outline, sun_ray)
-#' inter = as(sf::st_intersection(sf::st_as_sf(build_outline), sf::st_as_sf(sun_ray)), "Spatial")
+#' inter = as(sf::st_intersection(sf::st_geometry(sf::st_as_sf(build_outline)), sf::st_as_sf(sun_ray)), "Spatial")
 #' plot(sun_ray, add = TRUE, col = "yellow")
 #' plot(inter, add = TRUE, col = "red")
 #' shadowHeight(
@@ -57,8 +57,8 @@
 #' )
 #'
 #' # Automatically calculating 'solar_pos' using 'time'
-#' proj4string(build) = CRS("+init=epsg:32636")
-#' proj4string(location) = CRS("+init=epsg:32636")
+#' proj4string(build) = CRS("EPSG:32636")
+#' proj4string(location) = CRS("EPSG:32636")
 #' shadowHeight(
 #'   location = location,
 #'   obstacles = build,
@@ -194,7 +194,7 @@ setMethod(
           solar_pos = solar_pos[col, , drop = FALSE]
         )
 #        intersection_w_footprint = rgeos::gIntersects(location, footprint, byid = TRUE)[1, ]
-        intersection_w_footprint = sf::st_intersects(sf::st_as_sf(location), sf::st_as_sf(footprint))
+        intersection_w_footprint = sf::st_intersects(sf::st_geometry(sf::st_as_sf(location)), sf::st_geometry(sf::st_as_sf(footprint)))
       }
 
       for(row in 1:nrow(result)) { # Locations
@@ -234,7 +234,7 @@ setMethod(
               solar_pos = solar_pos[col, , drop = FALSE]
             )
 #            intersection_w_footprint = rgeos::gIntersects(location, footprint, byid = TRUE)[1, ]
-            intersection_w_footprint = sf::st_intersects(sf::st_as_sf(location), sf::st_as_sf(footprint))
+            intersection_w_footprint = sf::st_intersects(sf::st_geometry(sf::st_as_sf(location)), sf::st_geometry(sf::st_as_sf(footprint)))
           }
 
           if(.Platform$OS.type == "unix" && !hasClus) {

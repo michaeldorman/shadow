@@ -12,7 +12,6 @@ Description: Functions for calculating: (1) shadow height, (2) logical shadow fl
 License: MIT + file LICENSE
 LazyData: TRUE
 Imports:
-    rgeos (>= 0.3),
     raster (>= 2.4-15),
     sf (>= 1.0.14),
     suntools,
@@ -26,8 +25,7 @@ Suggests:
     R.rsp,
     testthat,
     reshape2 (>= 1.4.2),
-    threejs,
-    rgdal
+    threejs
 VignetteBuilder: R.rsp
 URL: https://michaeldorman.github.io/shadow/, https://github.com/michaeldorman/shadow/
 BugReports: https://github.com/michaeldorman/shadow/issues/

@@ -18,7 +18,8 @@ Split lines or polygons to separate segments.
 \examples{
 seg = toSeg(build[1, ])
 plot(seg, col = sample(rainbow(length(seg))))
-raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
+# raster::text(rgeos::gCentroid(seg, byid = TRUE), 1:length(seg))
+raster::text(as(sf::st_centroid(sf::st_geometry(sf::st_as_sf(seg))), "Spatial"), 1:length(seg))
 
 # Other data structures
 toSeg(geometry(build)) # SpatialPolygons

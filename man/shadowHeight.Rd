@@ -84,7 +84,7 @@ sun = shadow:::.sunLocation(location = location, sun_az = solar_pos[1,1], sun_el
 sun_ray = ray(from = location, to = sun)
 build_outline = as(build, "SpatialLinesDataFrame")
 # inter = rgeos::gIntersection(build_outline, sun_ray)
-inter = as(sf::st_intersection(sf::st_as_sf(build_outline), sf::st_as_sf(sun_ray)), "Spatial")
+inter = as(sf::st_intersection(sf::st_geometry(sf::st_as_sf(build_outline)), sf::st_as_sf(sun_ray)), "Spatial")
 plot(sun_ray, add = TRUE, col = "yellow")
 plot(inter, add = TRUE, col = "red")
 shadowHeight(
@@ -95,8 +95,8 @@ shadowHeight(
 )
 
 # Automatically calculating 'solar_pos' using 'time'
-proj4string(build) = CRS("+init=epsg:32636")
-proj4string(location) = CRS("+init=epsg:32636")
+proj4string(build) = CRS("EPSG:32636")
+proj4string(location) = CRS("EPSG:32636")
 shadowHeight(
   location = location,
   obstacles = build,
