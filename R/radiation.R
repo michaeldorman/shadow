@@ -22,7 +22,7 @@
 #' @param obstacles A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline, inducing self- and mutual-shading on the grid points
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
 #' @param solar_pos A \code{matrix} with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different sun positions corresponding to the \code{solar_normal} and the \code{solar_diffuse} estimates. For example, if \code{solar_normal} and \code{solar_diffuse} refer to hourly measurements in a Typical Meteorological Year (TMY) dataset, then \code{solar_pos} needs to contain the corresponding hourly sun positions
-#' @param time When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{obstacles}, using function \code{maptools::solarpos}. In such case \code{obstacles} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object
+#' @param time When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{obstacles}, using function \code{suntools::solarpos}. In such case \code{obstacles} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object
 #' @param solar_normal Direct Normal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}. Must be a vector with the same number of elements as the number of rows in \code{solar_pos}
 #' @param solar_diffuse Diffuse Horizontal Irradiance (e.g. in Wh/m^2), at sun positions corresponding to \code{solar_pos}. Must be a vector with the same number of elements as the number of rows in \code{solar_pos}
 #' @param radius Effective search radius (in CRS units) for considering obstacles when calculating shadow and SVF. The default is to use a global search, i.e. \code{radius=Inf}. Using a smaller radius can be used to speed up the computation when working on large areas. Note that the search radius is not specific per grid point; instead, a buffer is applied on all grid points combined, then "dissolving" the individual buffers, so that exactly the same obstacles apply to all grid points
@@ -43,6 +43,9 @@
 #' }
 #' Each of the elements is a \code{matrix} with rows corresponding to \code{grid} points and columns corresponding to time steps in \code{solar_pos}, \code{solar_normal} and \code{solar_diffuse}
 #' @export
+#' @importFrom sf st_buffer
+#' @importFrom sf st_as_sf
+#' @importFrom methods as
 #'
 #' @examples
 #'
@@ -84,7 +87,7 @@
 #' rad2
 #'
 #' # Differences due to the fact that 'tmy' data come with their own
-#' # solar positions, not exactly matching those calulated using 'maptools::solarpos'
+#' # solar positions, not exactly matching those calulated using 'suntools::solarpos'
 #' rad1$direct - rad2$direct
 #' rad1$diffuse - rad2$diffuse
 #'
@@ -168,7 +171,8 @@ radiation = function(
 
   # Remove obstacles outside of search radius
   if(radius < Inf) {
-    b = rgeos::gBuffer(grid, width = radius)
+#    b = rgeos::gBuffer(grid, width = radius)
+    b = as(sf::st_buffer(sf::st_as_sf(grid), dist = radius), "Spatial")
     obstacles = obstacles[b, ]
   }
 

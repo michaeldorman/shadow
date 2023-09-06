@@ -20,7 +20,7 @@
 
 \item{solar_pos}{A \code{matrix} with one row and two columns; first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees)}
 
-\item{time}{When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{obstacles}, using function \code{maptools::solarpos}. In such case \code{obstacles} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object}
+\item{time}{When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{obstacles}, using function \code{suntools::solarpos}. In such case \code{obstacles} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object}
 
 \item{b}{Buffer size for shadow footprints of individual segments of a given polygon; used to eliminate minor internal holes in the resulting shadow polygon.}
 }
@@ -36,9 +36,9 @@ The calculation method was inspired by Morel Weisthal's MSc thesis at the Ben-Gu
 }
 \examples{
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-proj4string(build) = CRS("+init=epsg:32636")
+proj4string(build) = CRS("EPSG:32636")
 location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
-solar_pos = maptools::solarpos(location_geo, time)
+solar_pos = suntools::solarpos(location_geo, time)
 footprint1 =               ## Using 'solar_pos'
   shadowFootprint(
     obstacles = build,

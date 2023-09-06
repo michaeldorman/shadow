@@ -11,7 +11,8 @@
 #' build_shifted = shiftAz(build, az = s, dist = 2.5)
 #' plot(build)
 #' plot(build_shifted, add = TRUE, border = "red")
-#' raster::text(rgeos::gCentroid(build, byid = TRUE), s)
+#' # raster::text(rgeos::gCentroid(build, byid = TRUE), s)
+#' raster::text(as(sf::st_centroid(sf::st_geometry(sf::st_as_sf(build))), "Spatial"), s)
 #'
 #' @export
 

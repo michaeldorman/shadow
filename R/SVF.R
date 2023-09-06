@@ -28,7 +28,8 @@
 #'
 #' @examples
 #' ## Individual locations
-#' location0 = rgeos::gCentroid(build)
+#' # location0 = rgeos::gCentroid(build)
+#' location0 = as(sf::st_centroid(sf::st_union(sf::st_geometry(sf::st_as_sf(build)))), "Spatial")
 #' location1 = raster::shift(location0, 0, -15)
 #' location2 = raster::shift(location0, -10, 20)
 #' locations = rbind(location1, location2)
@@ -59,7 +60,8 @@
 #' plot(build, add = TRUE, border = "red")
 #'
 #' ## 3D points
-#' ctr = rgeos::gCentroid(build)
+#' # ctr = rgeos::gCentroid(build)
+#' ctr = as(sf::st_centroid(sf::st_union(sf::st_geometry(sf::st_as_sf(build)))), "Spatial")
 #' heights = seq(0, 28, 1)
 #' loc3d = data.frame(
 #'     x = coordinates(ctr)[, 1],
@@ -80,11 +82,14 @@
 #' ## Example from Erell et al. 2012 (p. 19 Fig. 1.2)
 #'
 #' # Geometry
-#' pol1 = rgeos::readWKT("POLYGON ((0 100, 1 100, 1 0, 0 0, 0 100))")
-#' pol2 = rgeos::readWKT("POLYGON ((2 100, 3 100, 3 0, 2 0, 2 100))")
+#' # pol1 = rgeos::readWKT("POLYGON ((0 100, 1 100, 1 0, 0 0, 0 100))")
+#' pol1 = as(sf::st_as_sfc("POLYGON ((0 100, 1 100, 1 0, 0 0, 0 100))"), "Spatial")
+#' # pol2 = rgeos::readWKT("POLYGON ((2 100, 3 100, 3 0, 2 0, 2 100))")
+#' pol2 = as(sf::st_as_sfc("POLYGON ((2 100, 3 100, 3 0, 2 0, 2 100))"), "Spatial")
 #' pol = sp::rbind.SpatialPolygons(pol1, pol2, makeUniqueIDs = TRUE)
 #' pol = sp::SpatialPolygonsDataFrame(pol, data.frame(h = c(1, 1)), match.ID = FALSE)
-#' pnt = rgeos::readWKT("POINT (1.5 50)")
+#' # pnt = rgeos::readWKT("POINT (1.5 50)")
+#' pnt = as(sf::st_as_sfc("POINT (1.5 50)"), "Spatial")
 #' plot(pol, col = "grey", xlim = c(0, 3), ylim = c(45, 55))
 #' plot(pnt, add = TRUE, col = "red")
 #'

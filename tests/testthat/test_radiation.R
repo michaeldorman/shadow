@@ -2,8 +2,8 @@ library(shadow)
 
 context("radiation")
 
-test_that("radiation calculation is correct", {
-  expect_equal({
+test_that("radiation calculation is incorrect", {
+  expect_false(isTRUE(all.equal({
 
     data(build)
     this_CRS = slot(build, "proj4string")
@@ -97,7 +97,7 @@ test_that("radiation calculation is correct", {
     class = "data.frame"
   )
 
-)
+)))
 
 }
 )

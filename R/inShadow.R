@@ -39,7 +39,8 @@
 #'
 #' # Ground level
 #' location = sp::spsample(
-#'   rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
+#'   # rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
+#'   as(sf::st_buffer(sf::st_as_sfc(sf::st_bbox(sf::st_as_sf(build))), dist = 20), "Spatial"),
 #'   n = 80,
 #'   type = "regular"
 #' )
@@ -165,7 +166,8 @@
 #'
 #' # Automatically calculating 'solar_pos' using 'time' - Points
 #' location = sp::spsample(
-#'   rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
+#'   # rgeos::gBuffer(rgeos::gEnvelope(build), width = 20),
+#'   as(sf::st_buffer(sf::st_as_sfc(sf::st_bbox(sf::st_as_sf(build))), dist = 20), "Spatial"),
 #'   n = 500,
 #'   type = "regular"
 #' )
@@ -182,6 +184,8 @@
 #' }
 #'
 #' @export
+#' @importFrom methods slot
+#' @importFrom methods "slot<-"
 #' @name inShadow
 
 NULL
@@ -310,7 +314,7 @@ setMethod(
         coords = cbind(coords, z = rep(0, nrow(coords)))
         location = sp::SpatialPoints(
           coords = coords,
-          proj4string = sp::CRS(sp::proj4string(location))
+          proj4string = slot(location, "proj4string")
         )
       }
       if(is(location, "SpatialPointsDataFrame")) {
@@ -319,7 +323,7 @@ setMethod(
         location = sp::SpatialPointsDataFrame(
           coords = coords,
           data = location@data,
-          proj4string = sp::CRS(sp::proj4string(location)),
+          proj4string = slot(location, "proj4string"),
           match.ID = FALSE
         )
       }
@@ -333,7 +337,7 @@ setMethod(
     # Point layer of unique ground locations
     pnt_unique = coord_unique
     coordinates(pnt_unique) = names(pnt_unique)[1:2]
-    proj4string(pnt_unique) = proj4string(location)
+    slot(pnt_unique, "proj4string") = slot(location, "proj4string")
 
     # Results matrix
     result = matrix(

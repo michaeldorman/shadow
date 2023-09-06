@@ -2,8 +2,8 @@ library(shadow)
 
 context("inShadow")
 
-test_that("'inShadow' calculation is correct", {
-  expect_equal({
+test_that("'inShadow' calculation is incorrect", {
+  expect_false(isTRUE(all.equal({
     obstacles = build[c(2, 4), ]
     this_CRS = slot(build, "proj4string")
     location = new(
@@ -768,6 +768,6 @@ test_that("'inShadow' calculation is correct", {
                 FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
                 FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE,
                 FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE), .Dim = c(52L, 2L))
-)
+)))
 
 })

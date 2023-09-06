@@ -9,7 +9,7 @@
 #' @param obstacles A \code{SpatialPolygonsDataFrame} object specifying the obstacles outline
 #' @param obstacles_height_field Name of attribute in \code{obstacles} with extrusion height for each feature
 #' @param solar_pos A \code{matrix} with one row and two columns; first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees)
-#' @param time When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{obstacles}, using function \code{maptools::solarpos}. In such case \code{obstacles} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object
+#' @param time When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{obstacles}, using function \code{suntools::solarpos}. In such case \code{obstacles} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object
 
 #' @param b Buffer size for shadow footprints of individual segments of a given polygon; used to eliminate minor internal holes in the resulting shadow polygon.
 #'
@@ -21,9 +21,9 @@
 #'
 #' @examples
 #' time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-#' proj4string(build) = CRS("+init=epsg:32636")
+#' proj4string(build) = CRS("EPSG:32636")
 #' location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
-#' solar_pos = maptools::solarpos(location_geo, time)
+#' solar_pos = suntools::solarpos(location_geo, time)
 #' footprint1 =               ## Using 'solar_pos'
 #'   shadowFootprint(
 #'     obstacles = build,
@@ -42,6 +42,13 @@
 #' plot(build, add = TRUE, col = "darkgrey")
 #'
 #' @export
+#' @importFrom sf st_buffer
+#' @importFrom sf st_as_sf
+#' @importFrom sf st_length
+#' @importFrom sf st_convex_hull
+#' @importFrom sf st_union
+#' @importFrom sf st_geometry
+#' @importFrom methods as
 #' @name shadowFootprint
 
 NULL
@@ -88,7 +95,8 @@ setMethod(
       seg = shadow::toSeg(obstacles[i, ])
 
       # Discard zero-length segments
-      seg = seg[rgeos::gLength(seg, byid = TRUE) > 0, ]
+#      seg = seg[rgeos::gLength(seg, byid = TRUE) > 0, ]
+      seg = seg[unclass(sf::st_length(sf::st_as_sf(seg))) > 0, ]
 
       # Shift segments
       seg_shifted = shadow::shiftAz(seg, az = solar_pos[1, 1], dist = -dist)
@@ -99,7 +107,8 @@ setMethod(
       for(j in 1:length(seg)) {
 
         f = sp::rbind.SpatialLines(seg[j, ], seg_shifted[j, ], makeUniqueIDs = TRUE)
-        f = rgeos::gConvexHull(f)
+        # f = rgeos::gConvexHull(f)
+        f = as(sf::st_convex_hull(sf::st_geometry(sf::st_union(sf::st_as_sf(f)))), "Spatial")
         footprint[[j]] = f
 
       }
@@ -107,9 +116,12 @@ setMethod(
       # Bind footprings of individual segments of one 'obstacles' feature
       footprint$makeUniqueIDs = TRUE
       footprint = do.call(sp::rbind.SpatialPolygons, footprint)
-      footprint = rgeos::gUnaryUnion(footprint)
-      footprint = rgeos::gBuffer(footprint, width = b)
-      footprint_final[[i]] = rgeos::gUnion(footprint, obstacles[i, ])
+#      footprint = rgeos::gUnaryUnion(footprint)
+#      footprint = rgeos::gBuffer(footprint, width = b)
+#      footprint_final[[i]] = rgeos::gUnion(footprint, obstacles[i, ])
+       footprint = sf::st_union(sf::st_geometry(sf::st_as_sf(footprint)))
+       footprint = sf::st_buffer(footprint, dist = b)
+       footprint_final[[i]] = as(sf::st_union(sf::st_geometry(footprint)), "Spatial")
 
       }
 

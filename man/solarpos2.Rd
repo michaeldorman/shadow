@@ -15,11 +15,11 @@ solarpos2(location, time)
 A \code{matrix} with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different times corresponding to \code{time}
 }
 \description{
-This is a wrapper function around \code{maptools::solarpos}, adapted for accepting location as a \code{Spatial*} layer or a \code{Raster}. The function calculates layer centroid, transforms it to lon-lat, then calls \code{maptools::solarpos} to calculate solar position(s) for that point at the given time(s)
+This is a wrapper function around \code{suntools::solarpos}, adapted for accepting location as a \code{Spatial*} layer or a \code{Raster}. The function calculates layer centroid, transforms it to lon-lat, then calls \code{suntools::solarpos} to calculate solar position(s) for that point at the given time(s)
 }
 \examples{
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-proj4string(build) = CRS("+init=epsg:32636")
+proj4string(build) = CRS("EPSG:32636")
 solarpos2(build, time)
 
 }

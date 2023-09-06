@@ -37,7 +37,7 @@
 
 \item{solar_pos}{A \code{matrix} with two columns representing sun position(s); first column is the solar azimuth (in decimal degrees from North), second column is sun elevation (in decimal degrees); rows represent different positions (e.g. at different times of day)}
 
-\item{time}{When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{location}, using function \code{maptools::solarpos}. In such case \code{location} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object}
+\item{time}{When \code{solar_pos} is unspecified, \code{time} can be passed to automatically calculate \code{solar_pos} based on the time and the centroid of \code{location}, using function \code{suntools::solarpos}. In such case \code{location} must have a defined CRS (not \code{NA}). The \code{time} value must be a \code{POSIXct} or \code{POSIXlt} object}
 
 \item{b}{Buffer size when joining intersection points with building outlines, to determine intersection height}
 
@@ -73,16 +73,19 @@ For a correct geometric calculation, make sure that:\itemize{
 }
 \examples{
 # Single location
-location = rgeos::gCentroid(build)
+# location = rgeos::gCentroid(build)
+location = as(sf::st_centroid(sf::st_union(sf::st_as_sf(build))), "Spatial")
 location_geo = matrix(c(34.7767978098526, 31.9665936050395), ncol = 2)
 time = as.POSIXct("2004-12-24 13:30:00", tz = "Asia/Jerusalem")
-solar_pos = maptools::solarpos(location_geo, time)
+solar_pos = suntools::solarpos(location_geo, time)
 plot(build, main = time)
 plot(location, add = TRUE)
 sun = shadow:::.sunLocation(location = location, sun_az = solar_pos[1,1], sun_elev = solar_pos[1,2])
 sun_ray = ray(from = location, to = sun)
 build_outline = as(build, "SpatialLinesDataFrame")
-inter = rgeos::gIntersection(build_outline, sun_ray)
+# inter = rgeos::gIntersection(build_outline, sun_ray)
+inter = as(sf::st_intersection(sf::st_geometry(sf::st_as_sf(build_outline)),
+  sf::st_as_sf(sun_ray)), "Spatial")
 plot(sun_ray, add = TRUE, col = "yellow")
 plot(inter, add = TRUE, col = "red")
 shadowHeight(
@@ -93,8 +96,8 @@ shadowHeight(
 )
 
 # Automatically calculating 'solar_pos' using 'time'
-proj4string(build) = CRS("+init=epsg:32636")
-proj4string(location) = CRS("+init=epsg:32636")
+proj4string(build) = CRS("EPSG:32636")
+proj4string(location) = CRS("EPSG:32636")
 shadowHeight(
   location = location,
   obstacles = build,
@@ -105,7 +108,8 @@ shadowHeight(
 \dontrun{
 
 # Two points - three times
-location0 = rgeos::gCentroid(build)
+# location0 = rgeos::gCentroid(build)
+location0 = as(sf::st_centroid(sf::st_union(sf::st_as_sf(build))), "Spatial")
 location1 = raster::shift(location0, 0, -15)
 location2 = raster::shift(location0, -10, 20)
 locations = rbind(location1, location2)
@@ -115,7 +119,7 @@ shadowHeight(                            ## Using 'solar_pos'
   location = locations,
   obstacles = build,
   obstacles_height_field = "BLDG_HT",
-  solar_pos = maptools::solarpos(location_geo, times)
+  solar_pos = suntools::solarpos(location_geo, times)
 )
 shadowHeight(                            ## Using 'time'
   location = locations,
