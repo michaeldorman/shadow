@@ -46,7 +46,8 @@
 #' sun_ray = ray(from = location, to = sun)
 #' build_outline = as(build, "SpatialLinesDataFrame")
 #' # inter = rgeos::gIntersection(build_outline, sun_ray)
-#' inter = as(sf::st_intersection(sf::st_geometry(sf::st_as_sf(build_outline)), sf::st_as_sf(sun_ray)), "Spatial")
+#' inter = as(sf::st_intersection(sf::st_geometry(sf::st_as_sf(build_outline)),
+#'   sf::st_as_sf(sun_ray)), "Spatial")
 #' plot(sun_ray, add = TRUE, col = "yellow")
 #' plot(inter, add = TRUE, col = "red")
 #' shadowHeight(
