@@ -3,7 +3,7 @@ library(shadow)
 context("SVF")
 
 test_that("SVF calculation is correct", {
-  expect_equal({
+  expect_equal(setNames({
     data(build)
 #    location0 = rgeos::gCentroid(build)
     location0 = as(sf::st_geometry(sf::st_centroid(sf::st_union(sf::st_as_sf(build)))), "Spatial")
@@ -12,10 +12,10 @@ test_that("SVF calculation is correct", {
       obstacles = build,
       obstacles_height_field = "BLDG_HT"
       )
-  },
+  }, NULL),
   0.39597205126485
 )
-  expect_equal({
+  expect_equal(setNames({
     data(build)
 #    location0 = rgeos::gCentroid(build)
     location0 = as(sf::st_geometry(sf::st_centroid(sf::st_union(sf::st_as_sf(build)))), "Spatial")
@@ -25,10 +25,10 @@ test_that("SVF calculation is correct", {
       obstacles = build,
       obstacles_height_field = "BLDG_HT"
     )
-  },
+  }, NULL),
   0.139491688314422
   )
-  expect_equal({
+  expect_equal(setNames({
     data(build)
 #    location0 = rgeos::gCentroid(build)
     location0 = as(sf::st_geometry(sf::st_centroid(sf::st_union(sf::st_as_sf(build)))), "Spatial")
@@ -38,7 +38,7 @@ test_that("SVF calculation is correct", {
       obstacles = build,
       obstacles_height_field = "BLDG_HT"
     )
-  },
+  }, NULL),
   0.770505253636759
   )
 }
